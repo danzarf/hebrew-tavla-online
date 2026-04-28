@@ -935,6 +935,14 @@ function applyShared(g){
     board:(g.board||Array(25).fill(0)).slice?g.board.slice():Object.assign(Array(25).fill(0),g.board||{}),
     bar:g.bar||{white:0,black:0},off:g.off||{white:0,black:0},humanColor:g.humanColor||WHITE,computerColor:g.computerColor||BLACK,currentActor:g.currentActor||'human',status:g.status||'waitingRoll',difficulty:g.difficulty||'medium',diceMode:g.diceMode||'manual',dice:g.dice||[0,0],remaining:g.remaining||[],freeMode:!!g.freeMode,doubleExtra:!!g.doubleExtra,chosenDouble:!!g.chosenDouble,log:g.log||[],doubleStreak:g.doubleStreak||{human:0,computer:0},gameOver:!!g.gameOver,lastChance:g.lastChance||null
   });
+
+  // Fix: when player 2 receives the first online game state from Firebase,
+  // close the ready/lobby modal so the synced board is visible on both sides.
+  if(state.status && state.status !== 'setup'){
+    els.startModal.classList.remove('show');
+    if(els.roomLobby)els.roomLobby.style.display='none';
+  }
+
   state.selected=null;state.legalChoices=[];state.undoStack=[];state.animating=false;renderAll();renderLog();renderLastChanceUI();
   clearTimeout(state.autoTimer);
   if(state.status==='waitingRoll'&&state.currentActor===localActor()&&state.diceMode==='auto'&&!state.gameOver)state.autoTimer=setTimeout(()=>rollForCurrent(),700);
