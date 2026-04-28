@@ -105,6 +105,11 @@ button,select,input{font-family:inherit}
 .playerLine{display:flex;justify-content:space-between;gap:8px;align-items:center;margin:6px 0;padding:7px 9px;border-radius:12px;background:rgba(255,255,255,.055)}
 .playerLine b{color:#fff}
 
+
+/* fixes: keep borne-off trays outside the playable board so they do not block checkers */
+.board{overflow:visible}
+.offTray{left:calc(-1 * (clamp(48px,5.7vw,78px) + clamp(10px,1.2vw,18px)))}
+@media (max-width:540px){.offTray{left:-46px}}
 </style>
 </head>
 <body>
@@ -724,10 +729,20 @@ function endTurn(forceSwitch=false){
   if(extra){addLog('דאבל רגיל — מקבלים עוד תור','special');showMessage(`${actorName(actor)} מקבל עוד תור`,1500);syncShared('extraTurn');setTimeout(()=>startTurn(actor),900);}
   else{syncShared('endTurn');setTimeout(()=>startTurn(otherActor(actor)),550);}
 }
-function triggerSideSwap(){
-  const actor=state.currentActor;state.doubleStreak={human:0,computer:0};state.humanColor=otherColor(state.humanColor);state.computerColor=otherColor(state.computerColor);state.remaining=[];state.freeMode=false;state.doubleExtra=false;state.chosenDouble=false;state.selected=null;state.legalChoices=[];state.status='swap';
-  addLog('3 דאבלים ברצף — הצדדים מתחלפים!','special');showMessage('3 דאבלים ברצף — הצדדים מתחלפים!',2600);els.board.classList.add('swapPulse');playSound('swap');renderAll();
-  syncShared('sideSwap');setTimeout(()=>{els.board.classList.remove('swapPulse');startTurn(otherActor(actor));},1700);
+async function triggerSideSwap(){
+  const actor=state.currentActor;
+  const next=otherActor(actor);
+  state.doubleStreak={human:0,computer:0};
+  state.humanColor=otherColor(state.humanColor);
+  state.computerColor=otherColor(state.computerColor);
+  state.remaining=[];state.freeMode=false;state.doubleExtra=false;state.chosenDouble=false;state.selected=null;state.legalChoices=[];state.undoStack=[];state.status='swap';
+  addLog('3 דאבלים ברצף — הצדדים מתחלפים!','special');
+  showMessage('3 דאבלים ברצף — הצדדים מתחלפים!',2600);
+  els.board.classList.add('swapPulse');playSound('swap');renderAll();
+  await syncShared('sideSwap');
+  await sleep(1700);
+  els.board.classList.remove('swapPulse');
+  startTurn(next);
 }
 function chooseAiSequence(){
   const color=state.computerColor;
@@ -943,7 +958,8 @@ function applyShared(g){
     if(els.roomLobby)els.roomLobby.style.display='none';
   }
 
-  state.selected=null;state.legalChoices=[];state.undoStack=[];state.animating=false;renderAll();renderLog();renderLastChanceUI();
+  const keepLocalUndo=(g.currentActor===localActor()&&g.status==='humanMoving')?state.undoStack.slice():[];
+  state.selected=null;state.legalChoices=[];state.undoStack=keepLocalUndo;state.animating=false;renderAll();renderLog();renderLastChanceUI();
   clearTimeout(state.autoTimer);
   if(state.status==='waitingRoll'&&state.currentActor===localActor()&&state.diceMode==='auto'&&!state.gameOver)state.autoTimer=setTimeout(()=>rollForCurrent(),700);
   state.applyingRemote=false;
