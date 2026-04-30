@@ -107,6 +107,10 @@ button,select,input{font-family:inherit}
 @media (max-width:560px){#doubleModal .doubleButtons{grid-template-columns:repeat(3,1fr) !important}.boardWrap{margin-left:42px}}
 .modeGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}.choiceBtn{border:1px solid rgba(255,231,176,.22);background:rgba(255,255,255,.06);color:#ffe7b0;border-radius:18px;padding:14px;cursor:pointer;text-align:center;font-weight:900;box-shadow:inset 0 1px 0 rgba(255,255,255,.08)}.choiceBtn.active{background:linear-gradient(180deg,rgba(246,199,108,.25),rgba(185,121,44,.18));border-color:rgba(246,199,108,.55);color:#fff}.subPanel{display:none;margin-top:12px}.subPanel.show{display:block}.roomBox{border:1px solid rgba(94,227,154,.28);background:rgba(94,227,154,.08);border-radius:18px;padding:12px;margin-top:12px}.roomCode{font-size:30px;letter-spacing:6px;font-weight:900;color:#fff;text-shadow:0 0 16px rgba(94,227,154,.45);direction:ltr}.onlineHint{font-size:13px;opacity:.88;line-height:1.45}.reactions{display:grid;grid-template-columns:repeat(2,1fr);gap:6px}.reactions button{padding:8px 6px;font-size:12px;border-radius:12px}.toastReaction{position:fixed;top:18%;left:50%;transform:translateX(-50%) scale(.92);z-index:700;background:linear-gradient(180deg,#fff8df,#f2bf59);color:#25130a;border-radius:22px;padding:16px 24px;font-size:24px;font-weight:900;box-shadow:0 18px 45px rgba(0,0,0,.45);opacity:0;transition:.25s;pointer-events:none;text-align:center}.toastReaction.show{opacity:1;transform:translateX(-50%) scale(1)}.playerLine{display:flex;justify-content:space-between;gap:8px;align-items:center;margin:6px 0;padding:7px 9px;border-radius:12px;background:rgba(255,255,255,.055)}.playerLine b{color:#fff}.smallMuted{font-size:12px;opacity:.76}
 
+
+.rulesQuickCard h3{display:flex;align-items:center;gap:8px;margin-bottom:10px}.rulesQuickCard h3:before{content:"📜"}.quickRules{display:grid;gap:7px}.quickRule{display:grid;grid-template-columns:82px 1fr;align-items:center;gap:8px;padding:8px 9px;border-radius:13px;background:linear-gradient(90deg,rgba(246,199,108,.15),rgba(255,255,255,.045));border:1px solid rgba(246,199,108,.18);box-shadow:inset 0 1px 0 rgba(255,255,255,.05)}.quickRule span{direction:ltr;text-align:center;font-weight:900;color:#24130b;background:linear-gradient(180deg,#ffe7a8,#c98534);border-radius:10px;padding:4px 6px;box-shadow:0 3px 0 rgba(75,39,16,.75)}.quickRule b{font-size:13px;color:#ffeec5;text-shadow:0 1px 2px #000}.hiddenGameState{display:none !important}.modeGrid{grid-template-columns:repeat(3,1fr)}.rulesIntro{padding:12px 14px;margin:8px 0 12px;border-radius:16px;background:rgba(94,227,154,.09);border:1px solid rgba(94,227,154,.24);color:#fff3cf;font-weight:800;line-height:1.55}.rulesLongList{display:grid;gap:9px;text-align:right;max-height:min(50vh,430px);overflow:auto;padding:2px}.ruleLong{display:grid;grid-template-columns:34px 1fr;gap:10px;align-items:start;padding:10px;border-radius:16px;background:rgba(255,255,255,.055);border:1px solid rgba(255,231,176,.14)}.ruleLong>span{width:30px;height:30px;display:flex;align-items:center;justify-content:center;border-radius:10px;background:linear-gradient(180deg,#ffe7a8,#c98534);color:#24130b;font-weight:900;box-shadow:0 3px 0 #6b3a18}.ruleLong b{display:block;color:#fff;font-size:15px;margin-bottom:4px}.ruleLong p{margin:0 0 4px;color:#ffe7b0;font-size:13px;line-height:1.35}.ruleLong em{display:block;color:#9ff0bf;font-style:normal;font-size:12px;line-height:1.25}@media (max-width:620px){.modeGrid{grid-template-columns:1fr}.quickRule{grid-template-columns:72px 1fr}.rulesLongList{max-height:45vh}}
+#doubleModal .modal{width:min(320px,88vw) !important}#doubleModal .modal h2{font-size:18px !important}#doubleModal .doubleButtons button{font-size:13px !important;padding:6px 4px !important}
+
 </style>
 </head>
 <body>
@@ -157,16 +161,24 @@ button,select,input{font-family:inherit}
           <button id="newBtn2" class="btn dark">משחק חדש</button>
         </div>
       </div>
-      <div class="card">
-        <h3>מצב המשחק</h3>
-        <div class="infoGrid">
-          <div class="miniInfo"><b>רמת קושי</b><span id="difficultyInfo">—</span></div>
-          <div class="miniInfo"><b>גלגול</b><span id="modeInfo">—</span></div>
-          <div class="miniInfo"><b>בר</b><span id="barInfo">—</span></div>
-          <div class="miniInfo"><b>אבנים שהוצאו</b><span id="offInfo">—</span></div>
+      <div class="card rulesQuickCard">
+        <h3>חוקים מיוחדים</h3>
+        <div class="quickRules">
+          <div class="quickRule"><span>1–2</span><b>מפסידים תור</b></div>
+          <div class="quickRule"><span>דאבל</span><b>4 מהלכים + עוד תור</b></div>
+          <div class="quickRule"><span>3 דאבלים</span><b>מחליפים צדדים</b></div>
+          <div class="quickRule"><span>4–5</span><b>בוחרים דאבל</b></div>
+          <div class="quickRule"><span>5–6</span><b>2 מהלכים חופשיים</b></div>
+          <div class="quickRule"><span>ירושלמי</span><b>המפסיד יכול לגנוב ניצחון</b></div>
         </div>
-        <div class="miniInfo" style="margin-top:8px"><b>מהלכים שנותרו</b><div id="remainingMoves" class="movesLeft"></div></div>
-        <div id="countdownInfo" class="miniInfo" style="margin-top:8px;display:none"><b>טיימר</b><span id="countdownText">—</span></div>
+        <div class="hiddenGameState" aria-hidden="true">
+          <span id="difficultyInfo">—</span>
+          <span id="modeInfo">—</span>
+          <span id="barInfo">—</span>
+          <span id="offInfo">—</span>
+          <div id="remainingMoves" class="movesLeft"></div>
+          <div id="countdownInfo" style="display:none"><span id="countdownText">—</span></div>
+        </div>
       </div>
       <div class="card" id="reactionCard">
         <h3>תגובות מהירות</h3>
@@ -194,6 +206,7 @@ button,select,input{font-family:inherit}
     <div class="modeGrid">
       <button id="modeComputerBtn" class="choiceBtn active">🤖 לשחק מול מחשב</button>
       <button id="modeFriendBtn" class="choiceBtn">👥 לשחק מול חבר</button>
+      <button id="modeRulesBtn" class="choiceBtn">📜 חוקים</button>
     </div>
     <div id="computerPanel" class="subPanel show">
       <div class="formRow">
@@ -243,6 +256,20 @@ button,select,input{font-family:inherit}
         <div id="roomPlayers"></div>
         <button id="readyBtn" class="btn" style="width:100%;margin-top:8px">✅ אני מוכן</button>
         <div id="roomStatusText" class="onlineHint" style="margin-top:8px">מחכים לשחקן נוסף...</div>
+      </div>
+    </div>
+    <div id="rulesPanel" class="subPanel">
+      <div class="rulesIntro">
+        זה כמו ששבש רגיל, רק עם כמה חוקים טורקיים שמוסיפים בלגן, מזל ומהפכים.
+        אי אפשר לדעת מי באמת מנצח עד הקובייה האחרונה.
+      </div>
+      <div class="rulesLongList">
+        <div class="ruleLong"><span>1</span><div><b>1–2 — מפסידים תור</b><p>אם יוצא 1–2 או 2–1, לא מזיזים כלום והתור עובר ליריב.</p><em>דוגמה: יצא 2–1 → נגמר התור.</em></div></div>
+        <div class="ruleLong"><span>2</span><div><b>דאבל רגיל — 4 מהלכים + עוד תור</b><p>דאבל אמיתי כמו 3–3 או 6–6 נותן 4 מהלכים, ואחריהם עוד תור מלא.</p><em>דוגמה: 4–4 → ארבעה צעדים של 4 ואז מגלגלים שוב.</em></div></div>
+        <div class="ruleLong"><span>3</span><div><b>3 דאבלים ברצף — מחליפים צדדים</b><p>אם אותו שחקן מוציא 3 דאבלים רצוף, השליטה בצדדים מתחלפת.</p><em>דוגמה: היית שחור? עכשיו אתה משחק את הלבן.</em></div></div>
+        <div class="ruleLong"><span>4</span><div><b>4–5 — בוחרים דאבל</b><p>אם יוצא 4–5 או 5–4, בוחרים איזה דאבל לשחק מ־1–1 עד 6–6.</p><em>חשוב: הדאבל הנבחר לא נותן עוד תור.</em></div></div>
+        <div class="ruleLong"><span>5</span><div><b>5–6 — שני מהלכים חופשיים</b><p>מקבלים 2 מהלכים לכל מקום חוקי, קדימה או אחורה, עם אותה אבן או שתי אבנים.</p><em>אם יש אבן אכולה — קודם מכניסים אותה כרגיל.</em></div></div>
+        <div class="ruleLong"><span>6</span><div><b>ירושלמי — הזדמנות אחרונה</b><p>בסוף המשחק המפסיד בוחר 2 מספרים, והמנצח זורק קוביות.</p><em>אם יצא בדיוק מה שהמפסיד בחר — המפסיד גונב ניצחון.</em></div></div>
       </div>
     </div>
   </div>
@@ -306,7 +333,7 @@ const els={
   countdownInfo:$('#countdownInfo'),countdownText:$('#countdownText'),log:$('#log'),barWhite:$('#barWhite'),barBlack:$('#barBlack'),
   offWhite:$('#offWhite'),offBlack:$('#offBlack'),startModal:$('#startModal'),startBtn:$('#startBtn'),difficultySelect:$('#difficultySelect'),diceModeSelect:$('#diceModeSelect'),
   doubleModal:$('#doubleModal'),doubleButtons:$('#doubleButtons'),lastChanceModal:$('#lastChanceModal'),lastChanceText:$('#lastChanceText'),chanceA:$('#chanceA'),chanceB:$('#chanceB'),chanceBtn:$('#chanceBtn'),
-  modeComputerBtn:$('#modeComputerBtn'),modeFriendBtn:$('#modeFriendBtn'),computerPanel:$('#computerPanel'),onlinePanel:$('#onlinePanel'),playerNameInput:$('#playerNameInput'),onlineDiceModeSelect:$('#onlineDiceModeSelect'),createRoomBtn:$('#createRoomBtn'),joinRoomBtn:$('#joinRoomBtn'),joinCodeInput:$('#joinCodeInput'),roomLobby:$('#roomLobby'),roomCodeDisplay:$('#roomCodeDisplay'),roomPlayers:$('#roomPlayers'),readyBtn:$('#readyBtn'),roomStatusText:$('#roomStatusText'),reactionToast:$('#reactionToast'),reactionCard:$('#reactionCard')
+  modeComputerBtn:$('#modeComputerBtn'),modeFriendBtn:$('#modeFriendBtn'),modeRulesBtn:$('#modeRulesBtn'),computerPanel:$('#computerPanel'),onlinePanel:$('#onlinePanel'),rulesPanel:$('#rulesPanel'),playerNameInput:$('#playerNameInput'),onlineDiceModeSelect:$('#onlineDiceModeSelect'),createRoomBtn:$('#createRoomBtn'),joinRoomBtn:$('#joinRoomBtn'),joinCodeInput:$('#joinCodeInput'),roomLobby:$('#roomLobby'),roomCodeDisplay:$('#roomCodeDisplay'),roomPlayers:$('#roomPlayers'),readyBtn:$('#readyBtn'),roomStatusText:$('#roomStatusText'),reactionToast:$('#reactionToast'),reactionCard:$('#reactionCard')
 };
 const state={
   board:Array(25).fill(0),bar:{white:0,black:0},off:{white:0,black:0},
@@ -886,8 +913,9 @@ function setupEvents(){
   els.startBtn.addEventListener('click',newGameFromModal);els.newBtn.addEventListener('click',resetForNewGame);els.newBtn2.addEventListener('click',resetForNewGame);
   els.rollBtn.addEventListener('click',buttonRoll);els.diceDock.addEventListener('click',buttonRoll);els.undoBtn.addEventListener('click',undo);els.endBtn.addEventListener('click',()=>{if(state.currentActor===localActor()&&state.status==='humanMoving')endTurn()});
   els.chanceBtn.addEventListener('click',lastChanceButton);
-  els.modeComputerBtn.addEventListener('click',()=>{els.modeComputerBtn.classList.add('active');els.modeFriendBtn.classList.remove('active');els.computerPanel.classList.add('show');els.onlinePanel.classList.remove('show')});
-  els.modeFriendBtn.addEventListener('click',()=>{els.modeFriendBtn.classList.add('active');els.modeComputerBtn.classList.remove('active');els.onlinePanel.classList.add('show');els.computerPanel.classList.remove('show')});
+  els.modeComputerBtn.addEventListener('click',()=>{els.modeComputerBtn.classList.add('active');els.modeFriendBtn.classList.remove('active');els.modeRulesBtn.classList.remove('active');els.computerPanel.classList.add('show');els.onlinePanel.classList.remove('show');els.rulesPanel.classList.remove('show')});
+  els.modeFriendBtn.addEventListener('click',()=>{els.modeFriendBtn.classList.add('active');els.modeComputerBtn.classList.remove('active');els.modeRulesBtn.classList.remove('active');els.onlinePanel.classList.add('show');els.computerPanel.classList.remove('show');els.rulesPanel.classList.remove('show')});
+  els.modeRulesBtn.addEventListener('click',()=>{els.modeRulesBtn.classList.add('active');els.modeComputerBtn.classList.remove('active');els.modeFriendBtn.classList.remove('active');els.rulesPanel.classList.add('show');els.computerPanel.classList.remove('show');els.onlinePanel.classList.remove('show')});
   els.createRoomBtn.addEventListener('click',createRoom);els.joinRoomBtn.addEventListener('click',joinRoom);els.readyBtn.addEventListener('click',toggleReady);
   document.querySelectorAll('.reactBtn').forEach(b=>b.addEventListener('click',()=>sendReaction(b.dataset.text)));
 }
