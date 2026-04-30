@@ -108,19 +108,11 @@ button,select,input{font-family:inherit}
 .modeGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}.choiceBtn{border:1px solid rgba(255,231,176,.22);background:rgba(255,255,255,.06);color:#ffe7b0;border-radius:18px;padding:14px;cursor:pointer;text-align:center;font-weight:900;box-shadow:inset 0 1px 0 rgba(255,255,255,.08)}.choiceBtn.active{background:linear-gradient(180deg,rgba(246,199,108,.25),rgba(185,121,44,.18));border-color:rgba(246,199,108,.55);color:#fff}.subPanel{display:none;margin-top:12px}.subPanel.show{display:block}.roomBox{border:1px solid rgba(94,227,154,.28);background:rgba(94,227,154,.08);border-radius:18px;padding:12px;margin-top:12px}.roomCode{font-size:30px;letter-spacing:6px;font-weight:900;color:#fff;text-shadow:0 0 16px rgba(94,227,154,.45);direction:ltr}.onlineHint{font-size:13px;opacity:.88;line-height:1.45}.reactions{display:grid;grid-template-columns:repeat(2,1fr);gap:6px}.reactions button{padding:8px 6px;font-size:12px;border-radius:12px}.toastReaction{position:fixed;top:18%;left:50%;transform:translateX(-50%) scale(.92);z-index:700;background:linear-gradient(180deg,#fff8df,#f2bf59);color:#25130a;border-radius:22px;padding:16px 24px;font-size:24px;font-weight:900;box-shadow:0 18px 45px rgba(0,0,0,.45);opacity:0;transition:.25s;pointer-events:none;text-align:center}.toastReaction.show{opacity:1;transform:translateX(-50%) scale(1)}.playerLine{display:flex;justify-content:space-between;gap:8px;align-items:center;margin:6px 0;padding:7px 9px;border-radius:12px;background:rgba(255,255,255,.055)}.playerLine b{color:#fff}.smallMuted{font-size:12px;opacity:.76}
 
 
-/* תיקון סופי: מגשי הוצאה + Pip Count מחוץ ללוח, בלי לחסום אבנים */
-.board{overflow:visible !important}
-.boardPanel{overflow:visible !important}
-.boardWrap{margin-left:clamp(62px,7.4vw,106px) !important}
-.offTray{left:calc(-1 * (clamp(48px,5.7vw,78px) + clamp(14px,1.55vw,26px))) !important;z-index:32 !important;pointer-events:auto !important}
-.pipCounter{left:calc(-1 * (clamp(48px,5.7vw,78px) + clamp(14px,1.55vw,26px))) !important;z-index:33 !important}
-.pipCounter.black{top:calc(clamp(22px,3vw,38px) + clamp(84px,17vh,168px) + 8px) !important}
-.pipCounter.white{bottom:calc(clamp(22px,3vw,38px) + clamp(84px,17vh,168px) + 8px) !important}
-@media (max-width:900px){.boardWrap{margin-left:clamp(50px,8.6vw,82px) !important}.offTray,.pipCounter{left:calc(-1 * (clamp(48px,5.7vw,78px) + 12px)) !important}}
-@media (max-width:540px){.boardWrap{margin-left:50px !important}.offTray{left:-48px !important}.pipCounter{left:-48px !important;width:42px !important;height:30px !important;font-size:16px !important}.pipCounter.black{top:calc(78px + clamp(22px,3vw,38px) + 6px) !important}.pipCounter.white{bottom:calc(78px + clamp(22px,3vw,38px) + 6px) !important}}
+.rulesQuickCard h3{display:flex;align-items:center;gap:8px;margin-bottom:10px}.rulesQuickCard h3:before{content:"📜"}.quickRules{display:grid;gap:7px}.quickRule{display:grid;grid-template-columns:82px 1fr;align-items:center;gap:8px;padding:8px 9px;border-radius:13px;background:linear-gradient(90deg,rgba(246,199,108,.15),rgba(255,255,255,.045));border:1px solid rgba(246,199,108,.18);box-shadow:inset 0 1px 0 rgba(255,255,255,.05)}.quickRule span{direction:ltr;text-align:center;font-weight:900;color:#24130b;background:linear-gradient(180deg,#ffe7a8,#c98534);border-radius:10px;padding:4px 6px;box-shadow:0 3px 0 rgba(75,39,16,.75)}.quickRule b{font-size:13px;color:#ffeec5;text-shadow:0 1px 2px #000}.hiddenGameState{display:none !important}.modeGrid{grid-template-columns:repeat(3,1fr)}.rulesIntro{padding:12px 14px;margin:8px 0 12px;border-radius:16px;background:rgba(94,227,154,.09);border:1px solid rgba(94,227,154,.24);color:#fff3cf;font-weight:800;line-height:1.55}.rulesLongList{display:grid;gap:9px;text-align:right;max-height:min(50vh,430px);overflow:auto;padding:2px}.ruleLong{display:grid;grid-template-columns:34px 1fr;gap:10px;align-items:start;padding:10px;border-radius:16px;background:rgba(255,255,255,.055);border:1px solid rgba(255,231,176,.14)}.ruleLong>span{width:30px;height:30px;display:flex;align-items:center;justify-content:center;border-radius:10px;background:linear-gradient(180deg,#ffe7a8,#c98534);color:#24130b;font-weight:900;box-shadow:0 3px 0 #6b3a18}.ruleLong b{display:block;color:#fff;font-size:15px;margin-bottom:4px}.ruleLong p{margin:0 0 4px;color:#ffe7b0;font-size:13px;line-height:1.35}.ruleLong em{display:block;color:#9ff0bf;font-style:normal;font-size:12px;line-height:1.25}@media (max-width:620px){.modeGrid{grid-template-columns:1fr}.quickRule{grid-template-columns:72px 1fr}.rulesLongList{max-height:45vh}}
+#doubleModal .modal{width:min(320px,88vw) !important}#doubleModal .modal h2{font-size:18px !important}#doubleModal .doubleButtons button{font-size:13px !important;padding:6px 4px !important}
 
 
-/* עיצוב סופי: צ׳אט + חוקים, מגשי הוצאה מחוץ ללוח, Pip Count, וסיום תור תקין */
+/* שדרוג סופי: צ׳אט מעל החוקים, Pip Count, אנימציות אונליין וירושלמי */
 .board{overflow:visible !important}
 .boardPanel{overflow:visible !important}
 .boardWrap{margin-left:clamp(62px,7.4vw,106px) !important}
@@ -128,12 +120,26 @@ button,select,input{font-family:inherit}
 .pipCounter{position:absolute;z-index:33;width:clamp(48px,5.7vw,78px);height:clamp(34px,4.4vh,46px);left:calc(-1 * (clamp(48px,5.7vw,78px) + clamp(14px,1.55vw,26px))) !important;border-radius:14px;display:flex;align-items:center;justify-content:center;direction:ltr;font-weight:1000;font-size:clamp(17px,2vw,25px);color:#fff;text-shadow:0 2px 3px #000;background:linear-gradient(180deg,rgba(255,231,176,.20),rgba(0,0,0,.34));border:1px solid rgba(255,231,176,.28);box-shadow:inset 0 1px 0 rgba(255,255,255,.12),inset 0 -8px 16px rgba(0,0,0,.25),0 8px 16px rgba(0,0,0,.34);pointer-events:none}
 .pipCounter.black{top:calc(clamp(22px,3vw,38px) + clamp(84px,17vh,168px) + 8px) !important}
 .pipCounter.white{bottom:calc(clamp(22px,3vw,38px) + clamp(84px,17vh,168px) + 8px) !important}
-.side{gap:8px !important}.card{padding:10px !important}.card h3{font-size:15px !important;margin-bottom:7px !important}.chatCard h3{display:flex;align-items:center;gap:7px;margin-bottom:8px;color:#fff2bd !important}.chatCard h3:before{content:"💬";filter:drop-shadow(0 2px 3px rgba(0,0,0,.45))}.reactions{display:grid !important;grid-template-columns:repeat(2,minmax(0,1fr)) !important;gap:7px !important}.reactions .reactBtn{white-space:normal !important;min-height:44px !important;line-height:1.15 !important;padding:8px 6px !important;font-size:12px !important;border-radius:14px !important;background:linear-gradient(180deg,rgba(255,231,176,.16),rgba(95,45,24,.92)) !important;border:1px solid rgba(255,231,176,.22) !important;color:#fff2bd !important;box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 4px 0 #1b0c07,0 8px 14px rgba(0,0,0,.25) !important}
-.rulesQuickCard{padding:9px !important}.rulesQuickCard h3{display:flex;align-items:center;gap:7px;margin-bottom:7px !important}.rulesQuickCard h3:before{content:"📜"}.quickRules{display:grid;gap:4px !important}.quickRule{display:grid;grid-template-columns:68px 1fr !important;align-items:center;gap:6px !important;padding:5px 7px !important;border-radius:11px !important;background:linear-gradient(90deg,rgba(246,199,108,.14),rgba(255,255,255,.04));border:1px solid rgba(246,199,108,.16);box-shadow:inset 0 1px 0 rgba(255,255,255,.045)}.quickRule span{direction:ltr;text-align:center;font-weight:900;color:#24130b;background:linear-gradient(180deg,#ffe7a8,#c98534);border-radius:9px;padding:3px 5px !important;font-size:12px !important;box-shadow:0 2px 0 rgba(75,39,16,.75)}.quickRule b{font-size:12px !important;color:#ffeec5;text-shadow:0 1px 2px #000;line-height:1.15 !important}.hiddenGameState{display:none !important}.modeGrid{grid-template-columns:repeat(3,1fr) !important}.rulesIntro{padding:12px 14px;margin:8px 0 12px;border-radius:16px;background:rgba(94,227,154,.09);border:1px solid rgba(94,227,154,.24);color:#fff3cf;font-weight:800;line-height:1.55}.rulesLongList{display:grid;gap:9px;text-align:right;max-height:min(50vh,430px);overflow:auto;padding:2px}.ruleLong{display:grid;grid-template-columns:34px 1fr;gap:10px;align-items:start;padding:10px;border-radius:16px;background:rgba(255,255,255,.055);border:1px solid rgba(255,231,176,.14)}.ruleLong>span{width:30px;height:30px;display:flex;align-items:center;justify-content:center;border-radius:10px;background:linear-gradient(180deg,#ffe7a8,#c98534);color:#24130b;font-weight:900;box-shadow:0 3px 0 #6b3a18}.ruleLong b{display:block;color:#fff;font-size:15px;margin-bottom:4px}.ruleLong p{margin:0 0 4px;color:#ffe7b0;font-size:13px;line-height:1.35}.ruleLong em{display:block;color:#9ff0bf;font-style:normal;font-size:12px;line-height:1.25}
+.side{gap:8px !important}.card{padding:10px !important}.card h3{font-size:15px !important;margin-bottom:7px !important}
+.chatCard h3{display:flex;align-items:center;gap:7px;margin-bottom:8px;color:#fff2bd !important}.chatCard h3:before{content:"💬";filter:drop-shadow(0 2px 3px rgba(0,0,0,.45))}
+.reactions{display:grid !important;grid-template-columns:repeat(2,minmax(0,1fr)) !important;gap:7px !important}
+.reactions .reactBtn{white-space:normal !important;min-height:44px !important;line-height:1.15 !important;padding:8px 6px !important;font-size:12px !important;border-radius:14px !important;background:linear-gradient(180deg,rgba(255,231,176,.16),rgba(95,45,24,.92)) !important;border:1px solid rgba(255,231,176,.22) !important;color:#fff2bd !important;box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 4px 0 #1b0c07,0 8px 14px rgba(0,0,0,.25) !important}
+.rulesQuickCard{padding:9px !important}.rulesQuickCard h3{display:flex;align-items:center;gap:7px;margin-bottom:7px !important}.rulesQuickCard h3:before{content:"📜"}
+.quickRules{display:grid;gap:4px !important}.quickRule{display:grid;grid-template-columns:68px 1fr !important;align-items:center;gap:6px !important;padding:5px 7px !important;border-radius:11px !important;background:linear-gradient(90deg,rgba(246,199,108,.14),rgba(255,255,255,.04));border:1px solid rgba(246,199,108,.16);box-shadow:inset 0 1px 0 rgba(255,255,255,.045)}
+.quickRule span{direction:ltr;text-align:center;font-weight:900;color:#24130b;background:linear-gradient(180deg,#ffe7a8,#c98534);border-radius:9px;padding:3px 5px !important;font-size:12px !important;box-shadow:0 2px 0 rgba(75,39,16,.75)}
+.quickRule b{font-size:12px !important;color:#ffeec5;text-shadow:0 1px 2px #000;line-height:1.15 !important}.hiddenGameState{display:none !important}
+.reactionBubble{position:absolute;z-index:48;top:50%;min-width:92px;max-width:178px;padding:8px 10px;border-radius:18px;font-size:clamp(10px,1.15vw,13px);font-weight:900;line-height:1.18;text-align:center;pointer-events:none;opacity:0;transform:translateY(-50%) scale(.9);transition:.22s opacity,.22s transform;box-shadow:0 8px 18px rgba(0,0,0,.38),inset 0 1px 0 rgba(255,255,255,.12);border:1px solid rgba(255,231,176,.24);color:#fff8df}
+.reactionBubble.show{opacity:1;transform:translateY(-50%) scale(1)}
+.reactionBubble.white{left:calc(50% + clamp(82px,9vw,122px));background:linear-gradient(180deg,rgba(255,248,225,.92),rgba(214,178,111,.92));color:#281609;border-color:rgba(255,255,255,.36)}
+.reactionBubble.black{right:calc(50% + clamp(82px,9vw,122px));background:linear-gradient(180deg,rgba(71,67,77,.94),rgba(18,15,20,.94));color:#fff8df;border-color:rgba(255,255,255,.16)}
+.victoryBanner{position:absolute;z-index:80;left:50%;top:50%;transform:translate(-50%,-50%) scale(.82);opacity:0;pointer-events:none;min-width:min(420px,82%);max-width:88%;padding:22px 28px;border-radius:26px;text-align:center;font-size:clamp(22px,3.4vw,44px);font-weight:1000;color:#fff;text-shadow:0 3px 6px rgba(0,0,0,.65);background:radial-gradient(circle at 50% 0%,rgba(255,237,166,.38),transparent 55%),linear-gradient(180deg,rgba(75,37,18,.97),rgba(22,9,4,.96));border:1px solid rgba(255,231,176,.36);box-shadow:0 28px 90px rgba(0,0,0,.7),inset 0 1px 0 rgba(255,255,255,.12),0 0 34px rgba(246,199,108,.28)}
+.victoryBanner.show{animation:victoryPop 3.6s ease both}@keyframes victoryPop{0%{opacity:0;transform:translate(-50%,-50%) scale(.74) rotate(-2deg)}14%{opacity:1;transform:translate(-50%,-50%) scale(1.04) rotate(1deg)}24%{transform:translate(-50%,-50%) scale(1) rotate(0)}82%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) scale(.92)}}
+.diceDock.lcSuccess .die{animation:lcSuccessGlow .8s ease 2 !important;box-shadow:inset 2px 2px 4px rgba(255,255,255,.8),inset -4px -5px 8px rgba(0,0,0,.26),0 0 26px rgba(94,227,154,.92),0 8px 12px rgba(0,0,0,.42)}
+.diceDock.lcFail .die{animation:lcFailGlow .8s ease 2 !important;box-shadow:inset 2px 2px 4px rgba(255,255,255,.8),inset -4px -5px 8px rgba(0,0,0,.26),0 0 26px rgba(255,119,106,.92),0 8px 12px rgba(0,0,0,.42)}
+@keyframes lcSuccessGlow{0%,100%{filter:brightness(1)}45%{filter:brightness(1.55) drop-shadow(0 0 12px rgba(94,227,154,.9))}}@keyframes lcFailGlow{0%,100%{filter:brightness(1)}45%{filter:brightness(1.45) drop-shadow(0 0 12px rgba(255,119,106,.9))}}
 @media (max-width:900px){.boardWrap{margin-left:clamp(50px,8.6vw,82px) !important}.offTray,.pipCounter{left:calc(-1 * (clamp(48px,5.7vw,78px) + 12px)) !important}}
-@media (max-width:620px){.modeGrid{grid-template-columns:1fr !important}.quickRule{grid-template-columns:62px 1fr !important}.rulesLongList{max-height:45vh}.reactions{grid-template-columns:1fr !important}}
-@media (max-width:540px){.boardWrap{margin-left:50px !important}.offTray{left:-48px !important}.pipCounter{left:-48px !important;width:42px !important;height:30px !important;font-size:16px !important}.pipCounter.black{top:calc(78px + clamp(22px,3vw,38px) + 6px) !important}.pipCounter.white{bottom:calc(78px + clamp(22px,3vw,38px) + 6px) !important}}
-@media (max-height:760px) and (min-width:901px){.card{padding:8px !important}.chatCard h3,.rulesQuickCard h3{margin-bottom:5px !important}.reactions .reactBtn{min-height:38px !important;font-size:11px !important;padding:6px 5px !important}.quickRule{padding:4px 6px !important}.quickRule b{font-size:11.5px !important}.quickRule span{font-size:11px !important}.logCard{min-height:70px !important}}
+@media (max-width:700px){.reactionBubble{max-width:125px;padding:6px 8px;font-size:10px}.reactionBubble.white{left:calc(50% + 58px)}.reactionBubble.black{right:calc(50% + 58px)}.victoryBanner{min-width:78%;font-size:24px;padding:18px}}
+@media (max-width:540px){.boardWrap{margin-left:50px !important}.offTray{left:-48px !important}.pipCounter{left:-48px !important;width:42px !important;height:30px !important;font-size:16px !important}.pipCounter.black{top:calc(78px + clamp(22px,3vw,38px) + 6px) !important}.pipCounter.white{bottom:calc(78px + clamp(22px,3vw,38px) + 6px) !important}.reactions{grid-template-columns:1fr !important}}
 
 </style>
 </head>
@@ -168,6 +174,9 @@ button,select,input{font-family:inherit}
             <div id="die1" class="die"></div>
             <div id="die2" class="die"></div>
           </div>
+          <div id="reactionWhite" class="reactionBubble white"></div>
+          <div id="reactionBlack" class="reactionBubble black"></div>
+          <div id="victoryBanner" class="victoryBanner"></div>
           <div id="offBlack" class="offTray black" data-off="black"><div class="label">שחור הוציא</div><div class="num">0</div><div class="stackLine"></div></div>
           <div id="pipBlack" class="pipCounter black">0</div>
           <div id="pipWhite" class="pipCounter white">0</div>
@@ -284,7 +293,6 @@ button,select,input{font-family:inherit}
         <div id="roomStatusText" class="onlineHint" style="margin-top:8px">מחכים לשחקן נוסף...</div>
       </div>
     </div>
-
     <div id="rulesPanel" class="subPanel">
       <div class="rulesIntro">
         זה כמו ששבש רגיל, רק עם כמה חוקים טורקיים שמוסיפים בלגן, מזל ומהפכים.
@@ -295,7 +303,7 @@ button,select,input{font-family:inherit}
         <div class="ruleLong"><span>2</span><div><b>דאבל רגיל — 4 מהלכים + עוד תור</b><p>דאבל אמיתי כמו 3–3 או 6–6 נותן 4 מהלכים, ואחריהם עוד תור מלא.</p><em>דוגמה: 4–4 → ארבעה צעדים של 4 ואז מגלגלים שוב.</em></div></div>
         <div class="ruleLong"><span>3</span><div><b>3 דאבלים ברצף — מחליפים צדדים</b><p>אם אותו שחקן מוציא 3 דאבלים רצוף, השליטה בצדדים מתחלפת.</p><em>דוגמה: היית שחור? עכשיו אתה משחק את הלבן.</em></div></div>
         <div class="ruleLong"><span>4</span><div><b>4–5 — בוחרים דאבל</b><p>אם יוצא 4–5 או 5–4, בוחרים איזה דאבל לשחק מ־1–1 עד 6–6.</p><em>חשוב: הדאבל הנבחר לא נותן עוד תור.</em></div></div>
-        <div class="ruleLong"><span>5</span><div><b>5–6 — שני מהלכים חופשיים</b><p>מקבלים 2 מהלכים לכל מקום חוקי. אם יש אבן אכולה, קודם חייבים להכניס אותה מהבר.</p><em>דוגמה: אפשר להזיז שתי אבנים, או אותה אבן פעמיים.</em></div></div>
+        <div class="ruleLong"><span>5</span><div><b>5–6 — שני מהלכים חופשיים</b><p>מקבלים 2 מהלכים לכל מקום חוקי, קדימה או אחורה, עם אותה אבן או שתי אבנים.</p><em>אם יש אבן אכולה — קודם מכניסים אותה כרגיל.</em></div></div>
         <div class="ruleLong"><span>6</span><div><b>ירושלמי — הזדמנות אחרונה</b><p>בסוף המשחק המפסיד בוחר 2 מספרים, והמנצח זורק קוביות.</p><em>אם יצא בדיוק מה שהמפסיד בחר — המפסיד גונב ניצחון.</em></div></div>
       </div>
     </div>
@@ -360,14 +368,14 @@ const els={
   countdownInfo:$('#countdownInfo'),countdownText:$('#countdownText'),log:$('#log'),barWhite:$('#barWhite'),barBlack:$('#barBlack'),
   offWhite:$('#offWhite'),offBlack:$('#offBlack'),pipWhite:$('#pipWhite'),pipBlack:$('#pipBlack'),startModal:$('#startModal'),startBtn:$('#startBtn'),difficultySelect:$('#difficultySelect'),diceModeSelect:$('#diceModeSelect'),
   doubleModal:$('#doubleModal'),doubleButtons:$('#doubleButtons'),lastChanceModal:$('#lastChanceModal'),lastChanceText:$('#lastChanceText'),chanceA:$('#chanceA'),chanceB:$('#chanceB'),chanceBtn:$('#chanceBtn'),
-  modeComputerBtn:$('#modeComputerBtn'),modeFriendBtn:$('#modeFriendBtn'),modeRulesBtn:$('#modeRulesBtn'),computerPanel:$('#computerPanel'),onlinePanel:$('#onlinePanel'),rulesPanel:$('#rulesPanel'),playerNameInput:$('#playerNameInput'),onlineDiceModeSelect:$('#onlineDiceModeSelect'),createRoomBtn:$('#createRoomBtn'),joinRoomBtn:$('#joinRoomBtn'),joinCodeInput:$('#joinCodeInput'),roomLobby:$('#roomLobby'),roomCodeDisplay:$('#roomCodeDisplay'),roomPlayers:$('#roomPlayers'),readyBtn:$('#readyBtn'),roomStatusText:$('#roomStatusText'),reactionToast:$('#reactionToast'),reactionCard:$('#reactionCard')
+  modeComputerBtn:$('#modeComputerBtn'),modeFriendBtn:$('#modeFriendBtn'),modeRulesBtn:$('#modeRulesBtn'),computerPanel:$('#computerPanel'),onlinePanel:$('#onlinePanel'),rulesPanel:$('#rulesPanel'),playerNameInput:$('#playerNameInput'),onlineDiceModeSelect:$('#onlineDiceModeSelect'),createRoomBtn:$('#createRoomBtn'),joinRoomBtn:$('#joinRoomBtn'),joinCodeInput:$('#joinCodeInput'),roomLobby:$('#roomLobby'),roomCodeDisplay:$('#roomCodeDisplay'),roomPlayers:$('#roomPlayers'),readyBtn:$('#readyBtn'),roomStatusText:$('#roomStatusText'),reactionToast:$('#reactionToast'),reactionWhite:$('#reactionWhite'),reactionBlack:$('#reactionBlack'),victoryBanner:$('#victoryBanner'),reactionCard:$('#reactionCard')
 };
 const state={
   board:Array(25).fill(0),bar:{white:0,black:0},off:{white:0,black:0},
   humanColor:WHITE,computerColor:BLACK,currentActor:'human',status:'setup',difficulty:'medium',diceMode:'manual',dice:[0,0],
   remaining:[],freeMode:false,doubleExtra:false,chosenDouble:false,selected:null,legalChoices:[],undoStack:[],
   log:[],doubleStreak:{human:0,computer:0},autoTimer:null,countdownTimer:null,countdown:0,animating:false,gameOver:false,lastChance:null,
-  gameMode:'computer',localActor:'human',roomCode:null,playerId:null,playerNames:{human:'אתה',computer:'המחשב'},onlineReady:{human:false,computer:false},applyingRemote:false,roomUnsub:null,reactionUnsub:null
+  gameMode:'computer',localActor:'human',roomCode:null,playerId:null,playerNames:{human:'אתה',computer:'המחשב'},onlineReady:{human:false,computer:false},applyingRemote:false,roomUnsub:null,reactionUnsub:null,lastMove:null,lastMoveSeen:null,lastVictorySeen:null,winnerColor:null,stolen:false,victoryId:null,lastChanceRollingSeen:null,lastChanceResultSeen:null
 };
 let audioCtx=null;
 function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
@@ -447,7 +455,7 @@ function resetForNewGame(){
   if(state.roomUnsub){state.roomUnsub();state.roomUnsub=null;}
   if(state.reactionUnsub){state.reactionUnsub();state.reactionUnsub=null;}
   setInitialBoard();
-  Object.assign(state,{humanColor:WHITE,computerColor:BLACK,currentActor:'human',status:'setup',dice:[0,0],remaining:[],freeMode:false,doubleExtra:false,chosenDouble:false,selected:null,legalChoices:[],undoStack:[],log:[],doubleStreak:{human:0,computer:0},animating:false,gameOver:false,lastChance:null,gameMode:'computer',localActor:'human',roomCode:null,playerId:null,playerNames:{human:'אתה',computer:'המחשב'},onlineReady:{human:false,computer:false},applyingRemote:false});
+  Object.assign(state,{humanColor:WHITE,computerColor:BLACK,currentActor:'human',status:'setup',dice:[0,0],remaining:[],freeMode:false,doubleExtra:false,chosenDouble:false,selected:null,legalChoices:[],undoStack:[],log:[],doubleStreak:{human:0,computer:0},animating:false,gameOver:false,lastChance:null,gameMode:'computer',localActor:'human',roomCode:null,playerId:null,playerNames:{human:'אתה',computer:'המחשב'},onlineReady:{human:false,computer:false},applyingRemote:false,lastMove:null,lastMoveSeen:null,lastVictorySeen:null,winnerColor:null,stolen:false,victoryId:null,lastChanceRollingSeen:null,lastChanceResultSeen:null});
   renderAll();renderLog();els.startModal.classList.add('show');if(els.roomLobby)els.roomLobby.style.display='none';showMessage('משחק חדש');
 }
 
@@ -489,12 +497,6 @@ function renderOff(){
   if(els.pipWhite)els.pipWhite.textContent=pipCount(state, WHITE);
   if(els.pipBlack)els.pipBlack.textContent=pipCount(state, BLACK);
 }
-function canEndTurnNow(){
-  if(!(state.currentActor===localActor()&&state.status==='humanMoving'&&!state.gameOver))return false;
-  if(state.remaining.length===0)return true;
-  const color=actorColor(localActor());
-  return !getAllLegalMoves(state,color,state.remaining,state.freeMode).length;
-}
 function renderUI(){
   const local=localActor();const localTurn=state.currentActor===local;
   let turnText='';
@@ -519,7 +521,7 @@ function renderUI(){
   els.offInfo.textContent=`לבן: ${state.off.white}/15 | שחור: ${state.off.black}/15`;
   els.remainingMoves.innerHTML=state.remaining.length?state.remaining.map(m=>`<span class="moveChip ${m==='free'?'free':''}">${m==='free'?'חופשי':m}</span>`).join(''):'<span style="opacity:.75">—</span>';
   els.rollBtn.disabled=!canHumanRoll();els.undoBtn.disabled=!(state.currentActor===local&&state.status==='humanMoving'&&state.undoStack.length>0&&!state.gameOver);
-  els.endBtn.disabled=!canEndTurnNow();
+  els.endBtn.disabled=!(state.currentActor===local&&state.status==='humanMoving'&&!state.gameOver);
   if(els.reactionCard)els.reactionCard.style.display=isOnline()?'block':'none';
   if(state.countdown>0){els.countdownInfo.style.display='block';els.countdownText.textContent=`התור יסתיים בעוד ${state.countdown}...`}else{els.countdownInfo.style.display='none'}
 }
@@ -557,10 +559,71 @@ function snapshot(){
 function restoreSnapshot(s){
   const x=JSON.parse(s);state.board=x.board;state.bar=x.bar;state.off=x.off;state.remaining=x.remaining;state.freeMode=x.freeMode;state.doubleExtra=x.doubleExtra;state.chosenDouble=x.chosenDouble;state.dice=x.dice;state.selected=null;state.legalChoices=[];
 }
+
+function rememberLastMove(move){
+  state.lastMove={
+    id:Date.now()+'_'+Math.random().toString(36).slice(2,7),
+    by:localActor(),
+    from:move.from,
+    to:move.to,
+    color:move.color,
+    die:move.die,
+    hit:!!move.hit,
+    at:Date.now()
+  };
+}
+async function animateRemoteMove(lm,start){
+  if(!lm||!start)return;
+  try{
+    const end=getPlaceCenter(lm.to,lm.color,false);
+    showMessage(`${actorName(lm.by||otherActor(localActor()))} הזיז אבן`,900);
+    await flyPiece(lm.color,start,end,!!lm.hit);
+  }catch(e){console.warn('remote animation failed',e);}
+}
+function showVictoryBanner(text){
+  if(!els.victoryBanner)return;
+  els.victoryBanner.textContent=text;
+  els.victoryBanner.classList.remove('show');
+  void els.victoryBanner.offsetWidth;
+  els.victoryBanner.classList.add('show');
+  clearTimeout(showVictoryBanner.t);
+  showVictoryBanner.t=setTimeout(()=>els.victoryBanner.classList.remove('show'),3800);
+}
+function showVictory(winnerColor=state.winnerColor,stolen=state.stolen){
+  if(!winnerColor)return;
+  const actor=actorForColor(winnerColor);
+  const text=`🏆 ${actorName(actor)} ניצח${stolen?' בירושלמי!':'!'} 🎉`;
+  showVictoryBanner(text);
+  showMessage(text,5000);
+  playSound('win');
+}
+function flashLastChanceResult(ok){
+  els.diceDock.classList.remove('lcSuccess','lcFail');
+  void els.diceDock.offsetWidth;
+  els.diceDock.classList.add(ok?'lcSuccess':'lcFail');
+  clearTimeout(flashLastChanceResult.t);
+  flashLastChanceResult.t=setTimeout(()=>els.diceDock.classList.remove('lcSuccess','lcFail'),1700);
+}
+async function showRemoteLastChanceRolling(lc){
+  if(!lc||!lc.rollingId||state.lastChanceRollingSeen===lc.rollingId)return;
+  state.lastChanceRollingSeen=lc.rollingId;
+  showMessage(`${actorName(actorForColor(lc.winner))} מגלגל לירושלמי...`,2200);
+  await rollDiceVisual([die(),die()],2200);
+}
+async function showLastChanceResult(lc){
+  if(!lc||!lc.resultId||state.lastChanceResultSeen===lc.resultId)return;
+  state.lastChanceResultSeen=lc.resultId;
+  if(lc.roll)state.dice=lc.roll;
+  setDice(state.dice);
+  const ok=lc.result==='success';
+  flashLastChanceResult(ok);
+  const txt=ok?`ירושלמי הצליח — ${actorName(actorForColor(lc.loser))} ניצח!`:`ירושלמי נכשל — ${actorName(actorForColor(lc.winner))} ניצח!`;
+  showMessage(txt,3800);
+}
 async function humanMove(move){
   if(state.animating)return;state.animating=true;cancelAutoEnd();snapshot();
   const start=getPlaceCenter(move.from,move.color,true);applyMove(state,move);consumeMove(move);state.selected=null;state.legalChoices=[];renderAll();
-  const end=getPlaceCenter(move.to,move.color,false);await flyPiece(move.color,start,end,move.hit);logMove(isOnline()?actorName(localActor()):'אתה',move);
+  const end=getPlaceCenter(move.to,move.color,false);await flyPiece(move.color,start,end,move.hit);logMove(isOnline()?actorName(localActor()):'אתה',move);rememberLastMove(move);
   state.animating=false;const won=checkWinAfterMove(move.color);if(won){await syncShared('win');return;}if(!state.gameOver)afterHumanMove();await syncShared('move');
 }
 
@@ -855,30 +918,89 @@ function checkWinAfterMove(color){
 }
 
 async function startLastChance(winner,loser){
-  state.status='lastChance';state.selected=null;state.legalChoices=[];state.lastChance={winner,loser,phase:'choose',choice:null,roll:null};renderAll();addLog('הזדמנות אחרונה / ירושלמי','special');showMessage('הזדמנות אחרונה!',2400);await syncShared('lastChanceStart');renderLastChanceUI();
+  state.status='lastChance';
+  state.selected=null;
+  state.legalChoices=[];
+  state.lastChance={winner,loser,phase:'choose',choice:null,roll:null,result:null,resultId:null,rollingId:null};
+  renderAll();
+  addLog('הזדמנות אחרונה / ירושלמי','special');
+  showMessage('הזדמנות אחרונה!',2400);
+  await syncShared('lastChanceStart');
+  renderLastChanceUI();
   if(!isOnline()){
     const loserActor=actorForColor(loser);
     if(loserActor==='computer'){
-      await sleep(700);const a=die(),b=die();state.lastChance.choice=[a,b];state.lastChance.phase='roll';addLog(`המחשב בחר לירושלמי: ${a} ו־${b}`,'special');showMessage(`המחשב בחר ${a} ו־${b} — לחץ גלגל`,3000);renderLastChanceUI();
+      await sleep(900);
+      const a=die(),b=die();
+      state.lastChance.choice=[a,b];
+      state.lastChance.phase='roll';
+      addLog(`המחשב בחר לירושלמי: ${a} ו־${b}`,'special');
+      showMessage(`המחשב בחר ${a} ו־${b} — עכשיו גלגל`,3000);
+      renderLastChanceUI();
     }
   }
 }
-
 async function resolveLastChance(choice){
   if(!state.lastChance)return;
+  els.lastChanceModal.classList.remove('show');
   const winner=state.lastChance.winner,loser=state.lastChance.loser;
-  state.lastChance.choice=choice;state.lastChance.phase='roll';els.lastChanceModal.classList.remove('show');
-  addLog(`${actorName(actorForColor(loser))} בחר לירושלמי: ${choice[0]} ו־${choice[1]}`,'special');await syncShared('lastChanceChoice');
+  state.lastChance.choice=choice;
+  state.lastChance.phase='roll';
+  addLog(`${actorName(actorForColor(loser))} בחר לירושלמי: ${choice[0]} ו־${choice[1]}`,'special');
+  await syncShared('lastChanceChoice');
+  renderLastChanceUI();
   if(!isOnline()){
     const winnerActor=actorForColor(winner);
-    if(winnerActor==='human'){showMessage(`נבחר ${choice[0]} ו־${choice[1]} — לחץ אישור כדי לגלגל`,2400);renderLastChanceUI();return;}
+    if(winnerActor==='human'){
+      showMessage(`נבחר ${choice[0]} ו־${choice[1]} — עכשיו גלגל`,2400);
+      return;
+    }
     await rollLastChanceNow();
   }
 }
-
+async function rollLastChanceNow(){
+  if(!state.lastChance||state.lastChance.phase!=='roll')return;
+  els.lastChanceModal.classList.remove('show');
+  const lc=state.lastChance,winner=lc.winner,loser=lc.loser,ch=lc.choice||[];
+  lc.phase='rolling';
+  lc.rollingId=Date.now()+'_'+Math.random().toString(36).slice(2,6);
+  lc.roll=null;
+  await syncShared('lastChanceRolling');
+  showMessage(`${actorName(actorForColor(winner))} מגלגל לירושלמי...`,2000);
+  await sleep(450);
+  const d=[die(),die()];
+  state.dice=d;
+  await rollDiceVisual(d,2200);
+  lc.roll=d;
+  const ok=(d[0]===ch[0]&&d[1]===ch[1])||(d[0]===ch[1]&&d[1]===ch[0]);
+  lc.phase='result';
+  lc.result=ok?'success':'fail';
+  lc.resultId=Date.now()+'_'+Math.random().toString(36).slice(2,6);
+  addLog(`${actorName(actorForColor(winner))} גלגל לירושלמי: ${d[0]}–${d[1]}`,'special');
+  flashLastChanceResult(ok);
+  await sleep(900);
+  if(ok){
+    addLog(`הירושלמי הצליח — ${actorName(actorForColor(loser))} גנב ניצחון!`,'special');
+    showMessage(`הירושלמי הצליח — ${actorName(actorForColor(loser))} ניצח!`,5000);
+    finishGame(loser,true);
+  }else{
+    addLog(`הירושלמי נכשל — ${actorName(actorForColor(winner))} ניצח!`,'special');
+    showMessage(`הירושלמי נכשל — ${actorName(actorForColor(winner))} ניצח!`,5000);
+    finishGame(winner,false);
+  }
+  await syncShared('lastChanceResult');
+}
 function finishGame(winnerColor,stolen){
-  state.gameOver=true;state.status='gameover';const actor=actorForColor(winnerColor);playSound('win');const name=actorName(actor);
-  addLog(`${name} ניצח${stolen?' בזכות הירושלמי!':'!'}`,'special');showMessage(`${name} ניצח${stolen?' — הירושלמי הצליח!':''}`,5000);renderAll();syncShared('gameOver');
+  state.gameOver=true;
+  state.status='gameover';
+  state.winnerColor=winnerColor;
+  state.stolen=!!stolen;
+  state.victoryId=Date.now()+'_'+Math.random().toString(36).slice(2,6);
+  const actor=actorForColor(winnerColor);
+  addLog(`${actorName(actor)} ניצח${stolen?' בזכות הירושלמי!':'!'}`,'special');
+  renderAll();
+  showVictory(winnerColor,stolen);
+  syncShared('finishGame');
 }
 
 function initChanceSelectors(){
@@ -886,56 +1008,164 @@ function initChanceSelectors(){
   els.chanceA.value='2';els.chanceB.value='5';
 }
 
-function sharedState(){return {board:state.board,bar:state.bar,off:state.off,humanColor:state.humanColor,computerColor:state.computerColor,currentActor:state.currentActor,status:state.status,difficulty:state.difficulty,diceMode:state.diceMode,dice:state.dice,remaining:state.remaining,freeMode:state.freeMode,doubleExtra:state.doubleExtra,chosenDouble:state.chosenDouble,log:state.log,doubleStreak:state.doubleStreak,gameOver:state.gameOver,lastChance:state.lastChance,updatedAt:Date.now()};}
+function sharedState(){
+  return {
+    board:state.board,
+    bar:state.bar,
+    off:state.off,
+    humanColor:state.humanColor,
+    computerColor:state.computerColor,
+    currentActor:state.currentActor,
+    status:state.status,
+    difficulty:state.difficulty,
+    diceMode:state.diceMode,
+    dice:state.dice,
+    remaining:state.remaining,
+    freeMode:state.freeMode,
+    doubleExtra:state.doubleExtra,
+    chosenDouble:state.chosenDouble,
+    log:state.log,
+    doubleStreak:state.doubleStreak,
+    gameOver:state.gameOver,
+    lastChance:state.lastChance,
+    lastMove:state.lastMove||null,
+    winnerColor:state.winnerColor||null,
+    stolen:!!state.stolen,
+    victoryId:state.victoryId||null,
+    updatedAt:Date.now()
+  };
+}
+function normalizeBoard(b){
+  const arr=Array(25).fill(0);
+  if(Array.isArray(b)){for(let i=0;i<Math.min(25,b.length);i++)arr[i]=b[i]||0;}
+  else if(b){Object.keys(b).forEach(k=>{arr[+k]=b[k]||0;});}
+  return arr;
+}
+function applyShared(g){
+  if(!isOnline()||!g)return;
+  const lm=g.lastMove||null;
+  let remoteMove=false,remoteStart=null;
+  if(lm&&lm.id&&lm.by!==localActor()&&state.lastMoveSeen!==lm.id){
+    remoteMove=true;
+    try{remoteStart=getPlaceCenter(lm.from,lm.color,true);}catch(e){remoteStart=null;}
+    state.lastMoveSeen=lm.id;
+  }
+  const keepUndo=(g.currentActor===localActor()&&g.status==='humanMoving')?state.undoStack.slice():[];
+  const keepSelected=(g.currentActor===localActor()&&g.status==='humanMoving')?state.selected:null;
+  const keepLegalChoices=(g.currentActor===localActor()&&g.status==='humanMoving')?state.legalChoices.slice():[];
+  state.applyingRemote=true;
+  Object.assign(state,{
+    board:normalizeBoard(g.board),
+    bar:g.bar||{white:0,black:0},
+    off:g.off||{white:0,black:0},
+    humanColor:g.humanColor||WHITE,
+    computerColor:g.computerColor||BLACK,
+    currentActor:g.currentActor||'human',
+    status:g.status||'waitingRoll',
+    difficulty:g.difficulty||'medium',
+    diceMode:g.diceMode||'manual',
+    dice:g.dice||[0,0],
+    remaining:g.remaining||[],
+    freeMode:!!g.freeMode,
+    doubleExtra:!!g.doubleExtra,
+    chosenDouble:!!g.chosenDouble,
+    log:g.log||[],
+    doubleStreak:g.doubleStreak||{human:0,computer:0},
+    gameOver:!!g.gameOver,
+    lastChance:g.lastChance||null,
+    lastMove:g.lastMove||null,
+    winnerColor:g.winnerColor||null,
+    stolen:!!g.stolen,
+    victoryId:g.victoryId||null
+  });
+  if(state.status&&state.status!=='setup'){
+    els.startModal.classList.remove('show');
+    if(els.roomLobby)els.roomLobby.style.display='none';
+  }
+  state.selected=keepSelected;
+  state.legalChoices=keepLegalChoices;
+  state.undoStack=keepUndo;
+  state.animating=false;
+  renderAll();
+  renderLog();
+  renderLastChanceUI();
+  if(remoteMove)animateRemoteMove(lm,remoteStart);
+  if(state.lastChance&&state.lastChance.phase==='rolling'&&state.lastChance.rollingId)showRemoteLastChanceRolling(state.lastChance);
+  if(state.lastChance&&state.lastChance.resultId)showLastChanceResult(state.lastChance);
+  if(state.gameOver&&state.victoryId&&state.lastVictorySeen!==state.victoryId){
+    state.lastVictorySeen=state.victoryId;
+    showVictory(state.winnerColor,state.stolen);
+  }
+  clearTimeout(state.autoTimer);
+  if(state.status==='waitingRoll'&&state.currentActor===localActor()&&state.diceMode==='auto'&&!state.gameOver)state.autoTimer=setTimeout(()=>rollForCurrent(),700);
+  state.applyingRemote=false;
+}
 async function syncShared(reason=''){
   if(!isOnline()||state.applyingRemote||!state.roomCode)return;
   try{await set(roomGameRef(state.roomCode),sharedState());await update(roomRef(state.roomCode),{updatedAt:Date.now(),lastReason:reason});}catch(e){console.error(e);showMessage('שגיאת סנכרון',1500)}
 }
-function normalizeBoard(b){const arr=Array(25).fill(0);if(Array.isArray(b)){for(let i=0;i<Math.min(25,b.length);i++)arr[i]=b[i]||0}else if(b){Object.keys(b).forEach(k=>{arr[+k]=b[k]||0})}return arr;}
-function applyShared(g){
-  if(!isOnline()||!g)return;const keepUndo=(g.currentActor===localActor()&&g.status==='humanMoving')?state.undoStack.slice():[];const keepSelected=(g.currentActor===localActor()&&g.status==='humanMoving')?state.selected:null;const keepLegalChoices=(g.currentActor===localActor()&&g.status==='humanMoving')?state.legalChoices.slice():[];state.applyingRemote=true;
-  Object.assign(state,{board:normalizeBoard(g.board),bar:g.bar||{white:0,black:0},off:g.off||{white:0,black:0},humanColor:g.humanColor||WHITE,computerColor:g.computerColor||BLACK,currentActor:g.currentActor||'human',status:g.status||'waitingRoll',difficulty:g.difficulty||'medium',diceMode:g.diceMode||'manual',dice:g.dice||[0,0],remaining:g.remaining||[],freeMode:!!g.freeMode,doubleExtra:!!g.doubleExtra,chosenDouble:!!g.chosenDouble,log:g.log||[],doubleStreak:g.doubleStreak||{human:0,computer:0},gameOver:!!g.gameOver,lastChance:g.lastChance||null});
-  state.selected=keepSelected;state.legalChoices=keepLegalChoices;state.undoStack=keepUndo;state.animating=false;
-  if(state.status&&state.status!=='setup'){els.startModal.classList.remove('show');if(els.roomLobby)els.roomLobby.style.display='none'}
-  renderAll();renderLog();renderLastChanceUI();clearTimeout(state.autoTimer);
-  if(state.status==='waitingRoll'&&state.currentActor===localActor()&&state.diceMode==='auto'&&!state.gameOver)state.autoTimer=setTimeout(()=>rollForCurrent(),700);
-  state.applyingRemote=false;
-}
 async function generateRoomCode(){for(let i=0;i<40;i++){const code=String(rnd(1000,9999));const snap=await get(roomRef(code));if(!snap.exists())return code}return String(Date.now()).slice(-4);}
 function renderLobby(room={}){const p=room.players||{},r=room.ready||{};state.playerNames={human:p.human?.name||'שחקן 1',computer:p.computer?.name||'מחכה לחבר'};state.onlineReady={human:!!r.human,computer:!!r.computer};if(!els.roomLobby)return;els.roomLobby.style.display='block';els.roomCodeDisplay.textContent=state.roomCode||'----';els.roomPlayers.innerHTML=`<div class="playerLine"><span>שחקן 1</span><b>${escapeHtml(state.playerNames.human)}</b><span>${r.human?'✅ מוכן':'⏳ לא מוכן'}</span></div><div class="playerLine"><span>שחקן 2</span><b>${escapeHtml(state.playerNames.computer)}</b><span>${r.computer?'✅ מוכן':'⏳ לא מוכן'}</span></div>`;const myReady=!!r[state.localActor];els.readyBtn.textContent=myReady?'✅ מוכן':'✅ אני מוכן';els.roomStatusText.textContent=(p.human&&p.computer)?((r.human&&r.computer)?'שניכם מוכנים — מתחילים...':'שניכם בחדר. תלחצו אני מוכן.'):'מחכים לשחקן נוסף...';}
-function subscribeRoom(code){if(state.roomUnsub){state.roomUnsub();state.roomUnsub=null;}state.roomCode=code;const rr=roomRef(code);state.roomUnsub=onValue(rr,snap=>{const room=snap.val();if(!room){showMessage('החדר לא קיים');return}renderLobby(room);if(room.reaction&&room.reaction.id!==subscribeRoom.lastReaction){subscribeRoom.lastReaction=room.reaction.id;if(room.reaction.from!==state.localActor)showReaction(room.reaction.text)}if(room.game)applyShared(room.game);if(!room.game&&room.players?.human&&room.players?.computer&&room.ready?.human&&room.ready?.computer&&state.localActor==='human'&&state.status!=='opening')startOnlineOpening();});}
+function subscribeRoom(code){if(state.roomUnsub){state.roomUnsub();state.roomUnsub=null;}state.roomCode=code;const rr=roomRef(code);state.roomUnsub=onValue(rr,snap=>{const room=snap.val();if(!room){showMessage('החדר לא קיים');return}renderLobby(room);if(room.reaction&&room.reaction.id!==subscribeRoom.lastReaction){subscribeRoom.lastReaction=room.reaction.id;if(room.reaction.from!==state.localActor)showReaction(room.reaction.text,room.reaction.from)}if(room.game)applyShared(room.game);if(!room.game&&room.players?.human&&room.players?.computer&&room.ready?.human&&room.ready?.computer&&state.localActor==='human'&&state.status!=='opening')startOnlineOpening();});}
 async function createRoom(){try{const code=await generateRoomCode();state.gameMode='online';state.localActor='human';state.playerId=localPlayerId();state.playerNames={human:localPlayerName(),computer:'מחכה לחבר'};state.diceMode=els.onlineDiceModeSelect.value;state.status='lobby';await set(roomRef(code),{createdAt:Date.now(),updatedAt:Date.now(),diceMode:state.diceMode,players:{human:{id:state.playerId,name:state.playerNames.human,connected:true},computer:null},ready:{human:false,computer:false},game:null,reaction:null});els.startModal.classList.add('show');subscribeRoom(code);showMessage('חדר נפתח');}catch(e){console.error(e);showMessage('בעיה בפתיחת חדר')}}
 async function joinRoom(){try{const code=(els.joinCodeInput.value||'').trim();if(!/^\d{4}$/.test(code))return showMessage('קוד חדר חייב להיות 4 ספרות');const snap=await get(roomRef(code));if(!snap.exists())return showMessage('החדר לא נמצא');const room=snap.val();if(room.players?.computer&&room.players.computer.id!==localPlayerId())return showMessage('החדר מלא');state.gameMode='online';state.localActor=room.players?.human?.id===localPlayerId()?'human':'computer';state.playerId=localPlayerId();if(state.localActor==='computer')await update(roomRef(code),{['players/computer']:{id:state.playerId,name:localPlayerName(),connected:true},['ready/computer']:false,updatedAt:Date.now()});state.diceMode=room.diceMode||els.onlineDiceModeSelect.value;state.status='lobby';els.startModal.classList.add('show');subscribeRoom(code);showMessage('הצטרפת לחדר');}catch(e){console.error(e);showMessage('בעיה בהצטרפות')}}
 async function toggleReady(){if(!isOnline()||!state.roomCode)return;const snap=await get(roomRef(state.roomCode+'/ready/'+state.localActor));const cur=!!snap.val();await update(roomRef(state.roomCode),{['ready/'+state.localActor]:!cur,updatedAt:Date.now()});}
-async function startOnlineOpening(){state.status='opening';state.diceMode=els.onlineDiceModeSelect.value||state.diceMode||'manual';state.difficulty='medium';state.log=[];setInitialBoard();state.gameOver=false;state.lastChance=null;state.doubleStreak={human:0,computer:0};state.dice=[0,0];state.remaining=[];addLog('גלגולת פתיחה אונליין מתחילה','special');renderAll();await syncShared('openingStart');let h,c;do{h=die();c=die();state.dice=[h,c];addLog(`${actorName('human')} גלגל: ${h}`);addLog(`${actorName('computer')} גלגל: ${c}`);if(h===c){addLog('תיקו בפתיחה — מגלגלים שוב','special')}}while(h===c);if(h>c){state.humanColor=WHITE;state.computerColor=BLACK;state.currentActor='human';addLog(`${actorName('human')} מתחיל ומשחק בלבן`,'special')}else{state.humanColor=BLACK;state.computerColor=WHITE;state.currentActor='computer';addLog(`${actorName('computer')} מתחיל ומשחק בלבן`,'special')}await syncShared('openingDone');setTimeout(()=>startTurn(state.currentActor),900);}
-function showReaction(text){if(!els.reactionToast)return;els.reactionToast.textContent=text;els.reactionToast.classList.add('show');clearTimeout(showReaction.t);showReaction.t=setTimeout(()=>els.reactionToast.classList.remove('show'),2200)}
-async function sendReaction(text){showReaction(text);if(isOnline()&&state.roomCode)await update(roomRef(state.roomCode),{reaction:{id:Date.now()+'_'+Math.random().toString(36).slice(2,5),from:state.localActor,text,at:Date.now()}})}
+async function startOnlineOpening(){state.status='opening';state.diceMode=els.onlineDiceModeSelect.value||state.diceMode||'manual';state.difficulty='medium';state.log=[];setInitialBoard();state.gameOver=false;state.lastChance=null;state.lastMove=null;state.lastMoveSeen=null;state.lastVictorySeen=null;state.winnerColor=null;state.stolen=false;state.victoryId=null;state.lastChanceRollingSeen=null;state.lastChanceResultSeen=null;state.doubleStreak={human:0,computer:0};state.dice=[0,0];state.remaining=[];addLog('גלגולת פתיחה אונליין מתחילה','special');renderAll();await syncShared('openingStart');let h,c;do{h=die();c=die();state.dice=[h,c];addLog(`${actorName('human')} גלגל: ${h}`);addLog(`${actorName('computer')} גלגל: ${c}`);if(h===c){addLog('תיקו בפתיחה — מגלגלים שוב','special')}}while(h===c);if(h>c){state.humanColor=WHITE;state.computerColor=BLACK;state.currentActor='human';addLog(`${actorName('human')} מתחיל ומשחק בלבן`,'special')}else{state.humanColor=BLACK;state.computerColor=WHITE;state.currentActor='computer';addLog(`${actorName('computer')} מתחיל ומשחק בלבן`,'special')}await syncShared('openingDone');setTimeout(()=>startTurn(state.currentActor),900);}
+function showReaction(text,fromActor=localActor()){
+  const color=actorColor(fromActor)||WHITE;
+  const target=color===WHITE?els.reactionWhite:els.reactionBlack;
+  if(!target)return;
+  target.textContent=text;
+  target.classList.remove('show');
+  void target.offsetWidth;
+  target.classList.add('show');
+  clearTimeout(target._hideTimer);
+  target._hideTimer=setTimeout(()=>target.classList.remove('show'),3200);
+}
+async function sendReaction(text){
+  showReaction(text,localActor());
+  if(isOnline()&&state.roomCode)await update(roomRef(state.roomCode),{reaction:{id:Date.now()+'_'+Math.random().toString(36).slice(2,5),from:state.localActor,text,at:Date.now()}});
+}
 function renderLastChanceUI(){
-  if(!state.lastChance||state.gameOver){els.lastChanceModal.classList.remove('show');return;}
+  if(!state.lastChance||state.gameOver){
+    els.lastChanceModal.classList.remove('show');
+    return;
+  }
   const lc=state.lastChance,winnerActor=actorForColor(lc.winner),loserActor=actorForColor(lc.loser);
   if(lc.phase==='choose'){
     if(loserActor===localActor()){
-      els.lastChanceText.textContent='בחר שני מספרים לירושלמי. אם המנצח יגלגל בדיוק אותם — אתה גונב ניצחון.';document.querySelector('.lastChancePick').style.display='flex';els.chanceBtn.textContent='אישור';els.lastChanceModal.classList.add('show');
-    }else{els.lastChanceModal.classList.remove('show');showMessage(`מחכים ש${actorName(loserActor)} יבחר מספרים לירושלמי`,1800)}
+      els.lastChanceText.textContent='ירושלמי: בחר שני מספרים. אם המנצח יגלגל בדיוק אותם — אתה גונב ניצחון.';
+      document.querySelector('.lastChancePick').style.display='flex';
+      els.chanceBtn.textContent='אישור בחירה';
+      els.lastChanceModal.classList.add('show');
+    }else{
+      els.lastChanceModal.classList.remove('show');
+      showMessage(`${actorName(loserActor)} בוחר מספרים לירושלמי...`,2200);
+    }
   }else if(lc.phase==='roll'){
+    const ch=lc.choice||['?','?'];
     if(winnerActor===localActor()){
-      const ch=lc.choice||['?','?'];els.lastChanceText.textContent=`${actorName(loserActor)} בחר: ${ch[0]} ו־${ch[1]}. עכשיו ${actorName(winnerActor)} צריך לגלגל.`;document.querySelector('.lastChancePick').style.display='none';els.chanceBtn.textContent='גלגל ירושלמי';els.lastChanceModal.classList.add('show');
-    }else{els.lastChanceModal.classList.remove('show');const ch=lc.choice||['?','?'];showMessage(`${actorName(loserActor)} בחר ${ch[0]} ו־${ch[1]} — מחכים לגלגול`,2200)}
+      els.lastChanceText.textContent=`${actorName(loserActor)} בחר: ${ch[0]}–${ch[1]}. עכשיו זרוק קוביות.`;
+      document.querySelector('.lastChancePick').style.display='none';
+      els.chanceBtn.textContent='זרוק קוביות 🎲';
+      els.lastChanceModal.classList.add('show');
+      showMessage(`הירושלמי נבחר: ${ch[0]}–${ch[1]} — זרוק קוביות`,2600);
+    }else{
+      els.lastChanceModal.classList.remove('show');
+      showMessage(`בחרת ${ch[0]}–${ch[1]} — מחכים ש${actorName(winnerActor)} יזרוק`,2600);
+    }
+  }else if(lc.phase==='rolling'){
+    els.lastChanceModal.classList.remove('show');
+    showMessage(`${actorName(winnerActor)} מגלגל לירושלמי...`,2200);
   }
 }
-async function rollLastChanceNow(){
-  if(!state.lastChance||state.lastChance.phase!=='roll')return;els.lastChanceModal.classList.remove('show');const lc=state.lastChance,winner=lc.winner,loser=lc.loser,ch=lc.choice||[];
-  showMessage(`${actorName(actorForColor(winner))} מגלגל לירושלמי...`,1600);await sleep(550);const d=[die(),die()];state.dice=d;await rollDiceVisual(d,1250);state.lastChance.roll=d;addLog(`${actorName(actorForColor(winner))} גלגל לירושלמי: ${d[0]}–${d[1]}`,'special');
-  const ok=(d[0]===ch[0]&&d[1]===ch[1])||(d[0]===ch[1]&&d[1]===ch[0]);
-  if(ok){addLog(`הירושלמי הצליח — ${actorName(actorForColor(loser))} גנב ניצחון!`,'special');showMessage(`הירושלמי הצליח — ${actorName(actorForColor(loser))} ניצח!`,5000);finishGame(loser,true)}
-  else{addLog(`הירושלמי נכשל — ${actorName(actorForColor(winner))} ניצח!`,'special');showMessage(`הירושלמי נכשל — ${actorName(actorForColor(winner))} ניצח!`,5000);finishGame(winner,false)}
-  await syncShared('lastChanceResult');
-}
 async function lastChanceButton(){
-  if(!state.lastChance)return resolveLastChance([+els.chanceA.value,+els.chanceB.value]);
-  const lc=state.lastChance,winnerActor=actorForColor(lc.winner),loserActor=actorForColor(lc.loser);
-  if(lc.phase==='choose'&&loserActor===localActor())return resolveLastChance([+els.chanceA.value,+els.chanceB.value]);
-  if(lc.phase==='roll'&&winnerActor===localActor())return rollLastChanceNow();
+  if(state.lastChance){
+    const lc=state.lastChance,winnerActor=actorForColor(lc.winner),loserActor=actorForColor(lc.loser);
+    if(lc.phase==='choose'&&loserActor===localActor())return resolveLastChance([+els.chanceA.value,+els.chanceB.value]);
+    if(lc.phase==='roll'&&winnerActor===localActor())return rollLastChanceNow();
+  }
+  resolveLastChance([+els.chanceA.value,+els.chanceB.value]);
 }
 
 function newGameFromModal(){
@@ -946,11 +1176,11 @@ function openNewGame(){clearTimers();els.startModal.classList.add('show');}
 function buttonRoll(){if(canHumanRoll())rollForCurrent();}
 function setupEvents(){
   els.startBtn.addEventListener('click',newGameFromModal);els.newBtn.addEventListener('click',resetForNewGame);els.newBtn2.addEventListener('click',resetForNewGame);
-  els.rollBtn.addEventListener('click',buttonRoll);els.diceDock.addEventListener('click',buttonRoll);els.undoBtn.addEventListener('click',undo);els.endBtn.addEventListener('click',()=>{if(canEndTurnNow())endTurn();else if(state.currentActor===localActor()&&state.status==='humanMoving')showMessage('חייבים להשלים את כל המהלכים קודם',1600)});
+  els.rollBtn.addEventListener('click',buttonRoll);els.diceDock.addEventListener('click',buttonRoll);els.undoBtn.addEventListener('click',undo);els.endBtn.addEventListener('click',()=>{if(state.currentActor===localActor()&&state.status==='humanMoving')endTurn()});
   els.chanceBtn.addEventListener('click',lastChanceButton);
-  els.modeComputerBtn.addEventListener('click',()=>{els.modeComputerBtn.classList.add('active');els.modeFriendBtn.classList.remove('active');if(els.modeRulesBtn)els.modeRulesBtn.classList.remove('active');els.computerPanel.classList.add('show');els.onlinePanel.classList.remove('show');if(els.rulesPanel)els.rulesPanel.classList.remove('show')});
-  els.modeFriendBtn.addEventListener('click',()=>{els.modeFriendBtn.classList.add('active');els.modeComputerBtn.classList.remove('active');if(els.modeRulesBtn)els.modeRulesBtn.classList.remove('active');els.onlinePanel.classList.add('show');els.computerPanel.classList.remove('show');if(els.rulesPanel)els.rulesPanel.classList.remove('show')});
-  if(els.modeRulesBtn)els.modeRulesBtn.addEventListener('click',()=>{els.modeRulesBtn.classList.add('active');els.modeComputerBtn.classList.remove('active');els.modeFriendBtn.classList.remove('active');els.rulesPanel.classList.add('show');els.computerPanel.classList.remove('show');els.onlinePanel.classList.remove('show')});
+  els.modeComputerBtn.addEventListener('click',()=>{els.modeComputerBtn.classList.add('active');els.modeFriendBtn.classList.remove('active');els.modeRulesBtn.classList.remove('active');els.computerPanel.classList.add('show');els.onlinePanel.classList.remove('show');els.rulesPanel.classList.remove('show')});
+  els.modeFriendBtn.addEventListener('click',()=>{els.modeFriendBtn.classList.add('active');els.modeComputerBtn.classList.remove('active');els.modeRulesBtn.classList.remove('active');els.onlinePanel.classList.add('show');els.computerPanel.classList.remove('show');els.rulesPanel.classList.remove('show')});
+  els.modeRulesBtn.addEventListener('click',()=>{els.modeRulesBtn.classList.add('active');els.modeComputerBtn.classList.remove('active');els.modeFriendBtn.classList.remove('active');els.rulesPanel.classList.add('show');els.computerPanel.classList.remove('show');els.onlinePanel.classList.remove('show')});
   els.createRoomBtn.addEventListener('click',createRoom);els.joinRoomBtn.addEventListener('click',joinRoom);els.readyBtn.addEventListener('click',toggleReady);
   document.querySelectorAll('.reactBtn').forEach(b=>b.addEventListener('click',()=>sendReaction(b.dataset.text)));
 }
