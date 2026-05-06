@@ -419,6 +419,10 @@ button,select,input{font-family:inherit}
 <div id="reactionToast" class="toastReaction"></div>
 
 <script type="module">
+import { BOTTOM_POINTS, TOP_POINTS } from "./src/game/board.js";
+import { die, isFiveSix, isFourFive, isOneTwo } from "./src/game/dice.js";
+import { BLACK, SIGN, WHITE, countColorAt, isBlocked, oppCountAt, otherColor } from "./src/game/rules.js";
+import { HEB_COLOR, HEB_DIFF, HEB_MODE } from "./src/ui/text.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
 import { getDatabase, ref, set, get, update, onValue, off } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-database.js";
 const firebaseConfig = {
@@ -436,13 +440,6 @@ const db = getDatabase(fbApp);
 
 (() => {
 'use strict';
-const WHITE='white', BLACK='black';
-const SIGN={white:1,black:-1};
-const HEB_COLOR={white:'לבן',black:'שחור'};
-const HEB_DIFF={easy:'קל',medium:'בינוני',hard:'קשה'};
-const HEB_MODE={auto:'גלגול אוטומטי',manual:'גלגול ידני'};
-const TOP_POINTS=[13,14,15,16,17,18,19,20,21,22,23,24];
-const BOTTOM_POINTS=[12,11,10,9,8,7,6,5,4,3,2,1];
 const PIP_POS={1:[4],2:[0,8],3:[0,4,8],4:[0,2,6,8],5:[0,2,4,6,8],6:[0,2,3,5,6,8]};
 const $=sel=>document.querySelector(sel);
 const els={
@@ -465,7 +462,6 @@ const state={
 let audioCtx=null;
 function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
 function rnd(min,max){return Math.floor(Math.random()*(max-min+1))+min;}
-function die(){return rnd(1,6);}
 function actorName(actor){
   if(state.playerNames&&state.playerNames[actor])return state.playerNames[actor];
   return actor==='human'?'אתה':'המחשב';
@@ -478,12 +474,8 @@ function roomRef(code){return ref(db,'rooms/'+code);}
 function roomGameRef(code){return ref(db,'rooms/'+code+'/game');}
 
 function otherActor(actor){return actor==='human'?'computer':'human';}
-function otherColor(c){return c===WHITE?BLACK:WHITE;}
 function actorColor(actor){return actor==='human'?state.humanColor:state.computerColor;}
 function actorForColor(color){return state.humanColor===color?'human':'computer';}
-function countColorAt(st,p,color){const v=st.board[p];return Math.sign(v)===SIGN[color]?Math.abs(v):0;}
-function oppCountAt(st,p,color){const v=st.board[p];return Math.sign(v)===-SIGN[color]?Math.abs(v):0;}
-function isBlocked(st,p,color){return p>=1&&p<=24&&oppCountAt(st,p,color)>=2;}
 function playSound(type='move'){
   try{
     audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();
@@ -766,6 +758,11 @@ function logMove(who,move){
   if(move.hit)addLog(`${who} אכל אבן`,'danger');
   if(move.to==='off')addLog(`${who} הוציא אבן`,'special');
 }
+function computerMoveText(move){
+  if(move.to==='off')return move.from==='bar'?'המחשב מוציא אבן':'המחשב מוציא אבן מ־'+move.from;
+  if(move.from==='bar')return `המחשב נכנס מהבר ל־${move.to}${move.hit?' ואוכל אבן':''}`;
+  return `המחשב מזיז מ־${move.from} ל־${move.to}${move.hit?' ואוכל אבן':''}`;
+}
 function consumeMove(move){
   const idx=state.remaining.indexOf(move.die);if(idx>=0)state.remaining.splice(idx,1);else state.remaining.shift();
 }
@@ -885,9 +882,6 @@ function processRoll(d){
 }
 
 function colorActorResetSelection(){state.selected=null;state.legalChoices=[];state.undoStack=[];state.freeMode=false;state.chosenDouble=false;state.doubleExtra=false;}
-function isOneTwo(d){return (d[0]===1&&d[1]===2)||(d[0]===2&&d[1]===1)}
-function isFourFive(d){return (d[0]===4&&d[1]===5)||(d[0]===5&&d[1]===4)}
-function isFiveSix(d){return (d[0]===5&&d[1]===6)||(d[0]===6&&d[1]===5)}
 function beginMovePhase(){
   const actor=state.currentActor,color=actorColor(actor);renderAll();
   const legal=getAllLegalMoves(state,color,state.remaining,state.freeMode);
@@ -916,7 +910,7 @@ function computerChooseDouble(){
   state.remaining=[n,n,n,n];state.freeMode=false;state.chosenDouble=true;state.doubleExtra=false;addLog(`המחשב בחר דאבל ${n}–${n}`,'special');showMessage(`המחשב בחר דאבל ${n}–${n}`);setTimeout(beginMovePhase,850);
 }
 async function runComputerTurn(){
-  const color=state.computerColor;await sleep(rnd(950,1250));
+  const color=state.computerColor;await sleep(rnd(1200,1600));
   let seq=chooseAiSequence();
   if(!seq.length){addLog('אין מהלכים חוקיים','danger');showMessage('אין מהלכים חוקיים');return setTimeout(()=>endTurn(),1200);}
   for(const planned of seq){
@@ -925,14 +919,16 @@ async function runComputerTurn(){
     const move=legal.find(m=>sameMove(m,planned))||legal[0];
     if(!move)break;
     if(await computerMove(move))return;if(state.gameOver)return;
-    await sleep(rnd(900,1300));
+    await sleep(rnd(1200,1700));
     if(state.remaining.length===0)break;
     if(!getAllLegalMoves(state,color,state.remaining,state.freeMode).length){addLog('אין מהלכים חוקיים','danger');showMessage('אין מהלכים חוקיים');break;}
   }
-  await sleep(650);endTurn();
+  await sleep(900);endTurn();
 }
 function sameMove(a,b){return a.from===b.from&&a.to===b.to&&a.die===b.die;}
 async function computerMove(move){
+  showMessage(computerMoveText(move),1900);
+  await sleep(650);
   const start=getPlaceCenter(move.from,move.color,true);applyMove(state,move);consumeMove(move);renderAll();const end=getPlaceCenter(move.to,move.color,false);await flyPiece(move.color,start,end,move.hit);logMove('המחשב',move);return checkWinAfterMove(move.color);
 }
 
