@@ -419,6 +419,7 @@ button,select,input{font-family:inherit}
 <div id="reactionToast" class="toastReaction"></div>
 
 <script type="module">
+import { BLACK, SIGN, WHITE, countColorAt, isBlocked, oppCountAt, otherColor } from "./src/game/rules.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
 import { getDatabase, ref, set, get, update, onValue, off } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-database.js";
 const firebaseConfig = {
@@ -436,8 +437,6 @@ const db = getDatabase(fbApp);
 
 (() => {
 'use strict';
-const WHITE='white', BLACK='black';
-const SIGN={white:1,black:-1};
 const HEB_COLOR={white:'לבן',black:'שחור'};
 const HEB_DIFF={easy:'קל',medium:'בינוני',hard:'קשה'};
 const HEB_MODE={auto:'גלגול אוטומטי',manual:'גלגול ידני'};
@@ -478,12 +477,8 @@ function roomRef(code){return ref(db,'rooms/'+code);}
 function roomGameRef(code){return ref(db,'rooms/'+code+'/game');}
 
 function otherActor(actor){return actor==='human'?'computer':'human';}
-function otherColor(c){return c===WHITE?BLACK:WHITE;}
 function actorColor(actor){return actor==='human'?state.humanColor:state.computerColor;}
 function actorForColor(color){return state.humanColor===color?'human':'computer';}
-function countColorAt(st,p,color){const v=st.board[p];return Math.sign(v)===SIGN[color]?Math.abs(v):0;}
-function oppCountAt(st,p,color){const v=st.board[p];return Math.sign(v)===-SIGN[color]?Math.abs(v):0;}
-function isBlocked(st,p,color){return p>=1&&p<=24&&oppCountAt(st,p,color)>=2;}
 function playSound(type='move'){
   try{
     audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();
@@ -766,6 +761,11 @@ function logMove(who,move){
   if(move.hit)addLog(`${who} אכל אבן`,'danger');
   if(move.to==='off')addLog(`${who} הוציא אבן`,'special');
 }
+function computerMoveText(move){
+  if(move.to==='off')return move.from==='bar'?'המחשב מוציא אבן':'המחשב מוציא אבן מ־'+move.from;
+  if(move.from==='bar')return `המחשב נכנס מהבר ל־${move.to}${move.hit?' ואוכל אבן':''}`;
+  return `המחשב מזיז מ־${move.from} ל־${move.to}${move.hit?' ואוכל אבן':''}`;
+}
 function consumeMove(move){
   const idx=state.remaining.indexOf(move.die);if(idx>=0)state.remaining.splice(idx,1);else state.remaining.shift();
 }
@@ -916,7 +916,7 @@ function computerChooseDouble(){
   state.remaining=[n,n,n,n];state.freeMode=false;state.chosenDouble=true;state.doubleExtra=false;addLog(`המחשב בחר דאבל ${n}–${n}`,'special');showMessage(`המחשב בחר דאבל ${n}–${n}`);setTimeout(beginMovePhase,850);
 }
 async function runComputerTurn(){
-  const color=state.computerColor;await sleep(rnd(950,1250));
+  const color=state.computerColor;await sleep(rnd(1200,1600));
   let seq=chooseAiSequence();
   if(!seq.length){addLog('אין מהלכים חוקיים','danger');showMessage('אין מהלכים חוקיים');return setTimeout(()=>endTurn(),1200);}
   for(const planned of seq){
@@ -925,14 +925,16 @@ async function runComputerTurn(){
     const move=legal.find(m=>sameMove(m,planned))||legal[0];
     if(!move)break;
     if(await computerMove(move))return;if(state.gameOver)return;
-    await sleep(rnd(900,1300));
+    await sleep(rnd(1200,1700));
     if(state.remaining.length===0)break;
     if(!getAllLegalMoves(state,color,state.remaining,state.freeMode).length){addLog('אין מהלכים חוקיים','danger');showMessage('אין מהלכים חוקיים');break;}
   }
-  await sleep(650);endTurn();
+  await sleep(900);endTurn();
 }
 function sameMove(a,b){return a.from===b.from&&a.to===b.to&&a.die===b.die;}
 async function computerMove(move){
+  showMessage(computerMoveText(move),1900);
+  await sleep(650);
   const start=getPlaceCenter(move.from,move.color,true);applyMove(state,move);consumeMove(move);renderAll();const end=getPlaceCenter(move.to,move.color,false);await flyPiece(move.color,start,end,move.hit);logMove('המחשב',move);return checkWinAfterMove(move.color);
 }
 
