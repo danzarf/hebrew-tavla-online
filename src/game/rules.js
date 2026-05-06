@@ -2,8 +2,8 @@ export const WHITE = 'white';
 export const BLACK = 'black';
 
 export const SIGN = {
-  [WHITE]: -1,
-  [BLACK]: 1,
+  [WHITE]: 1,
+  [BLACK]: -1,
 };
 
 export function otherColor(color) {
@@ -12,8 +12,7 @@ export function otherColor(color) {
 
 export function countColorAt(state, point, color) {
   const value = state?.board?.[point] || 0;
-  const count = value * SIGN[color];
-  return count > 0 ? count : 0;
+  return Math.sign(value) === SIGN[color] ? Math.abs(value) : 0;
 }
 
 export function oppCountAt(state, point, color) {
@@ -21,5 +20,5 @@ export function oppCountAt(state, point, color) {
 }
 
 export function isBlocked(state, point, color) {
-  return oppCountAt(state, point, color) >= 2;
+  return point >= 1 && point <= 24 && oppCountAt(state, point, color) >= 2;
 }
