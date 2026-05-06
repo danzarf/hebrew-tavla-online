@@ -419,6 +419,7 @@ button,select,input{font-family:inherit}
 <div id="reactionToast" class="toastReaction"></div>
 
 <script type="module">
+import { BLACK, SIGN, WHITE, countColorAt, isBlocked, oppCountAt, otherColor } from "./src/game/rules.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
 import { getDatabase, ref, set, get, update, onValue, off } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-database.js";
 const firebaseConfig = {
@@ -436,8 +437,6 @@ const db = getDatabase(fbApp);
 
 (() => {
 'use strict';
-const WHITE='white', BLACK='black';
-const SIGN={white:1,black:-1};
 const HEB_COLOR={white:'לבן',black:'שחור'};
 const HEB_DIFF={easy:'קל',medium:'בינוני',hard:'קשה'};
 const HEB_MODE={auto:'גלגול אוטומטי',manual:'גלגול ידני'};
@@ -478,12 +477,8 @@ function roomRef(code){return ref(db,'rooms/'+code);}
 function roomGameRef(code){return ref(db,'rooms/'+code+'/game');}
 
 function otherActor(actor){return actor==='human'?'computer':'human';}
-function otherColor(c){return c===WHITE?BLACK:WHITE;}
 function actorColor(actor){return actor==='human'?state.humanColor:state.computerColor;}
 function actorForColor(color){return state.humanColor===color?'human':'computer';}
-function countColorAt(st,p,color){const v=st.board[p];return Math.sign(v)===SIGN[color]?Math.abs(v):0;}
-function oppCountAt(st,p,color){const v=st.board[p];return Math.sign(v)===-SIGN[color]?Math.abs(v):0;}
-function isBlocked(st,p,color){return p>=1&&p<=24&&oppCountAt(st,p,color)>=2;}
 function playSound(type='move'){
   try{
     audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();
