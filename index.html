@@ -421,7 +421,8 @@ button,select,input{font-family:inherit}
 <script type="module">
 import { BOTTOM_POINTS, TOP_POINTS } from "./src/game/board.js";
 import { die, isFiveSix, isFourFive, isOneTwo } from "./src/game/dice.js";
-import { BLACK, SIGN, WHITE, countColorAt, isBlocked, oppCountAt, otherColor } from "./src/game/rules.js";
+import { BLACK, WHITE, countColorAt, otherColor } from "./src/game/rules.js";
+import { applyMove, cloneState, getAllLegalMoves, getLegalMovesForSource, sameMove } from "./src/game/moves.js";
 import { HEB_COLOR, HEB_DIFF, HEB_MODE } from "./src/ui/text.js";
 import { addLog as addLogMessage, computerMoveText, escapeHtml, logMove as logMoveMessage, renderLog as renderLogMessage, showMessage as showMessageMessage } from "./src/ui/messages.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
@@ -755,66 +756,6 @@ function logMove(who,move){
 function consumeMove(move){
   const idx=state.remaining.indexOf(move.die);if(idx>=0)state.remaining.splice(idx,1);else state.remaining.shift();
 }
-function applyMove(st,move){
-  const color=move.color,opp=otherColor(color),sgn=SIGN[color];
-  if(move.from==='bar')st.bar[color]--;else st.board[move.from]-=sgn;
-  if(move.to==='off'){st.off[color]++;return;}
-  const oc=oppCountAt(st,move.to,color);
-  move.hit=false;
-  if(oc===1){st.board[move.to]=0;st.bar[opp]++;move.hit=true;}
-  st.board[move.to]+=sgn;
-}
-function cloneState(st){return {board:st.board.slice(),bar:{white:st.bar.white,black:st.bar.black},off:{white:st.off.white,black:st.off.black}};}
-function allInHome(st,color){
-  if(st.bar[color]>0)return false;
-  for(let p=1;p<=24;p++){if(countColorAt(st,p,color)>0){if(color===WHITE&&p>6)return false;if(color===BLACK&&p<19)return false;}}
-  return true;
-}
-function canBearOff(st,color,from,dieVal){
-  if(!allInHome(st,color))return false;
-  if(color===WHITE){
-    if(from-dieVal===0)return true;
-    if(from-dieVal<0){for(let p=from+1;p<=6;p++)if(countColorAt(st,p,color)>0)return false;return true;}
-  }else{
-    if(from+dieVal===25)return true;
-    if(from+dieVal>25){for(let p=19;p<from;p++)if(countColorAt(st,p,color)>0)return false;return true;}
-  }
-  return false;
-}
-function barDest(color,dieVal){return color===WHITE?25-dieVal:dieVal;}
-function legalMovesForToken(st,color,token){
-  const free=token==='free';const moves=[];
-  if(st.bar[color]>0){
-    if(free){
-      const entryPoints=color===WHITE?[24,23,22,21,20,19]:[1,2,3,4,5,6];
-      for(const p of entryPoints){if(!isBlocked(st,p,color))moves.push({color,from:'bar',to:p,die:token,hit:oppCountAt(st,p,color)===1,fromBar:true});}
-    }
-    else{const p=barDest(color,token);if(!isBlocked(st,p,color))moves.push({color,from:'bar',to:p,die:token,hit:oppCountAt(st,p,color)===1,fromBar:true});}
-    return moves;
-  }
-  for(let p=1;p<=24;p++){
-    if(countColorAt(st,p,color)<=0)continue;
-    if(free){
-      for(let to=1;to<=24;to++){if(to!==p&&!isBlocked(st,to,color))moves.push({color,from:p,to,die:token,hit:oppCountAt(st,to,color)===1});}
-      if(allInHome(st,color))moves.push({color,from:p,to:'off',die:token,bearOff:true});
-    }else{
-      const to=color===WHITE?p-token:p+token;
-      if(to>=1&&to<=24){if(!isBlocked(st,to,color))moves.push({color,from:p,to,die:token,hit:oppCountAt(st,to,color)===1});}
-      else if(canBearOff(st,color,p,token))moves.push({color,from:p,to:'off',die:token,bearOff:true});
-    }
-  }
-  return moves;
-}
-function uniqueTokens(remaining){return [...new Set(remaining)];}
-function getAllLegalMoves(st,color,remaining,freeMode){
-  let out=[];for(const t of uniqueTokens(remaining)){out=out.concat(legalMovesForToken(st,color,t));}
-  return out;
-}
-function getLegalMovesForSource(st,color,remaining,freeMode,src){
-  const all=getAllLegalMoves(st,color,remaining,freeMode);
-  if(src.type==='bar')return all.filter(m=>m.from==='bar');
-  return all.filter(m=>m.from===src.p);
-}
 function startOpeningRoll(){
   state.status='opening';state.dice=[0,0];renderAll();addLog('גלגולת פתיחה מתחילה','special');showMessage('גלגולת פתיחה');
   setTimeout(openingRollLoop,650);
@@ -914,7 +855,6 @@ async function runComputerTurn(){
   }
   await sleep(900);endTurn();
 }
-function sameMove(a,b){return a.from===b.from&&a.to===b.to&&a.die===b.die;}
 async function computerMove(move){
   showMessage(computerMoveText(move),1900);
   await sleep(650);
