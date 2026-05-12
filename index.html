@@ -420,6 +420,7 @@ button,select,input{font-family:inherit}
 
 <script type="module">
 import { BLACK, SIGN, WHITE, countColorAt, isBlocked, oppCountAt, otherColor } from "./src/game/rules.js";
+import { addLog as addLogUi, computerMoveText, escapeHtml, logMove as logMoveUi, renderLog as renderLogUi, showMessage as showMessageUi } from "./src/ui/messages.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
 import { getDatabase, ref, set, get, update, onValue, off } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-database.js";
 const firebaseConfig = {
@@ -492,18 +493,14 @@ function playSound(type='move'){
   }catch(e){}
 }
 function addLog(text,type=''){
-  state.log.unshift({text,type,time:Date.now()});
-  if(state.log.length>120)state.log.length=120;
-  renderLog();
+  addLogUi(state,els,text,type);
 }
 function showMessage(text,ms=1700){
-  els.msg.textContent=text;els.msg.classList.add('show');
-  clearTimeout(showMessage.t);showMessage.t=setTimeout(()=>els.msg.classList.remove('show'),ms);
+  showMessageUi(els,text,ms);
 }
 function renderLog(){
-  els.log.innerHTML=state.log.map(i=>`<div class="logItem ${i.type}">${escapeHtml(i.text)}</div>`).join('');
+  renderLogUi(state,els);
 }
-function escapeHtml(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 function buildBoard(){
   [...TOP_POINTS,...BOTTOM_POINTS].forEach((p,idx)=>{
     const div=document.createElement('div');div.className='point '+(TOP_POINTS.includes(p)?'top':'bottom')+' '+(idx%2?'green':'red');div.dataset.point=p;
@@ -756,15 +753,7 @@ function flyPiece(color,start,end,hit=false){
   });
 }
 function logMove(who,move){
-  let from=move.from==='bar'?'מהבר':`מ־${move.from}`;let to=move.to==='off'?'להוצאה':`ל־${move.to}`;
-  addLog(`${who} הזיז ${from} ${to}${move.die==='free'?' (חופשי)':''}`);
-  if(move.hit)addLog(`${who} אכל אבן`,'danger');
-  if(move.to==='off')addLog(`${who} הוציא אבן`,'special');
-}
-function computerMoveText(move){
-  if(move.to==='off')return move.from==='bar'?'המחשב מוציא אבן':'המחשב מוציא אבן מ־'+move.from;
-  if(move.from==='bar')return `המחשב נכנס מהבר ל־${move.to}${move.hit?' ואוכל אבן':''}`;
-  return `המחשב מזיז מ־${move.from} ל־${move.to}${move.hit?' ואוכל אבן':''}`;
+  logMoveUi(state,els,who,move);
 }
 function consumeMove(move){
   const idx=state.remaining.indexOf(move.die);if(idx>=0)state.remaining.splice(idx,1);else state.remaining.shift();
