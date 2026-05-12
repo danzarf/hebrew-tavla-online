@@ -419,7 +419,11 @@ button,select,input{font-family:inherit}
 <div id="reactionToast" class="toastReaction"></div>
 
 <script type="module">
+import { BOTTOM_POINTS, TOP_POINTS } from "./src/game/board.js";
+import { die, isFiveSix, isFourFive, isOneTwo } from "./src/game/dice.js";
 import { BLACK, SIGN, WHITE, countColorAt, isBlocked, oppCountAt, otherColor } from "./src/game/rules.js";
+import { addLog as addLogUi, computerMoveText, escapeHtml, logMove as logMoveUi, renderLog as renderLogUi, showMessage as showMessageUi } from "./src/ui/messages.js";
+import { HEB_COLOR, HEB_DIFF, HEB_MODE } from "./src/ui/text.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
 import { getDatabase, ref, set, get, update, onValue, off } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-database.js";
 const firebaseConfig = {
@@ -437,11 +441,6 @@ const db = getDatabase(fbApp);
 
 (() => {
 'use strict';
-const HEB_COLOR={white:'לבן',black:'שחור'};
-const HEB_DIFF={easy:'קל',medium:'בינוני',hard:'קשה'};
-const HEB_MODE={auto:'גלגול אוטומטי',manual:'גלגול ידני'};
-const TOP_POINTS=[13,14,15,16,17,18,19,20,21,22,23,24];
-const BOTTOM_POINTS=[12,11,10,9,8,7,6,5,4,3,2,1];
 const PIP_POS={1:[4],2:[0,8],3:[0,4,8],4:[0,2,6,8],5:[0,2,4,6,8],6:[0,2,3,5,6,8]};
 const $=sel=>document.querySelector(sel);
 const els={
@@ -464,7 +463,6 @@ const state={
 let audioCtx=null;
 function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
 function rnd(min,max){return Math.floor(Math.random()*(max-min+1))+min;}
-function die(){return rnd(1,6);}
 function actorName(actor){
   if(state.playerNames&&state.playerNames[actor])return state.playerNames[actor];
   return actor==='human'?'אתה':'המחשב';
@@ -492,18 +490,14 @@ function playSound(type='move'){
   }catch(e){}
 }
 function addLog(text,type=''){
-  state.log.unshift({text,type,time:Date.now()});
-  if(state.log.length>120)state.log.length=120;
-  renderLog();
+  addLogUi(state,els,text,type);
 }
 function showMessage(text,ms=1700){
-  els.msg.textContent=text;els.msg.classList.add('show');
-  clearTimeout(showMessage.t);showMessage.t=setTimeout(()=>els.msg.classList.remove('show'),ms);
+  showMessageUi(els,text,ms);
 }
 function renderLog(){
-  els.log.innerHTML=state.log.map(i=>`<div class="logItem ${i.type}">${escapeHtml(i.text)}</div>`).join('');
+  renderLogUi(state,els);
 }
-function escapeHtml(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 function buildBoard(){
   [...TOP_POINTS,...BOTTOM_POINTS].forEach((p,idx)=>{
     const div=document.createElement('div');div.className='point '+(TOP_POINTS.includes(p)?'top':'bottom')+' '+(idx%2?'green':'red');div.dataset.point=p;
@@ -756,15 +750,7 @@ function flyPiece(color,start,end,hit=false){
   });
 }
 function logMove(who,move){
-  let from=move.from==='bar'?'מהבר':`מ־${move.from}`;let to=move.to==='off'?'להוצאה':`ל־${move.to}`;
-  addLog(`${who} הזיז ${from} ${to}${move.die==='free'?' (חופשי)':''}`);
-  if(move.hit)addLog(`${who} אכל אבן`,'danger');
-  if(move.to==='off')addLog(`${who} הוציא אבן`,'special');
-}
-function computerMoveText(move){
-  if(move.to==='off')return move.from==='bar'?'המחשב מוציא אבן':'המחשב מוציא אבן מ־'+move.from;
-  if(move.from==='bar')return `המחשב נכנס מהבר ל־${move.to}${move.hit?' ואוכל אבן':''}`;
-  return `המחשב מזיז מ־${move.from} ל־${move.to}${move.hit?' ואוכל אבן':''}`;
+  logMoveUi(state,els,who,move);
 }
 function consumeMove(move){
   const idx=state.remaining.indexOf(move.die);if(idx>=0)state.remaining.splice(idx,1);else state.remaining.shift();
@@ -885,9 +871,6 @@ function processRoll(d){
 }
 
 function colorActorResetSelection(){state.selected=null;state.legalChoices=[];state.undoStack=[];state.freeMode=false;state.chosenDouble=false;state.doubleExtra=false;}
-function isOneTwo(d){return (d[0]===1&&d[1]===2)||(d[0]===2&&d[1]===1)}
-function isFourFive(d){return (d[0]===4&&d[1]===5)||(d[0]===5&&d[1]===4)}
-function isFiveSix(d){return (d[0]===5&&d[1]===6)||(d[0]===6&&d[1]===5)}
 function beginMovePhase(){
   const actor=state.currentActor,color=actorColor(actor);renderAll();
   const legal=getAllLegalMoves(state,color,state.remaining,state.freeMode);
