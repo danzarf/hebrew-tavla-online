@@ -12,3 +12,19 @@ export function isDicePair(dice) {
 export function isDouble(dice) {
   return isDicePair(dice) && dice[0] === dice[1];
 }
+
+export function die() {
+  return Math.floor(Math.random() * (DICE_MAX - DICE_MIN + 1)) + DICE_MIN;
+}
+
+export function isOneTwo(dice) {
+  return (dice[0] === 1 && dice[1] === 2) || (dice[0] === 2 && dice[1] === 1);
+}
+
+export function isFourFive(dice) {
+  return (dice[0] === 4 && dice[1] === 5) || (dice[0] === 5 && dice[1] === 4);
+}
+
+export function isFiveSix(dice) {
+  return (dice[0] === 5 && dice[1] === 6) || (dice[0] === 6 && dice[1] === 5);
+}

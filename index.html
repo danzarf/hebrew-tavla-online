@@ -419,7 +419,10 @@ button,select,input{font-family:inherit}
 <div id="reactionToast" class="toastReaction"></div>
 
 <script type="module">
+import { BOTTOM_POINTS, TOP_POINTS } from "./src/game/board.js";
+import { die, isFiveSix, isFourFive, isOneTwo } from "./src/game/dice.js";
 import { BLACK, SIGN, WHITE, countColorAt, isBlocked, oppCountAt, otherColor } from "./src/game/rules.js";
+import { HEB_COLOR, HEB_DIFF, HEB_MODE } from "./src/ui/text.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
 import { getDatabase, ref, set, get, update, onValue, off } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-database.js";
 const firebaseConfig = {
@@ -437,11 +440,6 @@ const db = getDatabase(fbApp);
 
 (() => {
 'use strict';
-const HEB_COLOR={white:'לבן',black:'שחור'};
-const HEB_DIFF={easy:'קל',medium:'בינוני',hard:'קשה'};
-const HEB_MODE={auto:'גלגול אוטומטי',manual:'גלגול ידני'};
-const TOP_POINTS=[13,14,15,16,17,18,19,20,21,22,23,24];
-const BOTTOM_POINTS=[12,11,10,9,8,7,6,5,4,3,2,1];
 const PIP_POS={1:[4],2:[0,8],3:[0,4,8],4:[0,2,6,8],5:[0,2,4,6,8],6:[0,2,3,5,6,8]};
 const $=sel=>document.querySelector(sel);
 const els={
@@ -464,7 +462,6 @@ const state={
 let audioCtx=null;
 function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
 function rnd(min,max){return Math.floor(Math.random()*(max-min+1))+min;}
-function die(){return rnd(1,6);}
 function actorName(actor){
   if(state.playerNames&&state.playerNames[actor])return state.playerNames[actor];
   return actor==='human'?'אתה':'המחשב';
@@ -885,9 +882,6 @@ function processRoll(d){
 }
 
 function colorActorResetSelection(){state.selected=null;state.legalChoices=[];state.undoStack=[];state.freeMode=false;state.chosenDouble=false;state.doubleExtra=false;}
-function isOneTwo(d){return (d[0]===1&&d[1]===2)||(d[0]===2&&d[1]===1)}
-function isFourFive(d){return (d[0]===4&&d[1]===5)||(d[0]===5&&d[1]===4)}
-function isFiveSix(d){return (d[0]===5&&d[1]===6)||(d[0]===6&&d[1]===5)}
 function beginMovePhase(){
   const actor=state.currentActor,color=actorColor(actor);renderAll();
   const legal=getAllLegalMoves(state,color,state.remaining,state.freeMode);
