@@ -423,6 +423,7 @@ import { BOTTOM_POINTS, TOP_POINTS } from "./src/game/board.js";
 import { die, isFiveSix, isFourFive, isOneTwo } from "./src/game/dice.js";
 import { BLACK, WHITE, countColorAt, otherColor } from "./src/game/rules.js";
 import { applyMove, getAllLegalMoves, getLegalMovesForSource, sameMove } from "./src/game/moves.js";
+import { createInitialBoard, createInitialState, createNewGameStateValues } from "./src/game/state.js";
 import { chooseAiSequence, chooseBestSequenceFor, evaluate, pipCount, simulateSequence } from "./src/game/ai.js";
 import { HEB_COLOR, HEB_DIFF, HEB_MODE } from "./src/ui/text.js";
 import { addLog as addLogMessage, computerMoveText, escapeHtml, logMove as logMoveMessage, renderLog as renderLogMessage, showMessage as showMessageMessage } from "./src/ui/messages.js";
@@ -456,13 +457,7 @@ const els={
   doubleModal:$('#doubleModal'),doubleButtons:$('#doubleButtons'),lastChanceModal:$('#lastChanceModal'),lastChanceText:$('#lastChanceText'),chanceA:$('#chanceA'),chanceB:$('#chanceB'),chanceBtn:$('#chanceBtn'),
   modeComputerBtn:$('#modeComputerBtn'),modeFriendBtn:$('#modeFriendBtn'),modeRulesBtn:$('#modeRulesBtn'),computerPanel:$('#computerPanel'),onlinePanel:$('#onlinePanel'),rulesPanel:$('#rulesPanel'),playerNameInput:$('#playerNameInput'),onlineDiceModeSelect:$('#onlineDiceModeSelect'),createRoomBtn:$('#createRoomBtn'),joinRoomBtn:$('#joinRoomBtn'),joinCodeInput:$('#joinCodeInput'),roomLobby:$('#roomLobby'),roomCodeDisplay:$('#roomCodeDisplay'),roomPlayers:$('#roomPlayers'),readyBtn:$('#readyBtn'),roomStatusText:$('#roomStatusText'),reactionToast:$('#reactionToast'),reactionWhite:$('#reactionWhite'),reactionBlack:$('#reactionBlack'),victoryBanner:$('#victoryBanner'),reactionCard:$('#reactionCard')
 };
-const state={
-  board:Array(25).fill(0),bar:{white:0,black:0},off:{white:0,black:0},
-  humanColor:WHITE,computerColor:BLACK,currentActor:'human',status:'setup',difficulty:'medium',diceMode:'manual',dice:[0,0],
-  remaining:[],freeMode:false,doubleExtra:false,chosenDouble:false,selected:null,legalChoices:[],undoStack:[],
-  log:[],doubleStreak:{human:0,computer:0},autoTimer:null,countdownTimer:null,countdown:0,animating:false,gameOver:false,lastChance:null,
-  gameMode:'computer',localActor:'human',roomCode:null,playerId:null,playerNames:{human:'אתה',computer:'המחשב'},onlineReady:{human:false,computer:false},applyingRemote:false,roomUnsub:null,reactionUnsub:null,lastMove:null,lastMoveSeen:null,lastVictorySeen:null,winnerColor:null,stolen:false,victoryId:null,lastChanceRollingSeen:null,lastChanceResultSeen:null
-};
+const state=createInitialState();
 function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
 function rnd(min,max){return Math.floor(Math.random()*(max-min+1))+min;}
 function actorName(actor){
@@ -534,9 +529,7 @@ const {
   showReaction,
 }=createAnimationHelpers({els,state,die,setDice,showMessage,actorName,actorForColor,actorColor,localActor,otherActor,defaultColor:WHITE});
 function setInitialBoard(){
-  state.board=Array(25).fill(0);
-  state.board[24]=2;state.board[13]=5;state.board[8]=3;state.board[6]=5;
-  state.board[1]=-2;state.board[12]=-5;state.board[17]=-3;state.board[19]=-5;
+  state.board=createInitialBoard();
   state.bar={white:0,black:0};state.off={white:0,black:0};
 }
 function resetForNewGame(){
@@ -544,7 +537,7 @@ function resetForNewGame(){
   if(state.roomUnsub){state.roomUnsub();state.roomUnsub=null;}
   if(state.reactionUnsub){state.reactionUnsub();state.reactionUnsub=null;}
   setInitialBoard();
-  Object.assign(state,{humanColor:WHITE,computerColor:BLACK,currentActor:'human',status:'setup',dice:[0,0],remaining:[],freeMode:false,doubleExtra:false,chosenDouble:false,selected:null,legalChoices:[],undoStack:[],log:[],doubleStreak:{human:0,computer:0},animating:false,gameOver:false,lastChance:null,gameMode:'computer',localActor:'human',roomCode:null,playerId:null,playerNames:{human:'אתה',computer:'המחשב'},onlineReady:{human:false,computer:false},applyingRemote:false,lastMove:null,lastMoveSeen:null,lastVictorySeen:null,winnerColor:null,stolen:false,victoryId:null,lastChanceRollingSeen:null,lastChanceResultSeen:null});
+  Object.assign(state,createNewGameStateValues());
   renderAll();renderLog();els.startModal.classList.add('show');if(els.roomLobby)els.roomLobby.style.display='none';showMessage('משחק חדש');
 }
 
