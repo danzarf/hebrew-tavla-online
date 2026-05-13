@@ -79,7 +79,7 @@ export function quickMoveScore(st, m, color) {
     if (left === 1) s -= 18;
     if (left === 0) s += 4;
   }
-  return s + Math.random() * 3;
+  return s;
 }
 
 export function simulateSequence(globalState, color, seq) {
@@ -94,6 +94,8 @@ export function simulateSequence(globalState, color, seq) {
 export function evaluate(st, color, seq) {
   const opp = otherColor(color);
   let score = 0;
+  if (st.off[color] >= 15) score += 100000;
+  if (st.off[opp] >= 15) score -= 100000;
   score += (st.off[color] - st.off[opp]) * 150;
   score += (st.bar[opp] - st.bar[color]) * 90;
   score -= pipCount(st, color) * 1.35;
@@ -109,12 +111,23 @@ export function evaluate(st, color, seq) {
     if (op >= 2) score -= 5;
   }
   for (const m of seq) {
-    if (m.hit) score += 65;
+    if (m.hit) score += 65 + tacticalHitScore(st, m, color);
     if (m.to === 'off') score += 90;
     if (m.from === 'bar') score += 45;
     if (m.to !== 'off' && countColorAt(st, m.to, color) >= 2) score += 18;
   }
   score += distributionScore(st, color);
+  return score;
+}
+
+export function tacticalHitScore(st, move, color) {
+  if (!move.hit || move.to === 'off') return 0;
+  let score = 90;
+  const madePoint = countColorAt(st, move.to, color) >= 2;
+  if (madePoint) score += 150;
+  else score -= 45;
+  if (isHomePoint(move.to, color)) score += 30;
+  if (move.from !== 'bar' && countColorAt(st, move.from, color) === 0) score -= 15;
   return score;
 }
 
