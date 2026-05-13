@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { generateSequences, pipCount, simulateSequence } from '../src/game/ai.js';
+import { chooseBestSequenceFor, generateSequences, pipCount, simulateSequence } from '../src/game/ai.js';
 import { WHITE, BLACK } from '../src/game/rules.js';
 
 function emptyState() {
@@ -67,4 +67,42 @@ test('generateSequences returns legal sequences in a simple deterministic scenar
   const sequences = generateSequences(state, WHITE, [3], false);
 
   assert.deepEqual(sequences, [[{ color: WHITE, from: 8, to: 5, die: 3, hit: false }]]);
+});
+
+
+test('hard AI chooses an obvious hit', () => {
+  const state = emptyState();
+  state.board[8] = 1;
+  state.board[5] = -1;
+
+  const sequence = chooseBestSequenceFor(state, WHITE, [3], false);
+
+  assert.deepEqual(sequence, [{ color: WHITE, from: 8, to: 5, die: 3, hit: true }]);
+});
+
+test('hard AI can prefer a tactical hit over a non-winning bear-off', () => {
+  const state = emptyState();
+  state.off.white = 11;
+  state.board[1] = 1;
+  state.board[2] = 1;
+  state.board[4] = 1;
+  state.board[5] = 1;
+  state.board[3] = -1;
+
+  const sequence = chooseBestSequenceFor(state, WHITE, [1, 2], false);
+
+  assert.equal(sequence.some((move) => move.hit), true);
+  assert.equal(sequence.filter((move) => move.to === 'off').length, 0);
+  assert.deepEqual(sequence.map((move) => [move.from, move.to]), [[4, 3], [5, 3]]);
+});
+
+test('hard AI does not choose a hit if bearing off wins the game', () => {
+  const state = emptyState();
+  state.off.white = 14;
+  state.board[1] = 1;
+  state.board[3] = -1;
+
+  const sequence = chooseBestSequenceFor(state, WHITE, ['free'], true);
+
+  assert.deepEqual(sequence, [{ color: WHITE, from: 1, to: 'off', die: 'free', bearOff: true }]);
 });
