@@ -422,7 +422,8 @@ button,select,input{font-family:inherit}
 import { BOTTOM_POINTS, TOP_POINTS } from "./src/game/board.js";
 import { die, isFiveSix, isFourFive, isOneTwo } from "./src/game/dice.js";
 import { BLACK, WHITE, countColorAt, otherColor } from "./src/game/rules.js";
-import { applyMove, cloneState, getAllLegalMoves, getLegalMovesForSource, sameMove } from "./src/game/moves.js";
+import { applyMove, getAllLegalMoves, getLegalMovesForSource, sameMove } from "./src/game/moves.js";
+import { chooseAiSequence, chooseBestSequenceFor, evaluate, pipCount, simulateSequence } from "./src/game/ai.js";
 import { HEB_COLOR, HEB_DIFF, HEB_MODE } from "./src/ui/text.js";
 import { addLog as addLogMessage, computerMoveText, escapeHtml, logMove as logMoveMessage, renderLog as renderLogMessage, showMessage as showMessageMessage } from "./src/ui/messages.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
@@ -835,13 +836,13 @@ function computerChooseDouble(){
   let n=1;
   if(state.difficulty==='easy')n=rnd(1,6);
   else{
-    let best=-Infinity;for(let x=1;x<=6;x++){const seq=chooseBestSequenceFor(state.computerColor,[x,x,x,x],false,true);const st=simulateSequence(state,state.computerColor,seq);const score=evaluate(st,state.computerColor,seq);if(score>best){best=score;n=x}}
+    let best=-Infinity;for(let x=1;x<=6;x++){const seq=chooseBestSequenceFor(state,state.computerColor,[x,x,x,x],false,true);const st=simulateSequence(state,state.computerColor,seq);const score=evaluate(st,state.computerColor,seq);if(score>best){best=score;n=x}}
   }
   state.remaining=[n,n,n,n];state.freeMode=false;state.chosenDouble=true;state.doubleExtra=false;addLog(`המחשב בחר דאבל ${n}–${n}`,'special');showMessage(`המחשב בחר דאבל ${n}–${n}`);setTimeout(beginMovePhase,850);
 }
 async function runComputerTurn(){
   const color=state.computerColor;await sleep(rnd(1200,1600));
-  let seq=chooseAiSequence();
+  let seq=chooseAiSequence(state,rnd);
   if(!seq.length){addLog('אין מהלכים חוקיים','danger');showMessage('אין מהלכים חוקיים');return setTimeout(()=>endTurn(),1200);}
   for(const planned of seq){
     if(state.gameOver||state.currentActor!=='computer')return;
@@ -875,68 +876,6 @@ function triggerSideSwap(){
   setTimeout(()=>{els.board.classList.remove('swapPulse');startTurn(otherActor(actor));},1700);
 }
 
-function chooseAiSequence(){
-  const color=state.computerColor;
-  if(state.difficulty==='easy'){
-    const seqs=generateSequences(cloneState(state),color,state.remaining.slice(),state.freeMode,900,20);
-    if(!seqs.length)return[];return seqs[rnd(0,seqs.length-1)];
-  }
-  return chooseBestSequenceFor(color,state.remaining,state.freeMode,false);
-}
-function chooseBestSequenceFor(color,remaining,freeMode,quiet){
-  const limit=state.difficulty==='hard'?4200:2200;const cap=state.difficulty==='hard'?42:30;
-  const seqs=generateSequences(cloneState(state),color,remaining.slice(),freeMode,limit,cap);
-  if(!seqs.length)return[];
-  let best=seqs[0],bestScore=-Infinity;
-  for(const seq of seqs){const st=simulateSequence(state,color,seq);let sc=evaluate(st,color,seq);if(state.difficulty==='medium')sc+=Math.random()*24;if(sc>bestScore){bestScore=sc;best=seq}}
-  return best;
-}
-function generateSequences(st,color,remaining,freeMode,limit=3000,cap=38){
-  const result=[];
-  function rec(cur,rem,seq){
-    if(result.length>=limit)return;
-    if(!rem.length){result.push(seq.slice());return;}
-    let moves=getAllLegalMoves(cur,color,rem,freeMode);
-    if(!moves.length){result.push(seq.slice());return;}
-    moves=dedupeMoves(moves);
-    moves.sort((a,b)=>quickMoveScore(cur,b,color)-quickMoveScore(cur,a,color));
-    if(freeMode&&moves.length>cap)moves=moves.slice(0,cap);
-    if(!freeMode&&moves.length>cap)moves=moves.slice(0,cap);
-    for(const m of moves){
-      const next=cloneState(cur);const nm={...m};applyMove(next,nm);const nr=rem.slice();const idx=nr.indexOf(m.die);if(idx>=0)nr.splice(idx,1);else nr.shift();seq.push(nm);rec(next,nr,seq);seq.pop();if(result.length>=limit)return;
-    }
-  }
-  rec(st,remaining.slice(),[]);return result;
-}
-function dedupeMoves(moves){const seen=new Set(),out=[];for(const m of moves){const k=`${m.from}|${m.to}|${m.die}`;if(!seen.has(k)){seen.add(k);out.push(m)}}return out;}
-function quickMoveScore(st,m,color){
-  let s=0;if(m.to==='off')s+=90;if(m.from==='bar')s+=50;if(m.hit)s+=65;
-  if(m.to!== 'off'){const own=countColorAt(st,m.to,color);if(own===1)s+=36;if(own>=2)s+=10;if(own>=5)s-=18;}
-  if(m.from!=='bar'){const left=countColorAt(st,m.from,color)-1;if(left===1)s-=18;if(left===0)s+=4;}
-  return s+Math.random()*3;
-}
-function simulateSequence(globalState,color,seq){
-  const st=cloneState(globalState);for(const m of seq){const nm={...m};applyMove(st,nm)}return st;
-}
-function evaluate(st,color,seq){
-  const opp=otherColor(color);let score=0;
-  score+=(st.off[color]-st.off[opp])*150;score+=(st.bar[opp]-st.bar[color])*90;
-  score-=pipCount(st,color)*1.35;score+=pipCount(st,opp)*.55;
-  for(let p=1;p<=24;p++){
-    const own=countColorAt(st,p,color),op=countColorAt(st,p,opp);
-    if(own){if(own>=2)score+=16+Math.min(own,5)*2;if(own===1)score-=blotPenalty(st,p,color);if(own>5)score-=(own-5)*12;if(isHomePoint(p,color))score+=own*2;}
-    if(op>=2)score-=5;
-  }
-  for(const m of seq){if(m.hit)score+=65;if(m.to==='off')score+=90;if(m.from==='bar')score+=45;if(m.to!== 'off'&&countColorAt(st,m.to,color)>=2)score+=18;}
-  score+=distributionScore(st,color);
-  return score;
-}
-function pipCount(st,color){let sum=0;for(let p=1;p<=24;p++){const c=countColorAt(st,p,color);if(c)sum+=c*(color===WHITE?p:25-p)}sum+=st.bar[color]*25;return sum;}
-function isHomePoint(p,color){return color===WHITE?p<=6:p>=19;}
-function blotPenalty(st,p,color){
-  let pen=20;const opp=otherColor(color);for(let d=1;d<=6;d++){const src=color===WHITE?p-d:p+d;if(src>=1&&src<=24&&countColorAt(st,src,opp)>0)pen+=8;}return pen;
-}
-function distributionScore(st,color){let occupied=0,points=0;for(let p=1;p<=24;p++){const c=countColorAt(st,p,color);if(c){occupied++;if(c>=2)points++;}}return occupied*2+points*8;}
 function checkWinAfterMove(color){
   if(state.off[color]>=15&&!state.lastChance&&!state.gameOver){startLastChance(color,otherColor(color));return true;}
   return false;
