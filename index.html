@@ -430,6 +430,7 @@ import { HEB_COLOR, HEB_DIFF, HEB_MODE } from "./src/ui/text.js";
 import { addLog as addLogMessage, computerMoveText, escapeHtml, logMove as logMoveMessage, renderLog as renderLogMessage, showMessage as showMessageMessage } from "./src/ui/messages.js";
 import { createAnimationHelpers } from "./src/ui/animations.js";
 import { createRenderHelpers } from "./src/ui/render.js";
+import { createLobbyHelpers } from "./src/ui/lobby.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
 import { getDatabase, ref, set, get, update, onValue, off } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-database.js";
 const firebaseConfig = {
@@ -467,8 +468,6 @@ function actorName(actor){
 }
 function isOnline(){return state.gameMode==='online';}
 function localActor(){return isOnline()?state.localActor:'human';}
-function localPlayerId(){let id=localStorage.getItem('tavlaPlayerId');if(!id){id='p_'+Math.random().toString(36).slice(2)+Date.now().toString(36);localStorage.setItem('tavlaPlayerId',id)}return id;}
-function localPlayerName(){const raw=(els.playerNameInput?.value||'').trim();return raw||('אורח '+String(Math.floor(100+Math.random()*900)));}
 function roomRef(code){return ref(db,'rooms/'+code);}
 function roomGameRef(code){return ref(db,'rooms/'+code+'/game');}
 
@@ -484,6 +483,11 @@ function showMessage(text,ms=1700){
 function renderLog(){
   renderLogMessage(els.log,state.log);
 }
+const {
+  localPlayerId,
+  localPlayerName,
+  renderLobby,
+}=createLobbyHelpers({els,state,escapeHtml});
 const {
   buildBoard,
   renderEmptyDie,
@@ -916,7 +920,6 @@ async function syncShared(reason=''){
   try{await set(roomGameRef(state.roomCode),createSharedGameState(state));await update(roomRef(state.roomCode),{updatedAt:Date.now(),lastReason:reason});}catch(e){console.error(e);showMessage('שגיאת סנכרון',1500)}
 }
 async function generateRoomCode(){for(let i=0;i<40;i++){const code=String(rnd(1000,9999));const snap=await get(roomRef(code));if(!snap.exists())return code}return String(Date.now()).slice(-4);}
-function renderLobby(room={}){const p=room.players||{},r=room.ready||{};state.playerNames={human:p.human?.name||'שחקן 1',computer:p.computer?.name||'מחכה לחבר'};state.onlineReady={human:!!r.human,computer:!!r.computer};if(!els.roomLobby)return;els.roomLobby.style.display='block';els.roomCodeDisplay.textContent=state.roomCode||'----';els.roomPlayers.innerHTML=`<div class="playerLine"><span>שחקן 1</span><b>${escapeHtml(state.playerNames.human)}</b><span>${r.human?'✅ מוכן':'⏳ לא מוכן'}</span></div><div class="playerLine"><span>שחקן 2</span><b>${escapeHtml(state.playerNames.computer)}</b><span>${r.computer?'✅ מוכן':'⏳ לא מוכן'}</span></div>`;const myReady=!!r[state.localActor];els.readyBtn.textContent=myReady?'✅ מוכן':'✅ אני מוכן';els.roomStatusText.textContent=(p.human&&p.computer)?((r.human&&r.computer)?'שניכם מוכנים — מתחילים...':'שניכם בחדר. תלחצו אני מוכן.'):'מחכים לשחקן נוסף...';}
 function subscribeRoom(code){if(state.roomUnsub){state.roomUnsub();state.roomUnsub=null;}state.roomCode=code;const rr=roomRef(code);state.roomUnsub=onValue(rr,snap=>{const room=snap.val();if(!room){showMessage('החדר לא קיים');return}renderLobby(room);if(room.reaction&&room.reaction.id!==subscribeRoom.lastReaction){subscribeRoom.lastReaction=room.reaction.id;if(room.reaction.from!==state.localActor)showReaction(room.reaction.text,room.reaction.from)}if(room.game)applyShared(room.game);if(!room.game&&room.players?.human&&room.players?.computer&&room.ready?.human&&room.ready?.computer&&state.localActor==='human'&&state.status!=='opening')startOnlineOpening();});}
 async function createRoom(){try{const code=await generateRoomCode();state.gameMode='online';state.localActor='human';state.playerId=localPlayerId();state.playerNames={human:localPlayerName(),computer:'מחכה לחבר'};state.diceMode=els.onlineDiceModeSelect.value;state.status='lobby';await set(roomRef(code),{createdAt:Date.now(),updatedAt:Date.now(),diceMode:state.diceMode,players:{human:{id:state.playerId,name:state.playerNames.human,connected:true},computer:null},ready:{human:false,computer:false},game:null,reaction:null});els.startModal.classList.add('show');subscribeRoom(code);showMessage('חדר נפתח');}catch(e){console.error(e);showMessage('בעיה בפתיחת חדר')}}
 async function joinRoom(){try{const code=(els.joinCodeInput.value||'').trim();if(!/^\d{4}$/.test(code))return showMessage('קוד חדר חייב להיות 4 ספרות');const snap=await get(roomRef(code));if(!snap.exists())return showMessage('החדר לא נמצא');const room=snap.val();if(room.players?.computer&&room.players.computer.id!==localPlayerId())return showMessage('החדר מלא');state.gameMode='online';state.localActor=room.players?.human?.id===localPlayerId()?'human':'computer';state.playerId=localPlayerId();if(state.localActor==='computer')await update(roomRef(code),{['players/computer']:{id:state.playerId,name:localPlayerName(),connected:true},['ready/computer']:false,updatedAt:Date.now()});state.diceMode=room.diceMode||els.onlineDiceModeSelect.value;state.status='lobby';els.startModal.classList.add('show');subscribeRoom(code);showMessage('הצטרפת לחדר');}catch(e){console.error(e);showMessage('בעיה בהצטרפות')}}
