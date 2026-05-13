@@ -426,6 +426,7 @@ import { applyMove, getAllLegalMoves, getLegalMovesForSource, sameMove } from ".
 import { chooseAiSequence, chooseBestSequenceFor, evaluate, pipCount, simulateSequence } from "./src/game/ai.js";
 import { HEB_COLOR, HEB_DIFF, HEB_MODE } from "./src/ui/text.js";
 import { addLog as addLogMessage, computerMoveText, escapeHtml, logMove as logMoveMessage, renderLog as renderLogMessage, showMessage as showMessageMessage } from "./src/ui/messages.js";
+import { createAnimationHelpers } from "./src/ui/animations.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
 import { getDatabase, ref, set, get, update, onValue, off } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-database.js";
 const firebaseConfig = {
@@ -462,7 +463,6 @@ const state={
   log:[],doubleStreak:{human:0,computer:0},autoTimer:null,countdownTimer:null,countdown:0,animating:false,gameOver:false,lastChance:null,
   gameMode:'computer',localActor:'human',roomCode:null,playerId:null,playerNames:{human:'אתה',computer:'המחשב'},onlineReady:{human:false,computer:false},applyingRemote:false,roomUnsub:null,reactionUnsub:null,lastMove:null,lastMoveSeen:null,lastVictorySeen:null,winnerColor:null,stolen:false,victoryId:null,lastChanceRollingSeen:null,lastChanceResultSeen:null
 };
-let audioCtx=null;
 function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
 function rnd(min,max){return Math.floor(Math.random()*(max-min+1))+min;}
 function actorName(actor){
@@ -479,18 +479,6 @@ function roomGameRef(code){return ref(db,'rooms/'+code+'/game');}
 function otherActor(actor){return actor==='human'?'computer':'human';}
 function actorColor(actor){return actor==='human'?state.humanColor:state.computerColor;}
 function actorForColor(color){return state.humanColor===color?'human':'computer';}
-function playSound(type='move'){
-  try{
-    audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();
-    const o=audioCtx.createOscillator();const g=audioCtx.createGain();
-    const now=audioCtx.currentTime;
-    const freq={roll:180,move:330,hit:120,win:520,click:260,swap:95}[type]||260;
-    o.type=type==='hit'||type==='swap'?'sawtooth':'sine';o.frequency.setValueAtTime(freq,now);
-    if(type==='win')o.frequency.exponentialRampToValueAtTime(880,now+.22);
-    g.gain.setValueAtTime(.0001,now);g.gain.exponentialRampToValueAtTime(type==='hit'?.12:.07,now+.02);g.gain.exponentialRampToValueAtTime(.0001,now+(type==='roll'?.16:.25));
-    o.connect(g);g.connect(audioCtx.destination);o.start(now);o.stop(now+.3);
-  }catch(e){}
-}
 function addLog(text,type=''){
   addLogMessage(state,els.log,text,type);
 }
@@ -520,6 +508,18 @@ function setDie(el,n){
   [...el.children].forEach((c,i)=>c.classList.toggle('on',(PIP_POS[n]||[]).includes(i)));
 }
 function setDice(d){setDie(els.die1,d[0]||0);setDie(els.die2,d[1]||0)}
+const {
+  playSound,
+  getPlaceCenter,
+  flyPiece,
+  rollDiceVisual,
+  showVictoryBanner,
+  showVictory,
+  flashLastChanceResult,
+  showRemoteLastChanceRolling,
+  showLastChanceResult,
+  showReaction,
+}=createAnimationHelpers({els,state,die,setDice,showMessage,actorName,actorForColor,actorColor,localActor,otherActor,defaultColor:WHITE});
 function setInitialBoard(){
   state.board=Array(25).fill(0);
   state.board[24]=2;state.board[13]=5;state.board[8]=3;state.board[6]=5;
@@ -671,46 +671,6 @@ async function animateRemoteMove(lm,start){
     await flyPiece(lm.color,start,end,!!lm.hit);
   }catch(e){console.warn('remote animation failed',e);}
 }
-function showVictoryBanner(text){
-  if(!els.victoryBanner)return;
-  els.victoryBanner.textContent=text;
-  els.victoryBanner.classList.remove('show');
-  void els.victoryBanner.offsetWidth;
-  els.victoryBanner.classList.add('show');
-  clearTimeout(showVictoryBanner.t);
-  showVictoryBanner.t=setTimeout(()=>els.victoryBanner.classList.remove('show'),3800);
-}
-function showVictory(winnerColor=state.winnerColor,stolen=state.stolen){
-  if(!winnerColor)return;
-  const actor=actorForColor(winnerColor);
-  const text=`🏆 ${actorName(actor)} ניצח${stolen?' בירושלמי!':'!'} 🎉`;
-  showVictoryBanner(text);
-  showMessage(text,5000);
-  playSound('win');
-}
-function flashLastChanceResult(ok){
-  els.diceDock.classList.remove('lcSuccess','lcFail');
-  void els.diceDock.offsetWidth;
-  els.diceDock.classList.add(ok?'lcSuccess':'lcFail');
-  clearTimeout(flashLastChanceResult.t);
-  flashLastChanceResult.t=setTimeout(()=>els.diceDock.classList.remove('lcSuccess','lcFail'),1700);
-}
-async function showRemoteLastChanceRolling(lc){
-  if(!lc||!lc.rollingId||state.lastChanceRollingSeen===lc.rollingId)return;
-  state.lastChanceRollingSeen=lc.rollingId;
-  showMessage(`${actorName(actorForColor(lc.winner))} מגלגל לירושלמי...`,2200);
-  await rollDiceVisual([die(),die()],2200);
-}
-async function showLastChanceResult(lc){
-  if(!lc||!lc.resultId||state.lastChanceResultSeen===lc.resultId)return;
-  state.lastChanceResultSeen=lc.resultId;
-  if(lc.roll)state.dice=lc.roll;
-  setDice(state.dice);
-  const ok=lc.result==='success';
-  flashLastChanceResult(ok);
-  const txt=ok?`ירושלמי הצליח — ${actorName(actorForColor(lc.loser))} ניצח!`:`ירושלמי נכשל — ${actorName(actorForColor(lc.winner))} ניצח!`;
-  showMessage(txt,3800);
-}
 async function humanMove(move){
   if(state.animating)return;state.animating=true;cancelAutoEnd();snapshot();
   const start=getPlaceCenter(move.from,move.color,true);applyMove(state,move);consumeMove(move);state.selected=null;state.legalChoices=[];renderAll();
@@ -736,21 +696,6 @@ function startAutoEnd(sec,prefix){
 }
 function cancelAutoEnd(){clearInterval(state.countdownTimer);state.countdownTimer=null;state.countdown=0;renderUI();}
 function clearTimers(){clearTimeout(state.autoTimer);clearInterval(state.countdownTimer);state.autoTimer=null;state.countdownTimer=null;state.countdown=0;}
-function getPlaceCenter(place,color,before){
-  let el=null;
-  if(place==='bar'||(place&&place.type==='bar'))el=els.bar;
-  else if(place==='off')el=color===WHITE?els.offWhite:els.offBlack;
-  else{const p=typeof place==='number'?place:place.p;const pieces=[...document.querySelectorAll(`.piece[data-p="${p}"][data-color="${color}"]`)];el=pieces[pieces.length-1]||document.querySelector(`.point[data-point="${p}"]`)}
-  const r=(el||els.board).getBoundingClientRect();return {x:r.left+r.width/2,y:r.top+r.height/2};
-}
-function flyPiece(color,start,end,hit=false){
-  return new Promise(resolve=>{
-    const f=document.createElement('div');f.className='floatingPiece '+color;f.style.left=(start.x)+'px';f.style.top=(start.y)+'px';f.style.transform='translate(-50%,-50%) scale(1)';document.body.appendChild(f);
-    requestAnimationFrame(()=>{f.style.transform=`translate(${end.x-start.x-0}px,${end.y-start.y-0}px) translate(-50%,-50%) scale(1.04)`});
-    setTimeout(()=>{if(hit)els.board.classList.add('hitFlash');},180);
-    setTimeout(()=>{f.style.opacity='0';if(hit)els.board.classList.remove('hitFlash');setTimeout(()=>{f.remove();resolve();},110)},480);
-  });
-}
 function logMove(who,move){
   logMoveMessage(addLog,who,move);
 }
@@ -792,12 +737,6 @@ async function rollForCurrent(){
   addLog(`${actorName(actor)} גלגל: ${d[0]}–${d[1]}`);showMessage(`${actorName(actor)} גלגל: ${d[0]}–${d[1]}`);renderAll();await syncShared('roll');await sleep(350);processRoll(d);
 }
 
-function rollDiceVisual(finalDice,duration=1100){
-  return new Promise(resolve=>{
-    els.diceDock.classList.add('rolling');let t=0;const iv=setInterval(()=>{setDice([die(),die()]);t+=90;},90);
-    setTimeout(()=>{clearInterval(iv);setDice(finalDice);state.dice=finalDice;els.diceDock.classList.remove('rolling');playSound('roll');resolve();},duration);
-  });
-}
 function processRoll(d){
   if(state.gameOver)return;
   const actor=state.currentActor;colorActorResetSelection();
@@ -1075,17 +1014,6 @@ async function createRoom(){try{const code=await generateRoomCode();state.gameMo
 async function joinRoom(){try{const code=(els.joinCodeInput.value||'').trim();if(!/^\d{4}$/.test(code))return showMessage('קוד חדר חייב להיות 4 ספרות');const snap=await get(roomRef(code));if(!snap.exists())return showMessage('החדר לא נמצא');const room=snap.val();if(room.players?.computer&&room.players.computer.id!==localPlayerId())return showMessage('החדר מלא');state.gameMode='online';state.localActor=room.players?.human?.id===localPlayerId()?'human':'computer';state.playerId=localPlayerId();if(state.localActor==='computer')await update(roomRef(code),{['players/computer']:{id:state.playerId,name:localPlayerName(),connected:true},['ready/computer']:false,updatedAt:Date.now()});state.diceMode=room.diceMode||els.onlineDiceModeSelect.value;state.status='lobby';els.startModal.classList.add('show');subscribeRoom(code);showMessage('הצטרפת לחדר');}catch(e){console.error(e);showMessage('בעיה בהצטרפות')}}
 async function toggleReady(){if(!isOnline()||!state.roomCode)return;const snap=await get(roomRef(state.roomCode+'/ready/'+state.localActor));const cur=!!snap.val();await update(roomRef(state.roomCode),{['ready/'+state.localActor]:!cur,updatedAt:Date.now()});}
 async function startOnlineOpening(){state.status='opening';state.diceMode=els.onlineDiceModeSelect.value||state.diceMode||'manual';state.difficulty='medium';state.log=[];setInitialBoard();state.gameOver=false;state.lastChance=null;state.lastMove=null;state.lastMoveSeen=null;state.lastVictorySeen=null;state.winnerColor=null;state.stolen=false;state.victoryId=null;state.lastChanceRollingSeen=null;state.lastChanceResultSeen=null;state.doubleStreak={human:0,computer:0};state.dice=[0,0];state.remaining=[];addLog('גלגולת פתיחה אונליין מתחילה','special');renderAll();await syncShared('openingStart');let h,c;do{h=die();c=die();state.dice=[h,c];addLog(`${actorName('human')} גלגל: ${h}`);addLog(`${actorName('computer')} גלגל: ${c}`);if(h===c){addLog('תיקו בפתיחה — מגלגלים שוב','special')}}while(h===c);if(h>c){state.humanColor=WHITE;state.computerColor=BLACK;state.currentActor='human';addLog(`${actorName('human')} מתחיל ומשחק בלבן`,'special')}else{state.humanColor=BLACK;state.computerColor=WHITE;state.currentActor='computer';addLog(`${actorName('computer')} מתחיל ומשחק בלבן`,'special')}await syncShared('openingDone');setTimeout(()=>startTurn(state.currentActor),900);}
-function showReaction(text,fromActor=localActor()){
-  const color=actorColor(fromActor)||WHITE;
-  const target=color===WHITE?els.reactionWhite:els.reactionBlack;
-  if(!target)return;
-  target.textContent=text;
-  target.classList.remove('show');
-  void target.offsetWidth;
-  target.classList.add('show');
-  clearTimeout(target._hideTimer);
-  target._hideTimer=setTimeout(()=>target.classList.remove('show'),3200);
-}
 async function sendReaction(text){
   showReaction(text,localActor());
   if(isOnline()&&state.roomCode)await update(roomRef(state.roomCode),{reaction:{id:Date.now()+'_'+Math.random().toString(36).slice(2,5),from:state.localActor,text,at:Date.now()}});
