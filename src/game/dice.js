@@ -13,8 +13,14 @@ export function isDouble(dice) {
   return isDicePair(dice) && dice[0] === dice[1];
 }
 
+// Dice generation is intentionally actor- and difficulty-agnostic.
+// Gameplay modes and AI levels may change move selection, but must never change rolls.
 export function die() {
   return Math.floor(Math.random() * (DICE_MAX - DICE_MIN + 1)) + DICE_MIN;
+}
+
+export function rollDicePair() {
+  return [die(), die()];
 }
 
 export function isOneTwo(dice) {

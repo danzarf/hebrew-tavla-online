@@ -420,14 +420,14 @@ button,select,input{font-family:inherit}
 
 <script type="module">
 import { BOTTOM_POINTS, TOP_POINTS } from "./src/game/board.js";
-import { die, isFiveSix, isFourFive, isOneTwo } from "./src/game/dice.js";
+import { die, rollDicePair, isFiveSix, isFourFive, isOneTwo } from "./src/game/dice.js";
 import { BLACK, WHITE, countColorAt, otherColor } from "./src/game/rules.js";
 import { applyMove, getAllLegalMoves, getLegalMovesForSource, sameMove } from "./src/game/moves.js";
 import { createInitialBoard, createInitialState, createNewGameStateValues } from "./src/game/state.js";
 import { createSharedGameState, normalizeBoard } from "./src/game/onlineState.js";
 import { chooseAiSequence, chooseBestSequenceFor, evaluate, pipCount, simulateSequence } from "./src/game/ai.js";
 import { HEB_COLOR, HEB_DIFF, HEB_MODE } from "./src/ui/text.js";
-import { addLog as addLogMessage, computerMoveText, escapeHtml, logMove as logMoveMessage, renderLog as renderLogMessage, showMessage as showMessageMessage } from "./src/ui/messages.js";
+import { addLog as addLogMessage, computerMoveText, escapeHtml, isImportantComputerMove, logMove as logMoveMessage, renderLog as renderLogMessage, showMessage as showMessageMessage } from "./src/ui/messages.js";
 import { createAnimationHelpers } from "./src/ui/animations.js";
 import { createRenderHelpers } from "./src/ui/render.js";
 import { createLobbyHelpers } from "./src/ui/lobby.js";
@@ -653,7 +653,7 @@ function startOpeningRoll(){
 }
 async function openingRollLoop(){
   if(state.status!=='opening')return;
-  let h=die(),c=die();await rollDiceVisual([h,c],1200);
+  let [h,c]=rollDicePair();await rollDiceVisual([h,c],1200);
   addLog(`אתה גלגלת: ${h}`);addLog(`המחשב גלגל: ${c}`);
   if(h===c){addLog('תיקו בפתיחה — מגלגלים שוב','special');showMessage('תיקו — מגלגלים שוב');await sleep(900);return openingRollLoop();}
   if(h>c){state.humanColor=WHITE;state.computerColor=BLACK;state.currentActor='human';addLog(`אתה מתחיל ומשחק בלבן`,'special');showMessage('אתה מתחיל ומשחק בלבן',2200);}
@@ -678,7 +678,7 @@ async function rollForCurrent(){
   if(state.status!=='waitingRoll'||state.gameOver||state.animating)return;
   if(isOnline()&&state.currentActor!==localActor())return;
   const actor=state.currentActor;state.status='rolling';renderUI();await syncShared('rolling');playSound('roll');
-  const d=[die(),die()];await rollDiceVisual(d,rnd(1000,1350));state.dice=d;
+  const d=rollDicePair();await rollDiceVisual(d,rnd(1000,1350));state.dice=d;
   addLog(`${actorName(actor)} גלגל: ${d[0]}–${d[1]}`);showMessage(`${actorName(actor)} גלגל: ${d[0]}–${d[1]}`);renderAll();await syncShared('roll');await sleep(350);processRoll(d);
 }
 
@@ -741,9 +741,10 @@ async function runComputerTurn(){
   await sleep(900);endTurn();
 }
 async function computerMove(move){
-  showMessage(computerMoveText(move),1900);
+  const moveText=computerMoveText(move);
+  if(moveText)showMessage(moveText,1900);
   await sleep(650);
-  const start=getPlaceCenter(move.from,move.color,true);applyMove(state,move);consumeMove(move);renderAll();const end=getPlaceCenter(move.to,move.color,false);await flyPiece(move.color,start,end,move.hit);logMove('המחשב',move);return checkWinAfterMove(move.color);
+  const start=getPlaceCenter(move.from,move.color,true);applyMove(state,move);consumeMove(move);renderAll();const end=getPlaceCenter(move.to,move.color,false);await flyPiece(move.color,start,end,move.hit);if(isImportantComputerMove(move))logMove('המחשב',move);return checkWinAfterMove(move.color);
 }
 
 function endTurn(forceSwitch=false){
@@ -816,7 +817,7 @@ async function rollLastChanceNow(){
   await syncShared('lastChanceRolling');
   showMessage(`${actorName(actorForColor(winner))} מגלגל לירושלמי...`,2000);
   await sleep(450);
-  const d=[die(),die()];
+  const d=rollDicePair();
   state.dice=d;
   await rollDiceVisual(d,2200);
   lc.roll=d;
@@ -924,7 +925,7 @@ function subscribeRoom(code){if(state.roomUnsub){state.roomUnsub();state.roomUns
 async function createRoom(){try{const code=await generateRoomCode();state.gameMode='online';state.localActor='human';state.playerId=localPlayerId();state.playerNames={human:localPlayerName(),computer:'מחכה לחבר'};state.diceMode=els.onlineDiceModeSelect.value;state.status='lobby';await set(roomRef(code),{createdAt:Date.now(),updatedAt:Date.now(),diceMode:state.diceMode,players:{human:{id:state.playerId,name:state.playerNames.human,connected:true},computer:null},ready:{human:false,computer:false},game:null,reaction:null});els.startModal.classList.add('show');subscribeRoom(code);showMessage('חדר נפתח');}catch(e){console.error(e);showMessage('בעיה בפתיחת חדר')}}
 async function joinRoom(){try{const code=(els.joinCodeInput.value||'').trim();if(!/^\d{4}$/.test(code))return showMessage('קוד חדר חייב להיות 4 ספרות');const snap=await get(roomRef(code));if(!snap.exists())return showMessage('החדר לא נמצא');const room=snap.val();if(room.players?.computer&&room.players.computer.id!==localPlayerId())return showMessage('החדר מלא');state.gameMode='online';state.localActor=room.players?.human?.id===localPlayerId()?'human':'computer';state.playerId=localPlayerId();if(state.localActor==='computer')await update(roomRef(code),{['players/computer']:{id:state.playerId,name:localPlayerName(),connected:true},['ready/computer']:false,updatedAt:Date.now()});state.diceMode=room.diceMode||els.onlineDiceModeSelect.value;state.status='lobby';els.startModal.classList.add('show');subscribeRoom(code);showMessage('הצטרפת לחדר');}catch(e){console.error(e);showMessage('בעיה בהצטרפות')}}
 async function toggleReady(){if(!isOnline()||!state.roomCode)return;const snap=await get(roomRef(state.roomCode+'/ready/'+state.localActor));const cur=!!snap.val();await update(roomRef(state.roomCode),{['ready/'+state.localActor]:!cur,updatedAt:Date.now()});}
-async function startOnlineOpening(){state.status='opening';state.diceMode=els.onlineDiceModeSelect.value||state.diceMode||'manual';state.difficulty='medium';state.log=[];setInitialBoard();state.gameOver=false;state.lastChance=null;state.lastMove=null;state.lastMoveSeen=null;state.lastVictorySeen=null;state.winnerColor=null;state.stolen=false;state.victoryId=null;state.lastChanceRollingSeen=null;state.lastChanceResultSeen=null;state.doubleStreak={human:0,computer:0};state.dice=[0,0];state.remaining=[];addLog('גלגולת פתיחה אונליין מתחילה','special');renderAll();await syncShared('openingStart');let h,c;do{h=die();c=die();state.dice=[h,c];addLog(`${actorName('human')} גלגל: ${h}`);addLog(`${actorName('computer')} גלגל: ${c}`);if(h===c){addLog('תיקו בפתיחה — מגלגלים שוב','special')}}while(h===c);if(h>c){state.humanColor=WHITE;state.computerColor=BLACK;state.currentActor='human';addLog(`${actorName('human')} מתחיל ומשחק בלבן`,'special')}else{state.humanColor=BLACK;state.computerColor=WHITE;state.currentActor='computer';addLog(`${actorName('computer')} מתחיל ומשחק בלבן`,'special')}await syncShared('openingDone');setTimeout(()=>startTurn(state.currentActor),900);}
+async function startOnlineOpening(){state.status='opening';state.diceMode=els.onlineDiceModeSelect.value||state.diceMode||'manual';state.difficulty='medium';state.log=[];setInitialBoard();state.gameOver=false;state.lastChance=null;state.lastMove=null;state.lastMoveSeen=null;state.lastVictorySeen=null;state.winnerColor=null;state.stolen=false;state.victoryId=null;state.lastChanceRollingSeen=null;state.lastChanceResultSeen=null;state.doubleStreak={human:0,computer:0};state.dice=[0,0];state.remaining=[];addLog('גלגולת פתיחה אונליין מתחילה','special');renderAll();await syncShared('openingStart');let h,c;do{[h,c]=rollDicePair();state.dice=[h,c];addLog(`${actorName('human')} גלגל: ${h}`);addLog(`${actorName('computer')} גלגל: ${c}`);if(h===c){addLog('תיקו בפתיחה — מגלגלים שוב','special')}}while(h===c);if(h>c){state.humanColor=WHITE;state.computerColor=BLACK;state.currentActor='human';addLog(`${actorName('human')} מתחיל ומשחק בלבן`,'special')}else{state.humanColor=BLACK;state.computerColor=WHITE;state.currentActor='computer';addLog(`${actorName('computer')} מתחיל ומשחק בלבן`,'special')}await syncShared('openingDone');setTimeout(()=>startTurn(state.currentActor),900);}
 async function sendReaction(text){
   showReaction(text,localActor());
   if(isOnline()&&state.roomCode)await update(roomRef(state.roomCode),{reaction:{id:Date.now()+'_'+Math.random().toString(36).slice(2,5),from:state.localActor,text,at:Date.now()}});
