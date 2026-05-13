@@ -424,6 +424,7 @@ import { die, isFiveSix, isFourFive, isOneTwo } from "./src/game/dice.js";
 import { BLACK, WHITE, countColorAt, otherColor } from "./src/game/rules.js";
 import { applyMove, getAllLegalMoves, getLegalMovesForSource, sameMove } from "./src/game/moves.js";
 import { createInitialBoard, createInitialState, createNewGameStateValues } from "./src/game/state.js";
+import { createSharedGameState, normalizeBoard } from "./src/game/onlineState.js";
 import { chooseAiSequence, chooseBestSequenceFor, evaluate, pipCount, simulateSequence } from "./src/game/ai.js";
 import { HEB_COLOR, HEB_DIFF, HEB_MODE } from "./src/ui/text.js";
 import { addLog as addLogMessage, computerMoveText, escapeHtml, logMove as logMoveMessage, renderLog as renderLogMessage, showMessage as showMessageMessage } from "./src/ui/messages.js";
@@ -851,39 +852,6 @@ function initChanceSelectors(){
   els.chanceA.value='2';els.chanceB.value='5';
 }
 
-function sharedState(){
-  return {
-    board:state.board,
-    bar:state.bar,
-    off:state.off,
-    humanColor:state.humanColor,
-    computerColor:state.computerColor,
-    currentActor:state.currentActor,
-    status:state.status,
-    difficulty:state.difficulty,
-    diceMode:state.diceMode,
-    dice:state.dice,
-    remaining:state.remaining,
-    freeMode:state.freeMode,
-    doubleExtra:state.doubleExtra,
-    chosenDouble:state.chosenDouble,
-    log:state.log,
-    doubleStreak:state.doubleStreak,
-    gameOver:state.gameOver,
-    lastChance:state.lastChance,
-    lastMove:state.lastMove||null,
-    winnerColor:state.winnerColor||null,
-    stolen:!!state.stolen,
-    victoryId:state.victoryId||null,
-    updatedAt:Date.now()
-  };
-}
-function normalizeBoard(b){
-  const arr=Array(25).fill(0);
-  if(Array.isArray(b)){for(let i=0;i<Math.min(25,b.length);i++)arr[i]=b[i]||0;}
-  else if(b){Object.keys(b).forEach(k=>{arr[+k]=b[k]||0;});}
-  return arr;
-}
 function applyShared(g){
   if(!isOnline()||!g)return;
   const lm=g.lastMove||null;
@@ -945,7 +913,7 @@ function applyShared(g){
 }
 async function syncShared(reason=''){
   if(!isOnline()||state.applyingRemote||!state.roomCode)return;
-  try{await set(roomGameRef(state.roomCode),sharedState());await update(roomRef(state.roomCode),{updatedAt:Date.now(),lastReason:reason});}catch(e){console.error(e);showMessage('שגיאת סנכרון',1500)}
+  try{await set(roomGameRef(state.roomCode),createSharedGameState(state));await update(roomRef(state.roomCode),{updatedAt:Date.now(),lastReason:reason});}catch(e){console.error(e);showMessage('שגיאת סנכרון',1500)}
 }
 async function generateRoomCode(){for(let i=0;i<40;i++){const code=String(rnd(1000,9999));const snap=await get(roomRef(code));if(!snap.exists())return code}return String(Date.now()).slice(-4);}
 function renderLobby(room={}){const p=room.players||{},r=room.ready||{};state.playerNames={human:p.human?.name||'שחקן 1',computer:p.computer?.name||'מחכה לחבר'};state.onlineReady={human:!!r.human,computer:!!r.computer};if(!els.roomLobby)return;els.roomLobby.style.display='block';els.roomCodeDisplay.textContent=state.roomCode||'----';els.roomPlayers.innerHTML=`<div class="playerLine"><span>שחקן 1</span><b>${escapeHtml(state.playerNames.human)}</b><span>${r.human?'✅ מוכן':'⏳ לא מוכן'}</span></div><div class="playerLine"><span>שחקן 2</span><b>${escapeHtml(state.playerNames.computer)}</b><span>${r.computer?'✅ מוכן':'⏳ לא מוכן'}</span></div>`;const myReady=!!r[state.localActor];els.readyBtn.textContent=myReady?'✅ מוכן':'✅ אני מוכן';els.roomStatusText.textContent=(p.human&&p.computer)?((r.human&&r.computer)?'שניכם מוכנים — מתחילים...':'שניכם בחדר. תלחצו אני מוכן.'):'מחכים לשחקן נוסף...';}
