@@ -24,10 +24,15 @@ export function showMessage(messageEl, text, ms = 1700) {
   showMessage.t = setTimeout(() => messageEl.classList.remove('show'), ms);
 }
 
+export function isImportantComputerMove(move) {
+  return !!move && (move.hit || move.to === 'off' || move.from === 'bar');
+}
+
 export function computerMoveText(move) {
+  if (!isImportantComputerMove(move)) return '';
   if (move.to === 'off') return move.from === 'bar' ? 'המחשב מוציא אבן' : 'המחשב מוציא אבן מ־' + move.from;
   if (move.from === 'bar') return `המחשב נכנס מהבר ל־${move.to}${move.hit ? ' ואוכל אבן' : ''}`;
-  return `המחשב מזיז מ־${move.from} ל־${move.to}${move.hit ? ' ואוכל אבן' : ''}`;
+  return `המחשב אוכל אבן מ־${move.from} ל־${move.to}`;
 }
 
 export function logMove(addLogFn, who, move) {
