@@ -1,11 +1,15 @@
 # Asset Attributions
 
-This project intentionally does **not** include third-party premium audio or image assets yet.
+This project includes user-provided audio assets with attribution recorded below.
 
 ## Current repository assets
 
 | File | Source | License | Attribution required | Notes |
 | --- | --- | --- | --- | --- |
+| `assets/sounds/dice-roll-1.mp3` | [Freesound sound 538960](https://freesound.org/s/538960/) by VM83 | Attribution / CC BY | Yes | Original audio contained 3 dice throws. Before each throw there was shaking/mixing sound. This output was trimmed to keep only the clean dice landing / roll impact; small fade in/out and volume normalization were applied. |
+| `assets/sounds/dice-roll-2.mp3` | [Freesound sound 538960](https://freesound.org/s/538960/) by VM83 | Attribution / CC BY | Yes | Original audio contained 3 dice throws. Before each throw there was shaking/mixing sound. This output was trimmed to keep only the clean dice landing / roll impact; small fade in/out and volume normalization were applied. |
+| `assets/sounds/dice-roll-3.mp3` | [Freesound sound 538960](https://freesound.org/s/538960/) by VM83 | Attribution / CC BY | Yes | Original audio contained 3 dice throws. Before each throw there was shaking/mixing sound. This output was trimmed to keep only the clean dice landing / roll impact; small fade in/out and volume normalization were applied. |
+| `assets/sounds/dice-roll.mp3` | [Freesound sound 538960](https://freesound.org/s/538960/) by VM83 | Attribution / CC BY | Yes | Kept as the dice-roll fallback. Original audio contained 3 dice throws. Before each throw there was shaking/mixing sound. This output was trimmed to keep only the clean dice landing / roll impact; small fade in/out and volume normalization were applied. |
 | `assets/sounds/.gitkeep` | Project placeholder | N/A | No | Keeps the future sound folder in Git. |
 | `assets/images/.gitkeep` | Project placeholder | N/A | No | Keeps the future image folder in Git. |
 
