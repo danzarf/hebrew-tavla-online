@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { chooseBestDoubleFor, chooseBestSequenceFor, generateSequences, pipCount, simulateSequence } from '../src/game/ai.js';
+import { chooseBestDoubleFor, chooseBestSequenceFor, generateSequences, moveProgress, pipCount, simulateSequence } from '../src/game/ai.js';
 import { WHITE, BLACK } from '../src/game/rules.js';
 
 function emptyState() {
@@ -140,4 +140,52 @@ test('computer 4-5 double choice prefers the best evaluated double in a clear es
   const chosenDouble = chooseBestDoubleFor(state, state.computerColor);
 
   assert.equal(chosenDouble, 6);
+});
+
+test('hard AI uses 5-6 backward movement when it creates a clearly valuable hit', () => {
+  const state = emptyState();
+  state.board[13] = 2;
+  state.board[8] = 2;
+  state.board[5] = 1;
+  state.board[20] = -1;
+  state.board[6] = -2;
+
+  const sequence = chooseBestSequenceFor(state, WHITE, ['free', 'free'], true);
+
+  assert.equal(sequence.some((move) => move.from === 13 && move.to === 20 && move.hit), true);
+});
+
+test('hard AI avoids 5-6 backward movement when a better progress move exists', () => {
+  const state = emptyState();
+  state.board[20] = 2;
+  state.board[13] = 2;
+  state.board[6] = 11;
+
+  const sequence = chooseBestSequenceFor(state, WHITE, ['free', 'free'], true);
+
+  assert.equal(sequence.some((move) => moveProgress(state, move, WHITE) < 0), false);
+  assert.equal(sequence.some((move) => move.from === 20 && move.to === 1), true);
+});
+
+test('hard AI does not use 5-6 backward movement only to avoid a blot at the cost of progress', () => {
+  const state = emptyState();
+  state.board[13] = 2;
+  state.board[16] = 1;
+  state.board[6] = 12;
+
+  const sequence = chooseBestSequenceFor(state, WHITE, ['free', 'free'], true);
+
+  assert.equal(sequence.some((move) => moveProgress(state, move, WHITE) < 0), false);
+  assert.deepEqual(sequence.map((move) => move.to), [1, 1]);
+});
+
+test('hard AI prefers immediate 5-6 winning bear-off over a flashy hit', () => {
+  const state = emptyState();
+  state.off.white = 14;
+  state.board[1] = 1;
+  state.board[3] = -1;
+
+  const sequence = chooseBestSequenceFor(state, WHITE, ['free', 'free'], true);
+
+  assert.deepEqual(sequence, [{ color: WHITE, from: 1, to: 'off', die: 'free', bearOff: true }]);
 });
