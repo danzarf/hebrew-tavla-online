@@ -219,8 +219,8 @@ body:before{content:"";position:fixed;inset:0;pointer-events:none;background:rad
 .board:after{border-color:rgba(242,201,121,.16);box-shadow:inset 0 0 0 1px rgba(0,0,0,.38),0 0 20px rgba(0,0,0,.30)}
 .boardInner{background:linear-gradient(90deg,#102a25 0%,#1f5a49 23%,#12352e 50%,#1f5a49 77%,#102a25 100%);box-shadow:inset 0 0 0 1px rgba(255,231,176,.12),inset 0 12px 24px rgba(255,255,255,.020),inset 0 -24px 42px rgba(0,0,0,.46),0 0 0 1px rgba(0,0,0,.24)}
 .point{transition:filter .14s ease,transform .14s ease}.point:before{filter:drop-shadow(0 6px 4px rgba(0,0,0,.42));opacity:1}.point.red:before{background:linear-gradient(180deg,#c25539 0%,#81291f 52%,#36100d 100%)}.point.green:before{background:linear-gradient(180deg,#6da084 0%,#28634f 52%,#0b241f 100%)}
-.point:hover{filter:brightness(1.18) saturate(1.10);transform:translateY(-1px)}
-.point:hover:after{content:"";position:absolute;inset:5px;border:2px solid rgba(255,231,176,.45);border-radius:13px;box-shadow:0 0 0 1px rgba(0,0,0,.22),0 0 16px rgba(242,201,121,.24),inset 0 0 18px rgba(255,231,176,.09);z-index:5;pointer-events:none}
+.point:hover{filter:none;transform:none}
+.point:hover:not(.highlight):not(.selected):before{filter:drop-shadow(0 7px 5px rgba(0,0,0,.34)) brightness(1.12) saturate(1.10);opacity:1}
 .point.highlight:after,.offTray.highlight:after,.barArea.highlight:after{inset:3px;border-width:3px;border-color:rgba(96,238,163,.96);box-shadow:0 0 0 1px rgba(255,255,255,.16),0 0 24px rgba(94,227,154,.58),inset 0 0 20px rgba(94,227,154,.22);z-index:6}
 .point.selected:after,.barArea.selected:after{inset:2px;border-width:3px;border-color:rgba(140,210,255,.98);box-shadow:0 0 0 1px rgba(255,255,255,.18),0 0 24px rgba(125,198,255,.62),inset 0 0 16px rgba(125,198,255,.18);z-index:7}
 .field select,.field input,.lastChancePick select{background-color:#100705;background-image:linear-gradient(180deg,#211007,#0d0503);color:#fff3c6;border:1px solid rgba(242,201,121,.42);box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 0 0 1px rgba(0,0,0,.18);outline:none}
@@ -229,7 +229,7 @@ body:before{content:"";position:fixed;inset:0;pointer-events:none;background:rad
 .field select:focus,.field input:focus,.lastChancePick select:focus{border-color:rgba(255,231,176,.78);box-shadow:inset 0 1px 0 rgba(255,255,255,.10),0 0 0 3px rgba(246,199,108,.18)}
 .field select option,.lastChancePick select option{background-color:#140805;color:#ffe7b0;font-weight:800}
 .field select option:checked,.lastChancePick select option:checked{background-color:#3a2110;color:#fff3c6}
-.floatingPiece{transition:opacity .12s ease;will-change:transform,opacity}.floatingPiece.inFlight{animation:pieceFlightSimple var(--flight-ms,260ms) cubic-bezier(.22,.72,.20,1) forwards}@keyframes pieceFlightSimple{0%{transform:translate(-50%,-50%) scale(1);filter:brightness(1)}100%{transform:translate(var(--dx),var(--dy)) translate(-50%,-50%) scale(1);filter:brightness(1.03)}}
+.floatingPiece{transition:opacity .16s ease;will-change:transform,opacity}.floatingPiece.inFlight{animation:pieceFlightSimple var(--flight-ms,360ms) cubic-bezier(.20,.70,.18,1) forwards}@keyframes pieceFlightSimple{0%{transform:translate(-50%,-50%) scale(1);filter:brightness(1)}100%{transform:translate(var(--dx),var(--dy)) translate(-50%,-50%) scale(1);filter:brightness(1.03)}}
 @media (prefers-reduced-motion:reduce){.floatingPiece.inFlight{animation:none !important;transform:translate(var(--dx),var(--dy)) translate(-50%,-50%) scale(1) !important}}
 
 
