@@ -1117,6 +1117,7 @@ async function rollLastChanceNow(){
   lc.roll=null;
   await syncShared('lastChanceRolling');
   showMessage(`${actorName(actorForColor(winner))} מגלגל לירושלמי...`,2000);
+  playSound('lastChance');
   await sleep(450);
   const d=rollDicePair();
   state.dice=d;

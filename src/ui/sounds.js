@@ -1,6 +1,15 @@
 const DEFAULT_MASTER_VOLUME = 0.28;
 const STORAGE_KEY = 'tavlaSoundMuted';
 
+export const DEFAULT_SOUND_FILES = {
+  roll: 'assets/sounds/dice-roll.mp3',
+  move: 'assets/sounds/checker-move.mp3',
+  hit: 'assets/sounds/checker-hit.mp3',
+  special: 'assets/sounds/special-roll.mp3',
+  win: 'assets/sounds/win.mp3',
+  lastChance: 'assets/sounds/last-chance.mp3',
+};
+
 const FALLBACK_TONES = {
   roll: { frequency: 180, type: 'sine', duration: 0.16, peak: 0.07 },
   move: { frequency: 330, type: 'sine', duration: 0.25, peak: 0.055 },
@@ -28,7 +37,7 @@ function writeMutedPreference(muted) {
   }
 }
 
-export function createSoundManager({ files = {}, masterVolume = DEFAULT_MASTER_VOLUME } = {}) {
+export function createSoundManager({ files = DEFAULT_SOUND_FILES, masterVolume = DEFAULT_MASTER_VOLUME } = {}) {
   let audioCtx = null;
   let muted = readMutedPreference();
   const buffers = new Map();

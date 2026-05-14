@@ -98,8 +98,9 @@ export function createAnimationHelpers({
       els.diceDock.classList.add('rolling'); let t = 0; const iv = setInterval(() => { setDice([die(), die()]); t += 76; }, 76);
       setTimeout(() => {
         clearInterval(iv); setDice(finalDice); state.dice = finalDice; els.diceDock.classList.remove('rolling');
+        const feedbackSound = rollFeedbackClass(finalDice) ? 'special' : 'roll';
         flashRollFeedback(finalDice);
-        playSound('roll'); resolve();
+        playSound(feedbackSound); resolve();
       }, duration);
     });
   }
@@ -135,6 +136,7 @@ export function createAnimationHelpers({
     if (!lc || !lc.rollingId || state.lastChanceRollingSeen === lc.rollingId) return;
     state.lastChanceRollingSeen = lc.rollingId;
     showMessage(`${actorName(actorForColor(lc.winner))} מגלגל לירושלמי...`, 2200);
+    playSound('lastChance');
     await rollDiceVisual([die(), die()], 2200);
   }
 

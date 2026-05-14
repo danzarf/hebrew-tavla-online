@@ -9,6 +9,18 @@ This project intentionally does **not** include third-party premium audio or ima
 | `assets/sounds/.gitkeep` | Project placeholder | N/A | No | Keeps the future sound folder in Git. |
 | `assets/images/.gitkeep` | Project placeholder | N/A | No | Keeps the future image folder in Git. |
 
+
+## Asset requirements
+
+Before selecting or uploading premium assets, follow the exact shopping/upload list in `assets/ASSET_REQUIREMENTS.md`. The game is wired to look for these sound file names automatically:
+
+- `assets/sounds/dice-roll.mp3`
+- `assets/sounds/checker-move.mp3`
+- `assets/sounds/checker-hit.mp3`
+- `assets/sounds/special-roll.mp3`
+- `assets/sounds/win.mp3`
+- `assets/sounds/last-chance.mp3`
+
 ## Required checklist before adding any external asset
 
 For every future audio/image asset, add a row above with:
