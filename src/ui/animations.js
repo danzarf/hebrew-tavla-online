@@ -72,6 +72,25 @@ export function createAnimationHelpers({
     });
   }
 
+  function dicePerspectiveClass(actor) {
+    if (!actor) return 'dicePerspectiveCenter';
+    return actor === localActor() ? 'dicePerspectiveOwn' : 'dicePerspectiveOpponent';
+  }
+
+  const DICE_SCRAMBLE_FRAMES = [
+    [1, 6], [3, 4], [5, 2], [6, 1], [2, 5], [4, 3],
+  ];
+
+  function deterministicRollingDice(finalDice, frame) {
+    const a = finalDice?.[0] || 1;
+    const b = finalDice?.[1] || 6;
+    const preset = DICE_SCRAMBLE_FRAMES[frame % DICE_SCRAMBLE_FRAMES.length];
+    return [
+      ((preset[0] + a + frame - 2) % 6) + 1,
+      ((preset[1] + b + frame * 2 - 2) % 6) + 1,
+    ];
+  }
+
   function rollFeedbackClass(finalDice) {
     const sortedDice = [...(finalDice || [])].sort((a, b) => a - b).join('-');
     if (sortedDice === '5-6') return 'rollFxFreeBurst';
@@ -97,15 +116,35 @@ export function createAnimationHelpers({
     }, 1250);
   }
 
-  function rollDiceVisual(finalDice, duration = 980) {
+  function rollDiceVisual(finalDice, duration = 980, options = {}) {
     return new Promise(resolve => {
-      playSound('roll');
-      els.diceDock.classList.add('rolling'); let t = 0; const iv = setInterval(() => { setDice([die(), die()]); t += 76; }, 76);
+      const actor = options.actor || state.currentActor;
+      const perspectiveClass = options.perspectiveClass || dicePerspectiveClass(actor);
+      const perspectiveClasses = ['dicePerspectiveOwn', 'dicePerspectiveOpponent', 'dicePerspectiveCenter'];
+      const clampedDuration = Math.max(720, Math.min(1800, duration));
+      const settleAt = Math.max(220, clampedDuration - 230);
+      if (options.sound !== false) playSound('roll');
+      els.diceDock.classList.remove(...perspectiveClasses, 'settling');
+      els.diceDock.style.setProperty('--dice-roll-ms', `${clampedDuration}ms`);
+      els.diceDock.classList.add('rolling', perspectiveClass);
+      let frame = 0;
+      setDice(deterministicRollingDice(finalDice, frame));
+      const iv = setInterval(() => {
+        frame += 1;
+        setDice(deterministicRollingDice(finalDice, frame));
+      }, 74);
+      const settleTimer = setTimeout(() => {
+        els.diceDock.classList.add('settling');
+      }, settleAt);
       setTimeout(() => {
-        clearInterval(iv); setDice(finalDice); state.dice = finalDice; els.diceDock.classList.remove('rolling');
+        clearInterval(iv);
+        clearTimeout(settleTimer);
+        setDice(finalDice);
+        if (options.commitFinal !== false) state.dice = finalDice;
+        els.diceDock.classList.remove('rolling', 'settling');
         flashRollFeedback(finalDice);
         resolve();
-      }, duration);
+      }, clampedDuration);
     });
   }
 
@@ -140,8 +179,7 @@ export function createAnimationHelpers({
     if (!lc || !lc.rollingId || state.lastChanceRollingSeen === lc.rollingId) return;
     state.lastChanceRollingSeen = lc.rollingId;
     showMessage(`${actorName(actorForColor(lc.winner))} מגלגל לירושלמי...`, 2200);
-    playSound('lastChance');
-    await rollDiceVisual([die(), die()], 2200);
+    await rollDiceVisual(state.dice?.[0] && state.dice?.[1] ? state.dice : [1, 1], 1500, { actor: actorForColor(lc.winner), commitFinal: false });
   }
 
   async function showLastChanceResult(lc) {
