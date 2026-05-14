@@ -42,22 +42,18 @@ export function createAnimationHelpers({
       const dx = end.x - start.x;
       const dy = end.y - start.y;
       const distance = Math.hypot(dx, dy);
-      const flightMs = Math.min(460, Math.max(340, 320 + distance * .18));
+      const flightMs = Math.min(320, Math.max(180, 150 + distance * .10));
       const f = document.createElement('div');
       f.className = 'floatingPiece ' + color;
       f.style.left = `${start.x}px`;
       f.style.top = `${start.y}px`;
       f.style.setProperty('--dx', `${dx}px`);
       f.style.setProperty('--dy', `${dy}px`);
-      const lift = Math.min(18, Math.max(8, distance * .035));
-      f.style.setProperty('--lift', `${lift}px`);
-      f.style.setProperty('--mid-x', `${dx * .52}px`);
-      f.style.setProperty('--mid-y', `${dy * .52 - lift}px`);
       f.style.setProperty('--flight-ms', `${flightMs}ms`);
       f.style.transform = 'translate(-50%,-50%) scale(1)';
       document.body.appendChild(f);
       requestAnimationFrame(() => f.classList.add('inFlight'));
-      setTimeout(() => { if (hit) els.board.classList.add('hitFlash'); }, Math.max(120, flightMs * .42));
+      setTimeout(() => { if (hit) els.board.classList.add('hitFlash'); }, Math.max(70, flightMs * .55));
       setTimeout(() => {
         f.style.opacity = '0';
         if (hit) els.board.classList.remove('hitFlash');
