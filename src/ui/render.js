@@ -76,6 +76,13 @@ export function createRenderHelpers({
     state.legalChoices.forEach(m => { if (m.to === 'off') (m.color === WHITE ? els.offWhite : els.offBlack).classList.add('highlight'); });
     renderBar(); renderOff(); setDice(state.dice);
     els.diceDock.classList.toggle('clickable', canHumanRoll());
+    const dice = state.dice || [];
+    const sortedDice = [...dice].sort((a, b) => a - b).join('-');
+    els.diceDock.classList.remove('rollFxFree', 'rollFxChoice', 'rollFxBad', 'rollFxDouble');
+    if (state.freeMode) els.diceDock.classList.add('rollFxFree');
+    else if (state.chosenDouble) els.diceDock.classList.add('rollFxChoice');
+    else if (state.status === 'blocked' && sortedDice === '1-2') els.diceDock.classList.add('rollFxBad');
+    else if (state.doubleExtra) els.diceDock.classList.add('rollFxDouble');
   }
 
   function renderBar() {
