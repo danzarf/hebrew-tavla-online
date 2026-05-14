@@ -14,12 +14,13 @@ export function chooseAiSequence(state, rnd) {
 export function chooseBestSequenceFor(state, color, remaining, freeMode, quiet) {
   const limit = state.difficulty === 'hard' ? 4200 : 2200;
   const cap = state.difficulty === 'hard' ? 42 : 30;
-  const seqs = generateSequences(cloneState(state), color, remaining.slice(), freeMode, limit, cap);
+  const seqs = generateSequences(cloneState(state), color, remaining.slice(), freeMode, limit, cap, state.difficulty === 'hard');
   if (!seqs.length) return [];
   let best = seqs[0], bestScore = -Infinity;
   for (const seq of seqs) {
     const st = simulateSequence(state, color, seq);
     let sc = evaluate(st, color, seq);
+    if (state.difficulty === 'hard' && freeMode) sc += freeMoveStrategyScore(state, color, seq, st);
     if (state.difficulty === 'medium') sc += Math.random() * 24;
     if (sc > bestScore) { bestScore = sc; best = seq; }
   }
@@ -42,7 +43,7 @@ export function chooseBestDoubleFor(state, color = state.computerColor) {
   return bestDouble;
 }
 
-export function generateSequences(st, color, remaining, freeMode, limit = 3000, cap = 38) {
+export function generateSequences(st, color, remaining, freeMode, limit = 3000, cap = 38, hardFreeStrategy = false) {
   const result = [];
   function rec(cur, rem, seq) {
     if (result.length >= limit) return;
@@ -50,7 +51,7 @@ export function generateSequences(st, color, remaining, freeMode, limit = 3000, 
     let moves = getAllLegalMoves(cur, color, rem, freeMode);
     if (!moves.length) { result.push(seq.slice()); return; }
     moves = dedupeMoves(moves);
-    moves.sort((a, b) => quickMoveScore(cur, b, color) - quickMoveScore(cur, a, color));
+    moves.sort((a, b) => quickMoveScore(cur, b, color, hardFreeStrategy && freeMode) - quickMoveScore(cur, a, color, hardFreeStrategy && freeMode));
     if (freeMode && moves.length > cap) moves = moves.slice(0, cap);
     if (!freeMode && moves.length > cap) moves = moves.slice(0, cap);
     for (const m of moves) {
@@ -79,12 +80,17 @@ export function dedupeMoves(moves) {
   return out;
 }
 
-export function quickMoveScore(st, m, color) {
+export function quickMoveScore(st, m, color, hardFreeStrategy = false) {
   let s = 0;
   if (m.to === 'off') s += 90;
   if (m.from === 'bar') s += 50;
   if (m.hit) s += 65;
-  if (m.die === 6 || m.die === 'free') s += moveProgress(st, m, color) * 4;
+  const progress = moveProgress(st, m, color);
+  if (m.die === 6 || m.die === 'free') s += progress * 4;
+  if (hardFreeStrategy && m.die === 'free' && progress < 0) {
+    s -= 75;
+    if (m.hit) s += 190;
+  }
   s += backCheckerMoveBonus(st, m, color);
   if (m.to !== 'off') {
     const own = countColorAt(st, m.to, color);
@@ -137,6 +143,62 @@ export function evaluate(st, color, seq) {
   score += sequenceTempoScore(st, color, seq);
   score += distributionScore(st, color);
   return score;
+}
+
+export function freeMoveStrategyScore(before, color, seq, after = simulateSequence(before, color, seq)) {
+  if (after.off[color] >= 15) return seq[0]?.to === 'off' ? 500 : -500;
+  let score = 0;
+  let cur = cloneState(before);
+  let backwardCount = 0;
+  let tacticalBackwardCount = 0;
+  let totalProgress = 0;
+
+  for (const move of seq) {
+    const progress = moveProgress(cur, move, color);
+    totalProgress += progress;
+    const next = cloneState(cur);
+    applyMove(next, { ...move });
+
+    if (move.die === 'free' && progress < 0) {
+      backwardCount++;
+      const value = backwardMoveTacticalValue(cur, next, move, color);
+      if (value > 0) tacticalBackwardCount++;
+      score += value - 115;
+    }
+
+    cur = next;
+  }
+
+  if (backwardCount > 0) {
+    if (tacticalBackwardCount === 0) score -= 180 + backwardCount * 70;
+    if (totalProgress < 0) score += totalProgress * 12;
+  }
+
+  return score;
+}
+
+export function backwardMoveTacticalValue(before, after, move, color) {
+  let value = 0;
+  const opp = otherColor(color);
+
+  if (move.hit) {
+    value += 230;
+    if (move.to !== 'off' && isHomePoint(move.to, opp)) value += 45;
+    if (move.to !== 'off' && pipDistanceFromPoint(move.to, opp) <= 8) value += 25;
+  }
+
+  if (move.to !== 'off' && countColorAt(before, move.to, color) === 1 && countColorAt(after, move.to, color) >= 2) {
+    value += 90;
+  }
+
+  if (move.from !== 'bar' && move.to !== 'off') {
+    const sourceWasThreatened = countColorAt(before, move.from, color) === 1 && blotPenalty(before, move.from, color) >= 28;
+    const landedSafe = countColorAt(after, move.to, color) >= 2;
+    if (sourceWasThreatened && landedSafe) value += 70;
+    if (!landedSafe) value -= 45;
+  }
+
+  return value;
 }
 
 export function doubleChoiceScore(before, after, color, seq, die) {
