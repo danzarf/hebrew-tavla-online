@@ -82,7 +82,7 @@ button,select,input{font-family:inherit}
 .diceDock.clickable{cursor:pointer;box-shadow:0 0 0 3px rgba(94,227,154,.35),0 10px 24px rgba(0,0,0,.38)}
 .die{width:clamp(34px,4.2vw,55px);height:clamp(34px,4.2vw,55px);border-radius:10px;background:linear-gradient(135deg,#fff,#e8d7c4 55%,#b99c79);box-shadow:inset 2px 2px 4px rgba(255,255,255,.8),inset -4px -5px 8px rgba(0,0,0,.26),0 8px 12px rgba(0,0,0,.42);display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);padding:17%;gap:10%;transform-style:preserve-3d;position:relative}
 .die:after{content:"";position:absolute;inset:0;border-radius:10px;background:linear-gradient(135deg,rgba(255,255,255,.5),transparent 42%,rgba(0,0,0,.15));pointer-events:none}.pip{border-radius:50%;background:#21150f;box-shadow:inset 0 1px 1px rgba(255,255,255,.25);opacity:0}.pip.on{opacity:1}.diceDock.rolling .die{animation:rollDie .18s linear infinite alternate}.diceDock.rolling .die:nth-child(2){animation-delay:.07s}@keyframes rollDie{from{transform:translateY(-2px) rotateX(10deg) rotateZ(-7deg)}to{transform:translateY(3px) rotateX(38deg) rotateZ(12deg)}}
-.boardMessage{position:absolute;z-index:30;left:50%;top:11%;transform:translateX(-50%);max-width:86%;text-align:center;font-weight:900;font-size:clamp(13px,1.75vw,24px);padding:8px 14px;border-radius:999px;background:rgba(0,0,0,.48);border:1px solid rgba(255,231,176,.22);box-shadow:0 8px 22px rgba(0,0,0,.35);opacity:0;pointer-events:none;transition:.25s opacity,.25s transform;color:#fff}.boardMessage.show{opacity:1;transform:translateX(-50%) translateY(4px)}
+.boardMessage{position:absolute;z-index:30;left:50%;top:11%;transform:translateX(-50%);max-width:86%;text-align:center;font-weight:900;font-size:clamp(13px,1.75vw,24px);padding:8px 14px;border-radius:999px;background:rgba(0,0,0,.48);border:1px solid rgba(255,231,176,.22);box-shadow:0 8px 22px rgba(0,0,0,.35);opacity:0;pointer-events:none;transition:.25s opacity,.25s transform;color:#fff}.boardMessage.hint,.boardMessage.notice{top:7%;font-size:clamp(11px,1.08vw,15px);font-weight:800;padding:5px 10px;background:rgba(20,12,8,.58);border-color:rgba(255,231,176,.18);box-shadow:0 6px 16px rgba(0,0,0,.28)}.boardMessage.notice{background:rgba(31,47,38,.68);border-color:rgba(94,227,154,.26)}.boardMessage.show{opacity:1;transform:translateX(-50%) translateY(4px)}
 .side{min-height:0;height:calc(100vh - 90px);display:flex;flex-direction:column;gap:10px;overflow:hidden}
 .card{background:linear-gradient(180deg,rgba(49,27,17,.93),rgba(27,13,8,.94));border:1px solid rgba(255,221,151,.16);border-radius:18px;box-shadow:0 10px 25px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.06);padding:12px}.card h3{margin:0 0 9px;font-size:16px;color:#ffe4a5}.controls{display:grid;grid-template-columns:1fr 1fr;gap:8px}.controls .btn{width:100%}.infoGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.miniInfo{border-radius:14px;background:rgba(255,255,255,.06);padding:8px;border:1px solid rgba(255,255,255,.08);font-size:13px}.miniInfo b{display:block;color:#fff;margin-bottom:3px}.movesLeft{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}.moveChip{min-width:26px;height:26px;border-radius:9px;background:rgba(246,199,108,.18);border:1px solid rgba(246,199,108,.35);display:flex;align-items:center;justify-content:center;font-weight:900}.moveChip.free{background:rgba(94,227,154,.18);border-color:rgba(94,227,154,.38)}
 .logCard{flex:1;min-height:120px;overflow:hidden;display:flex;flex-direction:column}.log{flex:1;overflow:auto;border-radius:12px;background:rgba(0,0,0,.18);padding:8px;font-size:13px;line-height:1.38}.logItem{padding:6px 7px;margin-bottom:5px;border-radius:10px;background:rgba(255,255,255,.055);border-right:3px solid rgba(246,199,108,.55)}.logItem.special{border-right-color:var(--green);background:rgba(94,227,154,.09)}.logItem.danger{border-right-color:var(--danger);background:rgba(255,119,106,.08)}
@@ -714,8 +714,8 @@ function actorForColor(color){return state.humanColor===color?'human':'computer'
 function addLog(text,type=''){
   addLogMessage(state,els.log,text,type);
 }
-function showMessage(text,ms=1700){
-  showMessageMessage(els.msg,text,ms);
+function showMessage(text,ms=1700,tone=''){
+  showMessageMessage(els.msg,text,ms,tone);
 }
 function renderLog(){
   renderLogMessage(els.log,state.log);
@@ -851,8 +851,7 @@ async function animateRemoteMove(lm,start){
   if(!lm||!start)return;
   try{
     const end=getPlaceCenter(lm.to,lm.color,false);
-    showMessage(`${actorName(lm.by||otherActor(localActor()))} הזיז אבן`,900);
-    await flyPiece(lm.color,start,end,!!lm.hit);
+    await flyPiece(lm.color,start,end,!!lm.hit,{speedMultiplier:1.35,minMs:300,maxMs:520});
   }catch(e){console.warn('remote animation failed',e);}
 }
 async function humanMove(move){
@@ -903,10 +902,7 @@ function startTurn(actor){
   if(state.gameOver)return;
   clearTimers();state.currentActor=actor;state.status='waitingRoll';state.dice=[0,0];state.remaining=[];state.freeMode=false;state.doubleExtra=false;state.chosenDouble=false;state.selected=null;state.legalChoices=[];state.undoStack=[];renderAll();syncShared('startTurn');
   if(isOnline()){
-    if(actor===localActor()){
-      showMessage(state.diceMode==='manual'?'תורך — לחץ גלגל או על הקוביות':'תורך — גלגול אוטומטי');
-      if(state.diceMode==='auto')state.autoTimer=setTimeout(()=>rollForCurrent(),650);
-    }else showMessage(`תור של ${actorName(actor)}`);
+    if(actor===localActor()&&state.diceMode==='auto')state.autoTimer=setTimeout(()=>rollForCurrent(),650);
   }else if(actor==='human'){
     showMessage(state.diceMode==='manual'?'תורך — לחץ גלגל או על הקוביות':'תורך — גלגול אוטומטי');
     if(state.diceMode==='auto')state.autoTimer=setTimeout(()=>rollForCurrent(),650);
@@ -918,7 +914,7 @@ async function rollForCurrent(){
   if(isOnline()&&state.currentActor!==localActor())return;
   const actor=state.currentActor;state.status='rolling';renderUI();await syncShared('rolling');playSound('roll');
   const d=rollDicePair();await rollDiceVisual(d,rnd(1000,1350));state.dice=d;
-  addLog(`${actorName(actor)} גלגל: ${d[0]}–${d[1]}`);showMessage(`${actorName(actor)} גלגל: ${d[0]}–${d[1]}`);renderAll();await syncShared('roll');await sleep(350);processRoll(d);
+  addLog(`${actorName(actor)} גלגל: ${d[0]}–${d[1]}`);renderAll();await syncShared('roll');await sleep(350);processRoll(d);
 }
 
 function processRoll(d){
@@ -942,7 +938,7 @@ function beginMovePhase(){
   const legal=getAllLegalMoves(state,color,state.remaining,state.freeMode);
   if(!legal.length){addLog('אין מהלכים חוקיים','danger');showMessage('אין מהלכים חוקיים',1600);state.status='noMoves';syncShared('noMoves');return setTimeout(()=>endTurn(),1500);}
   if(isOnline()){
-    state.status='humanMoving';showMessage(actor===localActor()?'בחר אבן למהלך':`מחכים למהלך של ${actorName(actor)}`);renderAll();syncShared('beginMovePhase');
+    state.status='humanMoving';renderAll();syncShared('beginMovePhase');
   }else if(actor==='human'){state.status='humanMoving';showMessage('בחר אבן למהלך');renderAll();}
   else{state.status='computerMoving';renderAll();runComputerTurn();}
 }
@@ -954,6 +950,22 @@ function showDoubleChooser(){
 }
 function chooseHumanDouble(n){
   els.doubleModal.classList.remove('show');state.remaining=[n,n,n,n];state.freeMode=false;state.chosenDouble=true;state.doubleExtra=false;addLog(`${actorName(state.currentActor)} בחר דאבל ${n}–${n}`,'special');showMessage(`נבחר דאבל ${n}–${n}`);syncShared('choseDouble');beginMovePhase();
+}
+
+function chosenDoubleValue(shared){
+  const remaining=shared?.remaining||[];
+  if(!shared?.chosenDouble||remaining.length!==4)return null;
+  const n=remaining[0];
+  return Number.isInteger(n)&&remaining.every(v=>v===n)?n:null;
+}
+function notifyRemoteDoubleChoice(shared){
+  const n=chosenDoubleValue(shared);
+  if(!n||shared.currentActor===localActor())return;
+  const latestChoice=Array.isArray(shared.log)?shared.log.find(item=>item?.type==='special'&&item?.text?.includes('בחר דאבל')):null;
+  const id=`${shared.currentActor}_${n}_${latestChoice?.time||shared.dice?.join('-')||''}`;
+  if(state.remoteDoubleChoiceSeen===id)return;
+  state.remoteDoubleChoiceSeen=id;
+  showMessage(`היריב בחר דאבל ${n}`,2200,'notice');
 }
 
 function computerChooseDouble(){
@@ -1191,6 +1203,7 @@ function applyShared(g){
   renderAll();
   renderLog();
   renderLastChanceUI();
+  notifyRemoteDoubleChoice(g);
   if(remoteMove)animateRemoteMove(lm,remoteStart);
   if(state.lastChance&&state.lastChance.phase==='rolling'&&state.lastChance.rollingId)showRemoteLastChanceRolling(state.lastChance);
   if(state.lastChance&&state.lastChance.resultId)showLastChanceResult(state.lastChance);
