@@ -425,7 +425,7 @@ import { BLACK, WHITE, countColorAt, otherColor } from "./src/game/rules.js";
 import { applyMove, getAllLegalMoves, getLegalMovesForSource, sameMove } from "./src/game/moves.js";
 import { createInitialBoard, createInitialState, createNewGameStateValues } from "./src/game/state.js";
 import { createSharedGameState, normalizeBoard } from "./src/game/onlineState.js";
-import { chooseAiSequence, chooseBestSequenceFor, evaluate, pipCount, simulateSequence } from "./src/game/ai.js";
+import { chooseAiSequence, chooseBestDoubleFor, pipCount } from "./src/game/ai.js";
 import { HEB_COLOR, HEB_DIFF, HEB_MODE } from "./src/ui/text.js";
 import { addLog as addLogMessage, computerMoveText, escapeHtml, isImportantComputerMove, logMove as logMoveMessage, renderLog as renderLogMessage, showMessage as showMessageMessage } from "./src/ui/messages.js";
 import { createAnimationHelpers } from "./src/ui/animations.js";
@@ -720,9 +720,7 @@ function chooseHumanDouble(n){
 function computerChooseDouble(){
   let n=1;
   if(state.difficulty==='easy')n=rnd(1,6);
-  else{
-    let best=-Infinity;for(let x=1;x<=6;x++){const seq=chooseBestSequenceFor(state,state.computerColor,[x,x,x,x],false,true);const st=simulateSequence(state,state.computerColor,seq);const score=evaluate(st,state.computerColor,seq);if(score>best){best=score;n=x}}
-  }
+  else n=chooseBestDoubleFor(state,state.computerColor);
   state.remaining=[n,n,n,n];state.freeMode=false;state.chosenDouble=true;state.doubleExtra=false;addLog(`המחשב בחר דאבל ${n}–${n}`,'special');showMessage(`המחשב בחר דאבל ${n}–${n}`);setTimeout(beginMovePhase,850);
 }
 async function runComputerTurn(){
