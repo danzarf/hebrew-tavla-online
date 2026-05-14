@@ -17,11 +17,15 @@ export function addLog(state, logEl, text, type = '') {
   renderLog(logEl, state.log);
 }
 
-export function showMessage(messageEl, text, ms = 1700) {
+export function showMessage(messageEl, text, ms = 1700, tone = '') {
   messageEl.textContent = text;
+  messageEl.classList.remove('hint', 'notice');
+  if (tone) messageEl.classList.add(tone);
   messageEl.classList.add('show');
   clearTimeout(showMessage.t);
-  showMessage.t = setTimeout(() => messageEl.classList.remove('show'), ms);
+  showMessage.t = setTimeout(() => {
+    messageEl.classList.remove('show', 'hint', 'notice');
+  }, ms);
 }
 
 export function isImportantComputerMove(move) {

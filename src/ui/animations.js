@@ -37,12 +37,16 @@ export function createAnimationHelpers({
     const r = (el || els.board).getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
   }
 
-  function flyPiece(color, start, end, hit = false) {
+  function flyPiece(color, start, end, hit = false, options = {}) {
     return new Promise(resolve => {
       const dx = end.x - start.x;
       const dy = end.y - start.y;
       const distance = Math.hypot(dx, dy);
-      const flightMs = Math.min(440, Math.max(240, 210 + distance * .14));
+      const speedMultiplier = options.speedMultiplier || 1;
+      const minMs = options.minMs || 240;
+      const maxMs = options.maxMs || 440;
+      const baseFlightMs = Math.min(maxMs, Math.max(minMs, 210 + distance * .14));
+      const flightMs = Math.round(baseFlightMs * speedMultiplier);
       const f = document.createElement('div');
       f.className = 'floatingPiece ' + color;
       f.style.left = `${start.x}px`;
