@@ -917,7 +917,8 @@ function startTurn(actor){
 async function rollForCurrent(){
   if(state.status!=='waitingRoll'||state.gameOver||state.animating)return;
   if(isOnline()&&state.currentActor!==localActor())return;
-  const actor=state.currentActor;state.status='rolling';renderUI();await syncShared('rolling');playSound('roll');
+  const actor=state.currentActor;state.status='rolling';renderUI();await syncShared('rolling');
+  // rollDiceVisual owns dice-roll audio so each roll action plays only one roll sound.
   const d=rollDicePair();await rollDiceVisual(d,rnd(1000,1350));state.dice=d;
   addLog(`${actorName(actor)} גלגל: ${d[0]}–${d[1]}`);renderAll();await syncShared('roll');await sleep(350);processRoll(d);
 }
