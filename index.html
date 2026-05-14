@@ -596,6 +596,7 @@ function selectableColor(){return state.currentActor===localActor()?actorColor(l
 function canInteract(){return state.currentActor===localActor()&&state.status==='humanMoving'&&!state.animating&&!state.gameOver;}
 async function onPointClick(p){
   if(!canInteract())return;
+  if(state.selected?.type==='point'&&state.selected.p===p){clearSelection();return;}
   const color=selectableColor();
   const destMove=state.legalChoices.find(m=>m.to===p);
   if(destMove){await humanMove(destMove);return;}
@@ -604,6 +605,7 @@ async function onPointClick(p){
 }
 function onBarClick(){
   if(!canInteract())return;
+  if(state.selected?.type==='bar'){clearSelection();return;}
   const color=selectableColor();
   if(state.bar[color]>0)selectSource({type:'bar'});
 }
