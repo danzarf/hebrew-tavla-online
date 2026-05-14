@@ -851,7 +851,6 @@ async function animateRemoteMove(lm,start){
   if(!lm||!start)return;
   try{
     const end=getPlaceCenter(lm.to,lm.color,false);
-    showMessage(`${actorName(lm.by||otherActor(localActor()))} הזיז אבן`,900,'hint');
     await flyPiece(lm.color,start,end,!!lm.hit,{speedMultiplier:1.35,minMs:300,maxMs:520});
   }catch(e){console.warn('remote animation failed',e);}
 }
@@ -903,10 +902,7 @@ function startTurn(actor){
   if(state.gameOver)return;
   clearTimers();state.currentActor=actor;state.status='waitingRoll';state.dice=[0,0];state.remaining=[];state.freeMode=false;state.doubleExtra=false;state.chosenDouble=false;state.selected=null;state.legalChoices=[];state.undoStack=[];renderAll();syncShared('startTurn');
   if(isOnline()){
-    if(actor===localActor()){
-      showMessage(state.diceMode==='manual'?'תורך — לחץ גלגל או על הקוביות':'תורך — גלגול אוטומטי');
-      if(state.diceMode==='auto')state.autoTimer=setTimeout(()=>rollForCurrent(),650);
-    }else showMessage(`תור של ${actorName(actor)}`,1400,'hint');
+    if(actor===localActor()&&state.diceMode==='auto')state.autoTimer=setTimeout(()=>rollForCurrent(),650);
   }else if(actor==='human'){
     showMessage(state.diceMode==='manual'?'תורך — לחץ גלגל או על הקוביות':'תורך — גלגול אוטומטי');
     if(state.diceMode==='auto')state.autoTimer=setTimeout(()=>rollForCurrent(),650);
@@ -918,7 +914,7 @@ async function rollForCurrent(){
   if(isOnline()&&state.currentActor!==localActor())return;
   const actor=state.currentActor;state.status='rolling';renderUI();await syncShared('rolling');playSound('roll');
   const d=rollDicePair();await rollDiceVisual(d,rnd(1000,1350));state.dice=d;
-  addLog(`${actorName(actor)} גלגל: ${d[0]}–${d[1]}`);showMessage(`${actorName(actor)} גלגל: ${d[0]}–${d[1]}`);renderAll();await syncShared('roll');await sleep(350);processRoll(d);
+  addLog(`${actorName(actor)} גלגל: ${d[0]}–${d[1]}`);renderAll();await syncShared('roll');await sleep(350);processRoll(d);
 }
 
 function processRoll(d){
@@ -942,7 +938,7 @@ function beginMovePhase(){
   const legal=getAllLegalMoves(state,color,state.remaining,state.freeMode);
   if(!legal.length){addLog('אין מהלכים חוקיים','danger');showMessage('אין מהלכים חוקיים',1600);state.status='noMoves';syncShared('noMoves');return setTimeout(()=>endTurn(),1500);}
   if(isOnline()){
-    state.status='humanMoving';showMessage(actor===localActor()?'בחר אבן למהלך':`מחכים למהלך של ${actorName(actor)}`,actor===localActor()?1700:1400,actor===localActor()?'':'hint');renderAll();syncShared('beginMovePhase');
+    state.status='humanMoving';renderAll();syncShared('beginMovePhase');
   }else if(actor==='human'){state.status='humanMoving';showMessage('בחר אבן למהלך');renderAll();}
   else{state.status='computerMoving';renderAll();runComputerTurn();}
 }
