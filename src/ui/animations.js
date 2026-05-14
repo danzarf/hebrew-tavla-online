@@ -14,6 +14,7 @@ export function createAnimationHelpers({
   let audioCtx = null;
   let victoryBannerTimer = null;
   let lastChanceResultTimer = null;
+  let rollFeedbackTimer = null;
 
   function playSound(type = 'move') {
     try {
@@ -45,10 +46,39 @@ export function createAnimationHelpers({
     });
   }
 
+  function rollFeedbackClass(finalDice) {
+    const sortedDice = [...(finalDice || [])].sort((a, b) => a - b).join('-');
+    if (sortedDice === '5-6') return 'rollFxFreeBurst';
+    if (sortedDice === '4-5') return 'rollFxChoiceBurst';
+    if (sortedDice === '1-2') return 'rollFxBadBurst';
+    if (finalDice && finalDice[0] && finalDice[0] === finalDice[1]) return 'rollFxDoubleBurst';
+    return '';
+  }
+
+  function flashRollFeedback(finalDice) {
+    const fx = rollFeedbackClass(finalDice);
+    if (!fx || !els.diceDock || !els.board) return;
+    const fxClasses = ['rollFxFreeBurst', 'rollFxChoiceBurst', 'rollFxBadBurst', 'rollFxDoubleBurst'];
+    els.diceDock.classList.remove(...fxClasses);
+    els.board.classList.remove(...fxClasses);
+    void els.diceDock.offsetWidth;
+    els.diceDock.classList.add(fx);
+    els.board.classList.add(fx);
+    clearTimeout(rollFeedbackTimer);
+    rollFeedbackTimer = setTimeout(() => {
+      els.diceDock.classList.remove(fx);
+      els.board.classList.remove(fx);
+    }, 1500);
+  }
+
   function rollDiceVisual(finalDice, duration = 1100) {
     return new Promise(resolve => {
       els.diceDock.classList.add('rolling'); let t = 0; const iv = setInterval(() => { setDice([die(), die()]); t += 90; }, 90);
-      setTimeout(() => { clearInterval(iv); setDice(finalDice); state.dice = finalDice; els.diceDock.classList.remove('rolling'); playSound('roll'); resolve(); }, duration);
+      setTimeout(() => {
+        clearInterval(iv); setDice(finalDice); state.dice = finalDice; els.diceDock.classList.remove('rolling');
+        flashRollFeedback(finalDice);
+        playSound('roll'); resolve();
+      }, duration);
     });
   }
 
