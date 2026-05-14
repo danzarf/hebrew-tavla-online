@@ -65,11 +65,13 @@ function randomIndex(length) {
 }
 
 function pickSoundUrl(config) {
-  if (!config) return null;
-  if (typeof config === 'string') return config;
-  if (Array.isArray(config)) return config[randomIndex(config.length)] || null;
-  const variants = config.variants || [];
-  return variants[randomIndex(variants.length)] || config.fallback || null;
+  const urls = soundConfigUrls(config);
+  return urls[randomIndex(urls.length)] || null;
+}
+
+function pickLoadedSoundUrl(config, buffers) {
+  const urls = soundConfigUrls(config).filter(url => buffers.has(url));
+  return urls[randomIndex(urls.length)] || null;
 }
 
 export function createSoundManager({ files = DEFAULT_SOUND_FILES, masterVolume = DEFAULT_MASTER_VOLUME } = {}) {
@@ -77,6 +79,7 @@ export function createSoundManager({ files = DEFAULT_SOUND_FILES, masterVolume =
   let muted = readMutedPreference();
   const buffers = new Map();
   const failedFiles = new Set();
+  const pendingLoads = new Map();
 
   function isMuted() {
     return muted;
@@ -85,6 +88,7 @@ export function createSoundManager({ files = DEFAULT_SOUND_FILES, masterVolume =
   function setMuted(nextMuted) {
     muted = !!nextMuted;
     writeMutedPreference(muted);
+    if (!muted) preload(['roll']);
     return muted;
   }
 
@@ -100,22 +104,37 @@ export function createSoundManager({ files = DEFAULT_SOUND_FILES, masterVolume =
 
   async function loadBufferFromUrl(url) {
     if (!url || buffers.has(url) || failedFiles.has(url)) return buffers.get(url) || null;
-    try {
-      const ctx = getAudioContext();
-      const response = await fetch(url, { cache: 'force-cache' });
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      const data = await response.arrayBuffer();
-      const buffer = await ctx.decodeAudioData(data);
-      buffers.set(url, buffer);
-      return buffer;
-    } catch (e) {
-      failedFiles.add(url);
-      return null;
-    }
+    if (pendingLoads.has(url)) return pendingLoads.get(url);
+
+    const loadPromise = (async () => {
+      try {
+        const ctx = getAudioContext();
+        const response = await fetch(url, { cache: 'force-cache' });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const data = await response.arrayBuffer();
+        const buffer = await ctx.decodeAudioData(data);
+        buffers.set(url, buffer);
+        return buffer;
+      } catch (e) {
+        failedFiles.add(url);
+        return null;
+      } finally {
+        pendingLoads.delete(url);
+      }
+    })();
+
+    pendingLoads.set(url, loadPromise);
+    return loadPromise;
   }
 
-  async function loadBuffer(type) {
-    return loadBufferFromUrl(pickSoundUrl(files[type]));
+  function preload(types = Object.keys(files)) {
+    if (muted) return;
+    try {
+      getAudioContext();
+    } catch (e) {
+      return;
+    }
+    types.forEach(type => soundConfigUrls(files[type]).forEach(url => loadBufferFromUrl(url)));
   }
 
   function playFallback(type) {
@@ -141,46 +160,46 @@ export function createSoundManager({ files = DEFAULT_SOUND_FILES, masterVolume =
     }
   }
 
-  async function playFile(type) {
-    const config = files[type];
-    const urls = soundConfigUrls(config);
-    const firstUrl = pickSoundUrl(config);
-    const orderedUrls = [firstUrl, ...urls.filter(url => url !== firstUrl)];
-
-    for (const url of orderedUrls) {
-      const buffer = await loadBufferFromUrl(url);
-      if (!buffer || muted) continue;
-      try {
-        const ctx = getAudioContext();
-        const source = ctx.createBufferSource();
-        const gain = ctx.createGain();
-        source.buffer = buffer;
-        gain.gain.value = masterVolume;
-        source.connect(gain);
-        gain.connect(ctx.destination);
-        source.start();
-        return true;
-      } catch (e) {
-        failedFiles.add(url);
-      }
+  function playBuffer(url) {
+    const buffer = buffers.get(url);
+    if (!buffer || muted) return false;
+    try {
+      const ctx = getAudioContext();
+      const source = ctx.createBufferSource();
+      const gain = ctx.createGain();
+      source.buffer = buffer;
+      gain.gain.value = masterVolume;
+      source.connect(gain);
+      gain.connect(ctx.destination);
+      source.start();
+      return true;
+    } catch (e) {
+      failedFiles.add(url);
+      buffers.delete(url);
+      return false;
     }
+  }
+
+  function playFile(type) {
+    const config = files[type];
+    const preferredUrl = pickSoundUrl(config);
+    if (playBuffer(preferredUrl)) return true;
+
+    const loadedUrl = pickLoadedSoundUrl(config, buffers);
+    if (playBuffer(loadedUrl)) return true;
+
+    preload([type]);
     return false;
   }
 
   function play(type = 'move') {
     if (muted) return;
     if (files[type]) {
-      playFile(type).then(played => {
-        if (!played && !muted) playFallback(type);
-      });
+      const played = playFile(type);
+      if (!played && !muted) playFallback(type);
       return;
     }
     playFallback(type);
-  }
-
-  function preload(types = Object.keys(files)) {
-    if (muted) return;
-    types.forEach(type => soundConfigUrls(files[type]).forEach(url => loadBufferFromUrl(url)));
   }
 
   return {

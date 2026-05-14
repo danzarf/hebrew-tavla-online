@@ -22,6 +22,10 @@ export function createAnimationHelpers({
     soundManager.play(type);
   }
 
+  function preloadRollSounds() {
+    soundManager.preload(['roll']);
+  }
+
   function isSoundMuted() {
     return soundManager.isMuted();
   }
@@ -95,12 +99,12 @@ export function createAnimationHelpers({
 
   function rollDiceVisual(finalDice, duration = 980) {
     return new Promise(resolve => {
+      playSound('roll');
       els.diceDock.classList.add('rolling'); let t = 0; const iv = setInterval(() => { setDice([die(), die()]); t += 76; }, 76);
       setTimeout(() => {
         clearInterval(iv); setDice(finalDice); state.dice = finalDice; els.diceDock.classList.remove('rolling');
-        const feedbackSound = rollFeedbackClass(finalDice) ? 'special' : 'roll';
         flashRollFeedback(finalDice);
-        playSound(feedbackSound); resolve();
+        resolve();
       }, duration);
     });
   }
@@ -165,6 +169,7 @@ export function createAnimationHelpers({
 
   return {
     playSound,
+    preloadRollSounds,
     isSoundMuted,
     toggleSoundMuted,
     getPlaceCenter,

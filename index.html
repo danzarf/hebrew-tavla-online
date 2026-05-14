@@ -761,6 +761,7 @@ const {
 });
 const {
   playSound,
+  preloadRollSounds,
   isSoundMuted,
   toggleSoundMuted,
   getPlaceCenter,
@@ -774,7 +775,7 @@ const {
   showReaction,
 }=createAnimationHelpers({els,state,die,setDice,showMessage,actorName,actorForColor,actorColor,localActor,otherActor,defaultColor:WHITE});
 function refreshSoundToggle(){if(!els.soundToggleBtn)return;const muted=isSoundMuted();els.soundToggleBtn.textContent=muted?'🔇 מושתק':'🔊 צליל';els.soundToggleBtn.setAttribute('aria-pressed',muted?'true':'false');}
-function toggleSound(){toggleSoundMuted();refreshSoundToggle();}
+function toggleSound(){const muted=toggleSoundMuted();if(!muted)preloadRollSounds();refreshSoundToggle();}
 function setInitialBoard(){
   state.board=createInitialBoard();
   state.bar={white:0,black:0};state.off={white:0,black:0};
@@ -1285,7 +1286,10 @@ function newGameFromModal(){
 function openNewGame(){clearTimers();els.startModal.classList.add('show');}
 function buttonRoll(){if(canHumanRoll())rollForCurrent();}
 function setupEvents(){
-  els.startBtn.addEventListener('click',newGameFromModal);els.newBtn.addEventListener('click',resetForNewGame);els.newBtn2.addEventListener('click',resetForNewGame);
+  const warmRollSounds=()=>preloadRollSounds();
+  document.addEventListener('pointerdown',warmRollSounds,{once:true,capture:true,passive:true});
+  document.addEventListener('keydown',warmRollSounds,{once:true,capture:true});
+  els.startBtn.addEventListener('click',()=>{preloadRollSounds();newGameFromModal();});els.newBtn.addEventListener('click',resetForNewGame);els.newBtn2.addEventListener('click',resetForNewGame);
   els.rollBtn.addEventListener('click',buttonRoll);els.diceDock.addEventListener('click',buttonRoll);els.undoBtn.addEventListener('click',undo);els.endBtn.addEventListener('click',manualEndTurn);
   els.chanceBtn.addEventListener('click',lastChanceButton);
   els.soundToggleBtn.addEventListener('click',toggleSound);
