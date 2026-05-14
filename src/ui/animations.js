@@ -42,7 +42,7 @@ export function createAnimationHelpers({
       const dx = end.x - start.x;
       const dy = end.y - start.y;
       const distance = Math.hypot(dx, dy);
-      const flightMs = Math.min(320, Math.max(180, 150 + distance * .10));
+      const flightMs = Math.min(440, Math.max(240, 210 + distance * .14));
       const f = document.createElement('div');
       f.className = 'floatingPiece ' + color;
       f.style.left = `${start.x}px`;
