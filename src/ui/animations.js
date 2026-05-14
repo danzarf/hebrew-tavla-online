@@ -39,10 +39,30 @@ export function createAnimationHelpers({
 
   function flyPiece(color, start, end, hit = false) {
     return new Promise(resolve => {
-      const f = document.createElement('div'); f.className = 'floatingPiece ' + color; f.style.left = (start.x) + 'px'; f.style.top = (start.y) + 'px'; f.style.transform = 'translate(-50%,-50%) scale(1)'; document.body.appendChild(f);
-      requestAnimationFrame(() => { f.style.transform = `translate(${end.x - start.x - 0}px,${end.y - start.y - 0}px) translate(-50%,-50%) scale(1.04)` });
-      setTimeout(() => { if (hit) els.board.classList.add('hitFlash'); }, 180);
-      setTimeout(() => { f.style.opacity = '0'; if (hit) els.board.classList.remove('hitFlash'); setTimeout(() => { f.remove(); resolve(); }, 110) }, 480);
+      const dx = end.x - start.x;
+      const dy = end.y - start.y;
+      const distance = Math.hypot(dx, dy);
+      const flightMs = Math.min(460, Math.max(340, 320 + distance * .18));
+      const f = document.createElement('div');
+      f.className = 'floatingPiece ' + color;
+      f.style.left = `${start.x}px`;
+      f.style.top = `${start.y}px`;
+      f.style.setProperty('--dx', `${dx}px`);
+      f.style.setProperty('--dy', `${dy}px`);
+      const lift = Math.min(18, Math.max(8, distance * .035));
+      f.style.setProperty('--lift', `${lift}px`);
+      f.style.setProperty('--mid-x', `${dx * .52}px`);
+      f.style.setProperty('--mid-y', `${dy * .52 - lift}px`);
+      f.style.setProperty('--flight-ms', `${flightMs}ms`);
+      f.style.transform = 'translate(-50%,-50%) scale(1)';
+      document.body.appendChild(f);
+      requestAnimationFrame(() => f.classList.add('inFlight'));
+      setTimeout(() => { if (hit) els.board.classList.add('hitFlash'); }, Math.max(120, flightMs * .42));
+      setTimeout(() => {
+        f.style.opacity = '0';
+        if (hit) els.board.classList.remove('hitFlash');
+        setTimeout(() => { f.remove(); resolve(); }, 120);
+      }, flightMs + 40);
     });
   }
 
@@ -68,12 +88,12 @@ export function createAnimationHelpers({
     rollFeedbackTimer = setTimeout(() => {
       els.diceDock.classList.remove(fx);
       els.board.classList.remove(fx);
-    }, 1500);
+    }, 1250);
   }
 
-  function rollDiceVisual(finalDice, duration = 1100) {
+  function rollDiceVisual(finalDice, duration = 980) {
     return new Promise(resolve => {
-      els.diceDock.classList.add('rolling'); let t = 0; const iv = setInterval(() => { setDice([die(), die()]); t += 90; }, 90);
+      els.diceDock.classList.add('rolling'); let t = 0; const iv = setInterval(() => { setDice([die(), die()]); t += 76; }, 76);
       setTimeout(() => {
         clearInterval(iv); setDice(finalDice); state.dice = finalDice; els.diceDock.classList.remove('rolling');
         flashRollFeedback(finalDice);
