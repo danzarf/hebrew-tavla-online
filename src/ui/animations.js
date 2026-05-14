@@ -1,3 +1,5 @@
+import { createSoundManager } from './sounds.js';
+
 export function createAnimationHelpers({
   els,
   state,
@@ -11,22 +13,21 @@ export function createAnimationHelpers({
   otherActor,
   defaultColor,
 }) {
-  let audioCtx = null;
+  const soundManager = createSoundManager();
   let victoryBannerTimer = null;
   let lastChanceResultTimer = null;
   let rollFeedbackTimer = null;
 
   function playSound(type = 'move') {
-    try {
-      audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
-      const o = audioCtx.createOscillator(); const g = audioCtx.createGain();
-      const now = audioCtx.currentTime;
-      const freq = { roll: 180, move: 330, hit: 120, win: 520, click: 260, swap: 95 }[type] || 260;
-      o.type = type === 'hit' || type === 'swap' ? 'sawtooth' : 'sine'; o.frequency.setValueAtTime(freq, now);
-      if (type === 'win') o.frequency.exponentialRampToValueAtTime(880, now + .22);
-      g.gain.setValueAtTime(.0001, now); g.gain.exponentialRampToValueAtTime(type === 'hit' ? .12 : .07, now + .02); g.gain.exponentialRampToValueAtTime(.0001, now + (type === 'roll' ? .16 : .25));
-      o.connect(g); g.connect(audioCtx.destination); o.start(now); o.stop(now + .3);
-    } catch (e) { }
+    soundManager.play(type);
+  }
+
+  function isSoundMuted() {
+    return soundManager.isMuted();
+  }
+
+  function toggleSoundMuted() {
+    return soundManager.toggleMuted();
   }
 
   function getPlaceCenter(place, color, before) {
@@ -61,6 +62,7 @@ export function createAnimationHelpers({
       setTimeout(() => {
         f.style.opacity = '0';
         if (hit) els.board.classList.remove('hitFlash');
+        playSound(hit ? 'hit' : 'move');
         setTimeout(() => { f.remove(); resolve(); }, 120);
       }, flightMs + 40);
     });
@@ -161,6 +163,8 @@ export function createAnimationHelpers({
 
   return {
     playSound,
+    isSoundMuted,
+    toggleSoundMuted,
     getPlaceCenter,
     flyPiece,
     rollDiceVisual,

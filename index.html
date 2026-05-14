@@ -516,6 +516,7 @@ body{
           <button id="undoBtn" class="btn dark">בטל</button>
           <button id="endBtn" class="btn">סיים תור</button>
           <button id="newBtn2" class="btn dark">משחק חדש</button>
+          <button id="soundToggleBtn" class="btn dark" type="button" aria-pressed="false">🔊 צליל</button>
         </div>
       </div>
       <div class="card chatCard" id="reactionCard">
@@ -688,7 +689,7 @@ const db = getDatabase(fbApp);
 const $=sel=>document.querySelector(sel);
 const els={
   board:$('#board'),inner:$('#boardInner'),bar:$('#barArea'),diceDock:$('#diceDock'),die1:$('#die1'),die2:$('#die2'),msg:$('#boardMessage'),
-  rollBtn:$('#rollBtn'),undoBtn:$('#undoBtn'),endBtn:$('#endBtn'),newBtn:$('#newBtn'),newBtn2:$('#newBtn2'),
+  rollBtn:$('#rollBtn'),undoBtn:$('#undoBtn'),endBtn:$('#endBtn'),newBtn:$('#newBtn'),newBtn2:$('#newBtn2'),soundToggleBtn:$('#soundToggleBtn'),
   turnPill:$('#turnPill'),colorPill:$('#colorPill'),dicePill:$('#dicePill'),specialPill:$('#specialPill'),
   difficultyInfo:$('#difficultyInfo'),modeInfo:$('#modeInfo'),barInfo:$('#barInfo'),offInfo:$('#offInfo'),remainingMoves:$('#remainingMoves'),
   countdownInfo:$('#countdownInfo'),countdownText:$('#countdownText'),log:$('#log'),barWhite:$('#barWhite'),barBlack:$('#barBlack'),
@@ -760,6 +761,8 @@ const {
 });
 const {
   playSound,
+  isSoundMuted,
+  toggleSoundMuted,
   getPlaceCenter,
   flyPiece,
   rollDiceVisual,
@@ -770,6 +773,8 @@ const {
   showLastChanceResult,
   showReaction,
 }=createAnimationHelpers({els,state,die,setDice,showMessage,actorName,actorForColor,actorColor,localActor,otherActor,defaultColor:WHITE});
+function refreshSoundToggle(){if(!els.soundToggleBtn)return;const muted=isSoundMuted();els.soundToggleBtn.textContent=muted?'🔇 מושתק':'🔊 צליל';els.soundToggleBtn.setAttribute('aria-pressed',muted?'true':'false');}
+function toggleSound(){toggleSoundMuted();refreshSoundToggle();}
 function setInitialBoard(){
   state.board=createInitialBoard();
   state.bar={white:0,black:0};state.off={white:0,black:0};
@@ -1281,6 +1286,7 @@ function setupEvents(){
   els.startBtn.addEventListener('click',newGameFromModal);els.newBtn.addEventListener('click',resetForNewGame);els.newBtn2.addEventListener('click',resetForNewGame);
   els.rollBtn.addEventListener('click',buttonRoll);els.diceDock.addEventListener('click',buttonRoll);els.undoBtn.addEventListener('click',undo);els.endBtn.addEventListener('click',manualEndTurn);
   els.chanceBtn.addEventListener('click',lastChanceButton);
+  els.soundToggleBtn.addEventListener('click',toggleSound);
   els.modeComputerBtn.addEventListener('click',()=>{els.modeComputerBtn.classList.add('active');els.modeFriendBtn.classList.remove('active');els.modeRulesBtn.classList.remove('active');els.computerPanel.classList.add('show');els.onlinePanel.classList.remove('show');els.rulesPanel.classList.remove('show')});
   els.modeFriendBtn.addEventListener('click',()=>{els.modeFriendBtn.classList.add('active');els.modeComputerBtn.classList.remove('active');els.modeRulesBtn.classList.remove('active');els.onlinePanel.classList.add('show');els.computerPanel.classList.remove('show');els.rulesPanel.classList.remove('show')});
   els.modeRulesBtn.addEventListener('click',()=>{els.modeRulesBtn.classList.add('active');els.modeComputerBtn.classList.remove('active');els.modeFriendBtn.classList.remove('active');els.rulesPanel.classList.add('show');els.computerPanel.classList.remove('show');els.onlinePanel.classList.remove('show')});
@@ -1288,7 +1294,7 @@ function setupEvents(){
   document.querySelectorAll('.reactBtn').forEach(b=>b.addEventListener('click',()=>sendReaction(b.dataset.text)));
 }
 
-function init(){buildBoard();initChanceSelectors();setupEvents();resetForNewGame();}
+function init(){buildBoard();initChanceSelectors();setupEvents();refreshSoundToggle();resetForNewGame();}
 init();
 })();
 </script>
