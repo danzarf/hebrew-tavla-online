@@ -51,6 +51,7 @@ test('createSharedGameState includes the key synchronized game fields', () => {
     doubleStreak: { human: 0, computer: 1 },
     gameOver: false,
     lastChance: { phase: 'choose' },
+    pendingVictory: { winner: 'white', loser: 'black', actor: 'human', streak: 2 },
   };
 
   const before = Date.now();
@@ -69,6 +70,7 @@ test('createSharedGameState includes the key synchronized game fields', () => {
     'remaining',
     'log',
     'lastChance',
+    'pendingVictory',
     'lastMove',
     'winnerColor',
     'stolen',
@@ -89,6 +91,7 @@ test('createSharedGameState includes the key synchronized game fields', () => {
   assert.deepEqual(shared.remaining, [3]);
   assert.equal(shared.log, source.log);
   assert.equal(shared.lastChance, source.lastChance);
+  assert.equal(shared.pendingVictory, source.pendingVictory);
   assert.equal(shared.lastMove, null);
   assert.equal(shared.winnerColor, null);
   assert.equal(shared.victoryId, null);
@@ -119,6 +122,7 @@ test('createSharedGameState preserves last move and winner metadata when provide
     doubleStreak: { human: 0, computer: 0 },
     gameOver: true,
     lastChance: null,
+    pendingVictory: null,
     lastMove: { id: 'move-1' },
     winnerColor: 'white',
     stolen: 1,
