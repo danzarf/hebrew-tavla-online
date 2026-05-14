@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { chooseBestSequenceFor, generateSequences, pipCount, simulateSequence } from '../src/game/ai.js';
+import { chooseBestDoubleFor, chooseBestSequenceFor, generateSequences, pipCount, simulateSequence } from '../src/game/ai.js';
 import { WHITE, BLACK } from '../src/game/rules.js';
 
 function emptyState() {
@@ -105,4 +105,39 @@ test('hard AI does not choose a hit if bearing off wins the game', () => {
   const sequence = chooseBestSequenceFor(state, WHITE, ['free'], true);
 
   assert.deepEqual(sequence, [{ color: WHITE, from: 1, to: 'off', die: 'free', bearOff: true }]);
+});
+
+test('hard AI uses 6-6 to escape far checkers when that is clearly strongest', () => {
+  const state = emptyState();
+  state.board[24] = 2;
+  state.board[13] = 2;
+  state.board[8] = 11;
+
+  const sequence = chooseBestSequenceFor(state, WHITE, [6, 6, 6, 6], false);
+
+  assert.equal(sequence.filter((move) => move.from === 24 && move.to === 18).length, 2);
+  assert.equal(sequence.length, 4);
+});
+
+test('hard AI does not waste 6-6 on home moves when escaping creates better progress', () => {
+  const state = emptyState();
+  state.board[24] = 1;
+  state.board[12] = 4;
+  state.board[6] = 10;
+
+  const sequence = chooseBestSequenceFor(state, WHITE, [6, 6, 6, 6], false);
+
+  assert.deepEqual(sequence[0], { color: WHITE, from: 24, to: 18, die: 6, hit: false });
+  assert.equal(sequence.some((move) => move.from === 18 && move.to === 12), true);
+});
+
+test('computer 4-5 double choice prefers the best evaluated double in a clear escape position', () => {
+  const state = emptyState();
+  state.computerColor = WHITE;
+  state.board[24] = 1;
+  state.board[13] = 14;
+
+  const chosenDouble = chooseBestDoubleFor(state, state.computerColor);
+
+  assert.equal(chosenDouble, 6);
 });

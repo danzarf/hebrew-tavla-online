@@ -26,6 +26,22 @@ export function chooseBestSequenceFor(state, color, remaining, freeMode, quiet) 
   return best;
 }
 
+export function chooseBestDoubleFor(state, color = state.computerColor) {
+  let bestDouble = 1;
+  let bestScore = -Infinity;
+  for (let die = 1; die <= 6; die++) {
+    const remaining = [die, die, die, die];
+    const seq = chooseBestSequenceFor(state, color, remaining, false, true);
+    const st = simulateSequence(state, color, seq);
+    const score = evaluate(st, color, seq) + doubleChoiceScore(state, st, color, seq, die);
+    if (score > bestScore) {
+      bestScore = score;
+      bestDouble = die;
+    }
+  }
+  return bestDouble;
+}
+
 export function generateSequences(st, color, remaining, freeMode, limit = 3000, cap = 38) {
   const result = [];
   function rec(cur, rem, seq) {
@@ -68,6 +84,8 @@ export function quickMoveScore(st, m, color) {
   if (m.to === 'off') s += 90;
   if (m.from === 'bar') s += 50;
   if (m.hit) s += 65;
+  if (m.die === 6 || m.die === 'free') s += moveProgress(st, m, color) * 4;
+  s += backCheckerMoveBonus(st, m, color);
   if (m.to !== 'off') {
     const own = countColorAt(st, m.to, color);
     if (own === 1) s += 36;
@@ -116,8 +134,82 @@ export function evaluate(st, color, seq) {
     if (m.from === 'bar') score += 45;
     if (m.to !== 'off' && countColorAt(st, m.to, color) >= 2) score += 18;
   }
+  score += sequenceTempoScore(st, color, seq);
   score += distributionScore(st, color);
   return score;
+}
+
+export function doubleChoiceScore(before, after, color, seq, die) {
+  let score = 0;
+  if (after.off[color] >= 15) score += 200000;
+  score += seq.length * 12;
+  score += die === 6 ? escapedBackCheckers(before, after, color) * 55 : 0;
+  score += escapedBackCheckers(before, after, color) * 18;
+  score += madePointDelta(before, after, color) * 28;
+  score += (pipCount(before, color) - pipCount(after, color)) * 2.2;
+  return score;
+}
+
+export function sequenceTempoScore(st, color, seq) {
+  let score = 0;
+  for (const m of seq) {
+    const progress = moveProgress(st, m, color);
+    score += progress * 5;
+    if (m.die === 6 || m.die === 'free') score += Math.max(0, progress) * 2;
+    score += backCheckerMoveBonus(st, m, color);
+    if (progress < 0) score += progress * 18;
+  }
+  if (seq.length >= 4 && seq.every((m) => m.die === 6)) score += 35;
+  return score;
+}
+
+export function moveProgress(st, move, color) {
+  if (move.from === 'bar') return 25 - pipDistanceFromPoint(move.to, color);
+  if (move.to === 'off') return pipDistanceFromPoint(move.from, color);
+  if (move.from < 1 || move.from > 24 || move.to < 1 || move.to > 24) return 0;
+  return pipDistanceFromPoint(move.from, color) - pipDistanceFromPoint(move.to, color);
+}
+
+export function pipDistanceFromPoint(point, color) {
+  return color === WHITE ? point : 25 - point;
+}
+
+export function backCheckerMoveBonus(st, move, color) {
+  if (move.from === 'bar') return 38;
+  if (move.from < 1 || move.from > 24) return 0;
+  const fromBack = isBackPoint(move.from, color);
+  const toBack = move.to !== 'off' && isBackPoint(move.to, color);
+  if (!fromBack) return 0;
+  let score = 35;
+  if (!toBack) score += 45;
+  if (move.die === 6) score += 22;
+  if (countColorAt(st, move.from, color) === 1) score += 18;
+  return score;
+}
+
+export function isBackPoint(point, color) {
+  return color === WHITE ? point >= 19 : point <= 6;
+}
+
+export function escapedBackCheckers(before, after, color) {
+  let beforeBack = 0, afterBack = 0;
+  for (let p = 1; p <= 24; p++) {
+    if (!isBackPoint(p, color)) continue;
+    beforeBack += countColorAt(before, p, color);
+    afterBack += countColorAt(after, p, color);
+  }
+  return beforeBack - afterBack;
+}
+
+export function madePointDelta(before, after, color) {
+  let delta = 0;
+  for (let p = 1; p <= 24; p++) {
+    const was = countColorAt(before, p, color) >= 2;
+    const is = countColorAt(after, p, color) >= 2;
+    if (!was && is) delta++;
+    if (was && !is) delta--;
+  }
+  return delta;
 }
 
 export function tacticalHitScore(st, move, color) {
