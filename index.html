@@ -212,6 +212,27 @@ body:before{content:"";position:fixed;inset:0;pointer-events:none;background:rad
 @media (prefers-reduced-motion:reduce){.piece,.point,.btn,.choiceBtn,.reactions .reactBtn{transition:none !important}.diceDock.rolling .die,.diceDock.rollFxFreeBurst .die,.diceDock.rollFxChoiceBurst .die,.diceDock.rollFxBadBurst .die,.diceDock.rollFxDoubleBurst .die,.board.rollFxFreeBurst,.board.rollFxChoiceBurst,.board.rollFxBadBurst,.board.rollFxDoubleBurst,.floatingPiece.inFlight,.hitFlash{animation:none !important}.floatingPiece.inFlight{transform:translate(var(--dx),var(--dy)) translate(-50%,-50%) scale(1) !important}}
 
 
+/* Focused premium correction pass: selects, board clarity, hover and piece movement. */
+.boardWrap{filter:drop-shadow(0 24px 36px rgba(0,0,0,.58))}
+.board{background:linear-gradient(135deg,#3f1d0e 0%,#6d3c1d 18%,#241006 38%,#130704 54%,#2f1609 72%,#72421f 100%);box-shadow:inset 0 0 0 1px rgba(255,229,174,.28),inset 0 0 0 8px rgba(33,13,5,.84),inset 0 0 0 13px rgba(6,3,2,.58),inset 0 12px 28px rgba(255,221,151,.045),inset 0 -24px 48px rgba(0,0,0,.46),0 24px 58px rgba(0,0,0,.64)}
+.board:before{background:repeating-linear-gradient(91deg,rgba(255,222,157,.024) 0 1px,rgba(0,0,0,.060) 1px 10px),linear-gradient(115deg,rgba(255,241,204,.045),transparent 20%,rgba(0,0,0,.18) 52%,transparent 82%,rgba(255,221,151,.035));opacity:.58;mix-blend-mode:normal}
+.board:after{border-color:rgba(242,201,121,.16);box-shadow:inset 0 0 0 1px rgba(0,0,0,.38),0 0 20px rgba(0,0,0,.30)}
+.boardInner{background:linear-gradient(90deg,#102a25 0%,#1f5a49 23%,#12352e 50%,#1f5a49 77%,#102a25 100%);box-shadow:inset 0 0 0 1px rgba(255,231,176,.12),inset 0 12px 24px rgba(255,255,255,.020),inset 0 -24px 42px rgba(0,0,0,.46),0 0 0 1px rgba(0,0,0,.24)}
+.point{transition:filter .14s ease,transform .14s ease}.point:before{filter:drop-shadow(0 6px 4px rgba(0,0,0,.42));opacity:1}.point.red:before{background:linear-gradient(180deg,#c25539 0%,#81291f 52%,#36100d 100%)}.point.green:before{background:linear-gradient(180deg,#6da084 0%,#28634f 52%,#0b241f 100%)}
+.point:hover{filter:brightness(1.18) saturate(1.10);transform:translateY(-1px)}
+.point:hover:after{content:"";position:absolute;inset:5px;border:2px solid rgba(255,231,176,.45);border-radius:13px;box-shadow:0 0 0 1px rgba(0,0,0,.22),0 0 16px rgba(242,201,121,.24),inset 0 0 18px rgba(255,231,176,.09);z-index:5;pointer-events:none}
+.point.highlight:after,.offTray.highlight:after,.barArea.highlight:after{inset:3px;border-width:3px;border-color:rgba(96,238,163,.96);box-shadow:0 0 0 1px rgba(255,255,255,.16),0 0 24px rgba(94,227,154,.58),inset 0 0 20px rgba(94,227,154,.22);z-index:6}
+.point.selected:after,.barArea.selected:after{inset:2px;border-width:3px;border-color:rgba(140,210,255,.98);box-shadow:0 0 0 1px rgba(255,255,255,.18),0 0 24px rgba(125,198,255,.62),inset 0 0 16px rgba(125,198,255,.18);z-index:7}
+.field select,.field input,.lastChancePick select{background-color:#100705;background-image:linear-gradient(180deg,#211007,#0d0503);color:#fff3c6;border:1px solid rgba(242,201,121,.42);box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 0 0 1px rgba(0,0,0,.18);outline:none}
+.field select,.lastChancePick select{color-scheme:dark;accent-color:#f6c76c;appearance:auto}
+.field select:hover,.field input:hover,.lastChancePick select:hover{border-color:rgba(246,199,108,.62);box-shadow:inset 0 1px 0 rgba(255,255,255,.09),0 0 0 2px rgba(246,199,108,.08)}
+.field select:focus,.field input:focus,.lastChancePick select:focus{border-color:rgba(255,231,176,.78);box-shadow:inset 0 1px 0 rgba(255,255,255,.10),0 0 0 3px rgba(246,199,108,.18)}
+.field select option,.lastChancePick select option{background-color:#140805;color:#ffe7b0;font-weight:800}
+.field select option:checked,.lastChancePick select option:checked{background-color:#3a2110;color:#fff3c6}
+.floatingPiece{transition:opacity .12s ease;will-change:transform,opacity}.floatingPiece.inFlight{animation:pieceFlightSimple var(--flight-ms,260ms) cubic-bezier(.22,.72,.20,1) forwards}@keyframes pieceFlightSimple{0%{transform:translate(-50%,-50%) scale(1);filter:brightness(1)}100%{transform:translate(var(--dx),var(--dy)) translate(-50%,-50%) scale(1);filter:brightness(1.03)}}
+@media (prefers-reduced-motion:reduce){.floatingPiece.inFlight{animation:none !important;transform:translate(var(--dx),var(--dy)) translate(-50%,-50%) scale(1) !important}}
+
+
 /* תיקון בטוח אחרי הקובץ שעבד: חוקים נכנסים + כפתור סיים תור נעול עד סוף המהלכים */
 .side{
   gap:6px !important;
