@@ -18,6 +18,7 @@ export function createSharedGameState(state) {
     doubleStreak: state.doubleStreak,
     gameOver: state.gameOver,
     lastChance: state.lastChance,
+    pendingVictory: state.pendingVictory || null,
     lastMove: state.lastMove || null,
     winnerColor: state.winnerColor || null,
     stolen: !!state.stolen,

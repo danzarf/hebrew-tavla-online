@@ -685,6 +685,7 @@ async function rollForCurrent(){
 function processRoll(d){
   if(state.gameOver)return;
   const actor=state.currentActor;colorActorResetSelection();
+  if(state.pendingVictory&&state.pendingVictory.actor===actor)return processPendingVictoryRoll(d);
   if(isOneTwo(d)){state.doubleStreak[actor]=0;addLog('יצא 1–2 — התור הולך ליריב','danger');showMessage('יצא 1–2 — התור הולך ליריב',2200);state.status='blocked';renderAll();syncShared('oneTwo');return setTimeout(()=>endTurn(true),1400);}
   if(isFourFive(d)){state.doubleStreak[actor]=0;state.chosenDouble=true;state.doubleExtra=false;if(isOnline()||actor==='human')return showDoubleChooser();return computerChooseDouble();}
   if(isFiveSix(d)){state.doubleStreak[actor]=0;state.freeMode=true;state.remaining=['free','free'];state.doubleExtra=false;addLog('יצא 5–6 — שתי תנועות חופשיות','special');showMessage('5–6: שתי תנועות חופשיות',2200);return beginMovePhase();}
@@ -756,17 +757,63 @@ function endTurn(forceSwitch=false){
 }
 
 function triggerSideSwap(){
-  const actor=state.currentActor;state.doubleStreak={human:0,computer:0};state.humanColor=otherColor(state.humanColor);state.computerColor=otherColor(state.computerColor);state.remaining=[];state.freeMode=false;state.doubleExtra=false;state.chosenDouble=false;state.selected=null;state.legalChoices=[];state.undoStack=[];state.status='swap';
+  const actor=state.currentActor;state.pendingVictory=null;state.doubleStreak={human:0,computer:0};state.humanColor=otherColor(state.humanColor);state.computerColor=otherColor(state.computerColor);state.remaining=[];state.freeMode=false;state.doubleExtra=false;state.chosenDouble=false;state.selected=null;state.legalChoices=[];state.undoStack=[];state.status='swap';
   addLog('3 דאבלים ברצף — הצדדים מתחלפים!','special');showMessage('3 דאבלים ברצף — הצדדים מתחלפים!',2600);els.board.classList.add('swapPulse');playSound('swap');renderAll();syncShared('sideSwap');
   setTimeout(()=>{els.board.classList.remove('swapPulse');startTurn(otherActor(actor));},1700);
 }
 
+function shouldDelayVictoryForDoubleCheck(color){
+  const actor=actorForColor(color);
+  return state.doubleExtra&&state.doubleStreak[actor]>0;
+}
+
+function startPendingVictoryDoubleCheck(color){
+  const actor=actorForColor(color);
+  state.pendingVictory={winner:color,loser:otherColor(color),actor,streak:state.doubleStreak[actor]};
+  state.status='victoryPendingDoubleCheck';
+  state.remaining=[];state.freeMode=false;state.doubleExtra=false;state.chosenDouble=false;state.selected=null;state.legalChoices=[];state.undoStack=[];
+  addLog('הניצחון ממתין לבדיקת רצף דאבלים','special');
+  showMessage('ניצחון ממתין — צריך לבדוק אם רצף הדאבלים ממשיך',3200);
+  renderAll();syncShared('pendingVictoryStart');
+  setTimeout(()=>startTurn(actor),1200);
+}
+
+function processPendingVictoryRoll(d){
+  const pending=state.pendingVictory,actor=state.currentActor;
+  if(!pending)return;
+  if(d[0]===d[1]){
+    state.doubleStreak[actor]++;
+    if(state.doubleStreak[actor]>=3){
+      addLog('בדיקת ניצחון: הדאבל השלישי הגיע לפני אישור הניצחון','special');
+      showMessage('דאבל שלישי — מפעילים חילוף צדדים לפני ניצחון',3000);
+      return triggerSideSwap();
+    }
+    pending.streak=state.doubleStreak[actor];
+    state.status='victoryPendingDoubleCheck';
+    state.remaining=[];state.freeMode=false;state.doubleExtra=false;state.chosenDouble=false;state.selected=null;state.legalChoices=[];state.undoStack=[];
+    addLog('יצא עוד דאבל — הניצחון עדיין ממתין לבדיקה הבאה','special');
+    showMessage('עוד דאבל — הניצחון עדיין ממתין לבדיקה הבאה',2600);
+    renderAll();syncShared('pendingVictoryDouble');
+    return setTimeout(()=>startTurn(actor),1200);
+  }
+  state.doubleStreak[actor]=0;
+  state.pendingVictory=null;
+  state.remaining=[];state.freeMode=false;state.doubleExtra=false;state.chosenDouble=false;state.selected=null;state.legalChoices=[];state.undoStack=[];
+  addLog('בדיקת הדאבל הסתיימה ללא דאבל — הניצחון מאושר','special');
+  showMessage('אין דאבל — הניצחון מאושר',2200);
+  return startLastChance(pending.winner,pending.loser);
+}
+
 function checkWinAfterMove(color){
-  if(state.off[color]>=15&&!state.lastChance&&!state.gameOver){startLastChance(color,otherColor(color));return true;}
+  if(state.off[color]>=15&&!state.lastChance&&!state.gameOver&&!state.pendingVictory){
+    if(shouldDelayVictoryForDoubleCheck(color)){startPendingVictoryDoubleCheck(color);return true;}
+    startLastChance(color,otherColor(color));return true;
+  }
   return false;
 }
 
 async function startLastChance(winner,loser){
+  state.pendingVictory=null;
   state.status='lastChance';
   state.selected=null;
   state.legalChoices=[];
@@ -840,6 +887,7 @@ async function rollLastChanceNow(){
   await syncShared('lastChanceResult');
 }
 function finishGame(winnerColor,stolen){
+  state.pendingVictory=null;
   state.gameOver=true;
   state.status='gameover';
   state.winnerColor=winnerColor;
@@ -889,6 +937,7 @@ function applyShared(g){
     doubleStreak:g.doubleStreak||{human:0,computer:0},
     gameOver:!!g.gameOver,
     lastChance:g.lastChance||null,
+    pendingVictory:g.pendingVictory||null,
     lastMove:g.lastMove||null,
     winnerColor:g.winnerColor||null,
     stolen:!!g.stolen,
@@ -925,7 +974,7 @@ function subscribeRoom(code){if(state.roomUnsub){state.roomUnsub();state.roomUns
 async function createRoom(){try{const code=await generateRoomCode();state.gameMode='online';state.localActor='human';state.playerId=localPlayerId();state.playerNames={human:localPlayerName(),computer:'מחכה לחבר'};state.diceMode=els.onlineDiceModeSelect.value;state.status='lobby';await set(roomRef(code),{createdAt:Date.now(),updatedAt:Date.now(),diceMode:state.diceMode,players:{human:{id:state.playerId,name:state.playerNames.human,connected:true},computer:null},ready:{human:false,computer:false},game:null,reaction:null});els.startModal.classList.add('show');subscribeRoom(code);showMessage('חדר נפתח');}catch(e){console.error(e);showMessage('בעיה בפתיחת חדר')}}
 async function joinRoom(){try{const code=(els.joinCodeInput.value||'').trim();if(!/^\d{4}$/.test(code))return showMessage('קוד חדר חייב להיות 4 ספרות');const snap=await get(roomRef(code));if(!snap.exists())return showMessage('החדר לא נמצא');const room=snap.val();if(room.players?.computer&&room.players.computer.id!==localPlayerId())return showMessage('החדר מלא');state.gameMode='online';state.localActor=room.players?.human?.id===localPlayerId()?'human':'computer';state.playerId=localPlayerId();if(state.localActor==='computer')await update(roomRef(code),{['players/computer']:{id:state.playerId,name:localPlayerName(),connected:true},['ready/computer']:false,updatedAt:Date.now()});state.diceMode=room.diceMode||els.onlineDiceModeSelect.value;state.status='lobby';els.startModal.classList.add('show');subscribeRoom(code);showMessage('הצטרפת לחדר');}catch(e){console.error(e);showMessage('בעיה בהצטרפות')}}
 async function toggleReady(){if(!isOnline()||!state.roomCode)return;const snap=await get(roomRef(state.roomCode+'/ready/'+state.localActor));const cur=!!snap.val();await update(roomRef(state.roomCode),{['ready/'+state.localActor]:!cur,updatedAt:Date.now()});}
-async function startOnlineOpening(){state.status='opening';state.diceMode=els.onlineDiceModeSelect.value||state.diceMode||'manual';state.difficulty='medium';state.log=[];setInitialBoard();state.gameOver=false;state.lastChance=null;state.lastMove=null;state.lastMoveSeen=null;state.lastVictorySeen=null;state.winnerColor=null;state.stolen=false;state.victoryId=null;state.lastChanceRollingSeen=null;state.lastChanceResultSeen=null;state.doubleStreak={human:0,computer:0};state.dice=[0,0];state.remaining=[];addLog('גלגולת פתיחה אונליין מתחילה','special');renderAll();await syncShared('openingStart');let h,c;do{[h,c]=rollDicePair();state.dice=[h,c];addLog(`${actorName('human')} גלגל: ${h}`);addLog(`${actorName('computer')} גלגל: ${c}`);if(h===c){addLog('תיקו בפתיחה — מגלגלים שוב','special')}}while(h===c);if(h>c){state.humanColor=WHITE;state.computerColor=BLACK;state.currentActor='human';addLog(`${actorName('human')} מתחיל ומשחק בלבן`,'special')}else{state.humanColor=BLACK;state.computerColor=WHITE;state.currentActor='computer';addLog(`${actorName('computer')} מתחיל ומשחק בלבן`,'special')}await syncShared('openingDone');setTimeout(()=>startTurn(state.currentActor),900);}
+async function startOnlineOpening(){state.status='opening';state.diceMode=els.onlineDiceModeSelect.value||state.diceMode||'manual';state.difficulty='medium';state.log=[];setInitialBoard();state.gameOver=false;state.lastChance=null;state.pendingVictory=null;state.lastMove=null;state.lastMoveSeen=null;state.lastVictorySeen=null;state.winnerColor=null;state.stolen=false;state.victoryId=null;state.lastChanceRollingSeen=null;state.lastChanceResultSeen=null;state.doubleStreak={human:0,computer:0};state.dice=[0,0];state.remaining=[];addLog('גלגולת פתיחה אונליין מתחילה','special');renderAll();await syncShared('openingStart');let h,c;do{[h,c]=rollDicePair();state.dice=[h,c];addLog(`${actorName('human')} גלגל: ${h}`);addLog(`${actorName('computer')} גלגל: ${c}`);if(h===c){addLog('תיקו בפתיחה — מגלגלים שוב','special')}}while(h===c);if(h>c){state.humanColor=WHITE;state.computerColor=BLACK;state.currentActor='human';addLog(`${actorName('human')} מתחיל ומשחק בלבן`,'special')}else{state.humanColor=BLACK;state.computerColor=WHITE;state.currentActor='computer';addLog(`${actorName('computer')} מתחיל ומשחק בלבן`,'special')}await syncShared('openingDone');setTimeout(()=>startTurn(state.currentActor),900);}
 async function sendReaction(text){
   showReaction(text,localActor());
   if(isOnline()&&state.roomCode)await update(roomRef(state.roomCode),{reaction:{id:Date.now()+'_'+Math.random().toString(36).slice(2,5),from:state.localActor,text,at:Date.now()}});
@@ -973,7 +1022,7 @@ async function lastChanceButton(){
 }
 
 function newGameFromModal(){
-  state.gameMode='computer';state.localActor='human';state.playerNames={human:'אתה',computer:'המחשב'};state.difficulty=els.difficultySelect.value;state.diceMode=els.diceModeSelect.value;els.startModal.classList.remove('show');state.log=[];setInitialBoard();state.gameOver=false;state.lastChance=null;state.doubleStreak={human:0,computer:0};state.dice=[0,0];state.remaining=[];state.status='opening';addLog(`רמת קושי: ${HEB_DIFF[state.difficulty]}`,'special');addLog(`מצב גלגול: ${HEB_MODE[state.diceMode]}`,'special');renderAll();startOpeningRoll();
+  state.gameMode='computer';state.localActor='human';state.playerNames={human:'אתה',computer:'המחשב'};state.difficulty=els.difficultySelect.value;state.diceMode=els.diceModeSelect.value;els.startModal.classList.remove('show');state.log=[];setInitialBoard();state.gameOver=false;state.lastChance=null;state.pendingVictory=null;state.doubleStreak={human:0,computer:0};state.dice=[0,0];state.remaining=[];state.status='opening';addLog(`רמת קושי: ${HEB_DIFF[state.difficulty]}`,'special');addLog(`מצב גלגול: ${HEB_MODE[state.diceMode]}`,'special');renderAll();startOpeningRoll();
 }
 
 function openNewGame(){clearTimers();els.startModal.classList.add('show');}
