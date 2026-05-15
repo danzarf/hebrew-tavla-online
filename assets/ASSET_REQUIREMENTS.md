@@ -28,9 +28,9 @@ The game automatically looks for the following files when a matching sound event
 
 ## Current model status
 
-The repository currently contains `assets/models/dice-premium.glb` and `assets/models/backgammon-board.glb`. They are intentionally not wired into the live game yet.
+The repository currently contains `assets/models/dice-premium.glb` and `assets/models/backgammon-board.glb`. The dice model is wired into a safe experimental roll overlay; the board model is intentionally not wired into the live game yet.
 
-- `assets/models/dice-premium.glb`: GLB 2.0, about 18.3 MB, with separate dice-style meshes/materials named plastic, metal, bone, and marble; no built-in animations. This is useful for a future dice-style selector or WebGL prototype, but it is too large/risky to make mandatory without a WebGL fallback.
+- `assets/models/dice-premium.glb`: GLB 2.0, about 18.3 MB, with separate dice-style meshes/materials named plastic, metal, bone, and marble; no built-in animations. It is now used by the experimental `src/ui/dice3d.js` WebGL dice-roll overlay when Three.js/CDN loading, WebGL, and model loading all succeed; the existing DOM dice remain the readable fallback and final exact dice display.
 - `assets/models/backgammon-board.glb`: GLB 2.0, about 13.9 MB, with board, checkers, dice, hinge, wood, and fabric materials; no built-in animations. It should be treated as a visual reference/prototype until the 24 point hit zones can be mapped and the included checkers/dice can be hidden or separated.
 
 ## Visual assets to find later

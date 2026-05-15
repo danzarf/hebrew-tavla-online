@@ -1,3 +1,4 @@
+import { createDice3DPrototype } from './dice3d.js';
 import { createSoundManager } from './sounds.js';
 
 export function createAnimationHelpers({
@@ -14,6 +15,7 @@ export function createAnimationHelpers({
   defaultColor,
 }) {
   const soundManager = createSoundManager();
+  const dice3d = createDice3DPrototype({ boardEl: els.board });
   let victoryBannerTimer = null;
   let lastChanceResultTimer = null;
   let rollFeedbackTimer = null;
@@ -24,6 +26,7 @@ export function createAnimationHelpers({
 
   function preloadRollSounds() {
     soundManager.preload(['roll']);
+    dice3d.preload();
   }
 
   function isSoundMuted() {
@@ -123,10 +126,12 @@ export function createAnimationHelpers({
       const perspectiveClasses = ['dicePerspectiveOwn', 'dicePerspectiveOpponent', 'dicePerspectiveCenter'];
       const clampedDuration = Math.max(720, Math.min(1800, duration));
       const settleAt = Math.max(220, clampedDuration - 230);
+      const rollStartedAt = performance.now();
       if (options.sound !== false) playSound('roll');
       els.diceDock.classList.remove(...perspectiveClasses, 'settling');
       els.diceDock.style.setProperty('--dice-roll-ms', `${clampedDuration}ms`);
       els.diceDock.classList.add('rolling', perspectiveClass);
+      dice3d.playRoll({ finalDice, duration: clampedDuration, perspectiveClass, startedAt: rollStartedAt });
       let frame = 0;
       setDice(deterministicRollingDice(finalDice, frame));
       const iv = setInterval(() => {
