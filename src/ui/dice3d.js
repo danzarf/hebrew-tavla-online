@@ -14,11 +14,17 @@ function featureEnabled() {
   if (typeof window === 'undefined') return false;
   const params = new URLSearchParams(window.location.search);
   if (params.get('dice3d') === '0') return false;
+  if (params.get('board3d') !== '1' && params.get('dice3d') !== '1') return false;
   try {
     return window.localStorage.getItem(DISABLE_STORAGE_KEY) !== 'true';
   } catch (e) {
     return true;
   }
+}
+
+function standaloneDiceRequested() {
+  if (typeof window === 'undefined') return false;
+  return new URLSearchParams(window.location.search).get('dice3d') === '1';
 }
 
 function waitForLoad(loadPromise, timeoutMs) {
@@ -75,6 +81,7 @@ function fitObject(object, targetSize = 1) {
 }
 
 export function createDice3DPrototype({ boardEl, modelUrl = DICE_MODEL_URL } = {}) {
+  const standalone = standaloneDiceRequested();
   const enabled = featureEnabled() && webGLAvailable() && !!boardEl;
   let THREE = null;
   let GLTFLoader = null;
@@ -166,10 +173,10 @@ export function createDice3DPrototype({ boardEl, modelUrl = DICE_MODEL_URL } = {
       diceB.userData.THREE = THREE;
       group.add(diceA, diceB);
       scene.add(group);
-      fitObject(diceA, 0.72);
-      fitObject(diceB, 0.72);
-      diceA.position.set(-0.42, 0, 0);
-      diceB.position.set(0.42, 0, 0);
+      fitObject(diceA, 0.34);
+      fitObject(diceB, 0.34);
+      diceA.position.set(-0.21, 0, 0);
+      diceB.position.set(0.21, 0, 0);
       group.visible = false;
       resize();
       window.addEventListener('resize', resize, { passive: true });
@@ -186,9 +193,9 @@ export function createDice3DPrototype({ boardEl, modelUrl = DICE_MODEL_URL } = {
   }
 
   function perspectiveTargets(perspectiveClass) {
-    if (perspectiveClass === 'dicePerspectiveOpponent') return { startX: -2.85, landX: -1.25, direction: -1 };
+    if (perspectiveClass === 'dicePerspectiveOpponent') return { startX: -1.85, landX: -0.88, direction: -1 };
     if (perspectiveClass === 'dicePerspectiveCenter') return { startX: 0, landX: 0, direction: 1 };
-    return { startX: 2.85, landX: 1.25, direction: 1 };
+    return { startX: 1.85, landX: 0.88, direction: 1 };
   }
 
   function hide(token) {
@@ -201,6 +208,7 @@ export function createDice3DPrototype({ boardEl, modelUrl = DICE_MODEL_URL } = {
 
   async function playRoll({ finalDice = [1, 1], duration = 1000, perspectiveClass = 'dicePerspectiveOwn', startedAt = performance.now() } = {}) {
     if (!enabled || failed || window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return false;
+    if (!standalone && !boardEl.classList.contains('board3dActive')) return false;
     const rollStartedAt = startedAt;
     const loaded = await waitForLoad(loadModel(), LOAD_WAIT_MS);
     if (!loaded || !renderer || !scene || !camera || !group || !diceA || !diceB) return false;
