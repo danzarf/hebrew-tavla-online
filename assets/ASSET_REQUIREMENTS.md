@@ -28,10 +28,10 @@ The game automatically looks for the following files when a matching sound event
 
 ## Current model status
 
-The repository currently contains `assets/models/dice-premium.glb` and `assets/models/backgammon-board.glb`. The dice model is wired into a safe experimental roll overlay. The board model is now wired into an opt-in `?board3d=1` visual prototype while the existing DOM grid remains the source of hit zones and gameplay interaction.
+The repository currently contains `assets/models/dice-premium.glb` and `assets/models/backgammon-board.glb`. Both models are retained as attributed research assets only and are not integrated into the active game flow.
 
-- `assets/models/dice-premium.glb`: GLB 2.0, about 18.3 MB, with separate dice-style meshes/materials named plastic, metal, bone, and marble; no built-in animations. It is now used by the experimental `src/ui/dice3d.js` WebGL dice-roll overlay when Three.js/CDN loading, WebGL, and model loading all succeed; the existing DOM dice remain the readable fallback and final exact dice display.
-- `assets/models/backgammon-board.glb`: GLB 2.0, about 13.9 MB, with board, checkers, dice, hinge, wood, and fabric materials; no built-in animations. The `?board3d=1` prototype renders the model as the visual board and hides/ignores bundled dice and checker nodes; the existing DOM point grid still supplies the 24 click zones, hover states, selected source, legal-move highlights, bar, and off trays until precise 3D raycasting/point mapping is validated.
+- `assets/models/dice-premium.glb`: GLB 2.0, about 18.3 MB, with separate dice-style meshes/materials named plastic, metal, bone, and marble; no built-in animations. A previous WebGL overlay prototype was disabled because it showed alongside the DOM dice, had scaling issues, and did not solve exact 1–6 face-orientation mapping. Future work needs optimized dice meshes plus verified rotations for every final value before reactivation.
+- `assets/models/backgammon-board.glb`: GLB 2.0, about 13.9 MB, with board, checkers, dice, hinge, wood, and fabric materials; no built-in animations. The opt-in overlay prototype was removed from the active game because the model did not align with the existing 24 DOM hit zones/checker positions and looked like two boards layered together. Future 3D-board work should use a true 3D position map/raycasting system or an asset designed to match the current top-down board proportions.
 
 ## Visual assets to find later
 
