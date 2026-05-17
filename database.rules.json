@@ -1,0 +1,38 @@
+{
+  "rules": {
+    "profiles": {
+      "$uid": {
+        ".read": "auth != null && auth.uid == $uid",
+        ".write": "auth != null && auth.uid == $uid && newData.hasChildren(['uid', 'displayName', 'isAnonymous', 'avatarPreference', 'createdAt', 'updatedAt', 'lastSeenAt']) && newData.child('uid').val() == auth.uid",
+        "uid": { ".validate": "newData.isString() && newData.val() == auth.uid" },
+        "displayName": { ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 18" },
+        "isAnonymous": { ".validate": "newData.isBoolean()" },
+        "avatarPreference": { ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 40" },
+        "createdAt": { ".validate": "newData.isNumber()" },
+        "updatedAt": { ".validate": "newData.isNumber()" },
+        "lastSeenAt": { ".validate": "newData.isNumber()" },
+        "$other": { ".validate": false }
+      }
+    },
+    "rooms": {
+      ".read": true,
+      ".write": true
+    },
+    "economy": {
+      ".read": false,
+      ".write": false
+    },
+    "progression": {
+      ".read": false,
+      ".write": false
+    },
+    "rewards": {
+      ".read": false,
+      ".write": false
+    },
+    "stats": {
+      ".read": false,
+      ".write": false
+    }
+  }
+}
