@@ -669,8 +669,11 @@ import { addLog as addLogMessage, computerMoveText, escapeHtml, isImportantCompu
 import { createAnimationHelpers } from "./src/ui/animations.js";
 import { createRenderHelpers } from "./src/ui/render.js";
 import { createLobbyHelpers } from "./src/ui/lobby.js";
+import { startAnonymousAuth } from "./src/firebase/auth.js";
+import { upsertPlayerProfile } from "./src/firebase/profile.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
-import { getDatabase, ref, set, get, update, onValue, off } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-database.js";
+import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
+import { getDatabase, ref, set, get, update, onValue, off, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-database.js";
 const firebaseConfig = {
   apiKey: "AIzaSyBIhJj-FqyHvD1kx0u150dQa-v_vMPMhIo",
   authDomain: "hebrew-tavla-online.firebaseapp.com",
@@ -683,6 +686,12 @@ const firebaseConfig = {
 };
 const fbApp = initializeApp(firebaseConfig);
 const db = getDatabase(fbApp);
+const authSession = startAnonymousAuth({
+  firebaseApp: fbApp,
+  getAuth,
+  signInAnonymously,
+  onAuthStateChanged,
+});
 
 (() => {
 'use strict';
@@ -725,7 +734,13 @@ const {
   localPlayerId,
   localPlayerName,
   renderLobby,
-}=createLobbyHelpers({els,state,escapeHtml});
+}=createLobbyHelpers({els,state,escapeHtml,getAuthenticatedUid:authSession.getUid});
+function syncPlayerProfile(displayName){
+  const uid=authSession.getUid();
+  if(!uid)return;
+  upsertPlayerProfile({db,ref,get,set,update,serverTimestamp,uid,displayName,isAnonymous:true}).catch(error=>console.warn('Profile sync failed; continuing as guest.',error));
+}
+authSession.ready.then(uid=>{if(uid)syncPlayerProfile(localPlayerName());});
 const {
   buildBoard,
   renderEmptyDie,
@@ -1229,8 +1244,8 @@ async function syncShared(reason=''){
 }
 async function generateRoomCode(){for(let i=0;i<40;i++){const code=String(rnd(1000,9999));const snap=await get(roomRef(code));if(!snap.exists())return code}return String(Date.now()).slice(-4);}
 function subscribeRoom(code){if(state.roomUnsub){state.roomUnsub();state.roomUnsub=null;}state.roomCode=code;const rr=roomRef(code);state.roomUnsub=onValue(rr,snap=>{const room=snap.val();if(!room){showMessage('החדר לא קיים');return}renderLobby(room);if(room.reaction&&room.reaction.id!==subscribeRoom.lastReaction){subscribeRoom.lastReaction=room.reaction.id;if(room.reaction.from!==state.localActor)showReaction(room.reaction.text,room.reaction.from)}if(room.game)applyShared(room.game);if(!room.game&&room.players?.human&&room.players?.computer&&room.ready?.human&&room.ready?.computer&&state.localActor==='human'&&state.status!=='opening')startOnlineOpening();});}
-async function createRoom(){try{const code=await generateRoomCode();state.gameMode='online';state.localActor='human';state.playerId=localPlayerId();state.playerNames={human:localPlayerName(),computer:'מחכה לחבר'};state.diceMode=els.onlineDiceModeSelect.value;state.status='lobby';await set(roomRef(code),{createdAt:Date.now(),updatedAt:Date.now(),diceMode:state.diceMode,players:{human:{id:state.playerId,name:state.playerNames.human,connected:true},computer:null},ready:{human:false,computer:false},game:null,reaction:null});els.startModal.classList.add('show');subscribeRoom(code);showMessage('חדר נפתח');}catch(e){console.error(e);showMessage('בעיה בפתיחת חדר')}}
-async function joinRoom(){try{const code=(els.joinCodeInput.value||'').trim();if(!/^\d{4}$/.test(code))return showMessage('קוד חדר חייב להיות 4 ספרות');const snap=await get(roomRef(code));if(!snap.exists())return showMessage('החדר לא נמצא');const room=snap.val();if(room.players?.computer&&room.players.computer.id!==localPlayerId())return showMessage('החדר מלא');state.gameMode='online';state.localActor=room.players?.human?.id===localPlayerId()?'human':'computer';state.playerId=localPlayerId();if(state.localActor==='computer')await update(roomRef(code),{['players/computer']:{id:state.playerId,name:localPlayerName(),connected:true},['ready/computer']:false,updatedAt:Date.now()});state.diceMode=room.diceMode||els.onlineDiceModeSelect.value;state.status='lobby';els.startModal.classList.add('show');subscribeRoom(code);showMessage('הצטרפת לחדר');}catch(e){console.error(e);showMessage('בעיה בהצטרפות')}}
+async function createRoom(){try{const code=await generateRoomCode();const playerName=localPlayerName();state.gameMode='online';state.localActor='human';state.playerId=localPlayerId();state.playerNames={human:playerName,computer:'מחכה לחבר'};syncPlayerProfile(playerName);state.diceMode=els.onlineDiceModeSelect.value;state.status='lobby';await set(roomRef(code),{createdAt:Date.now(),updatedAt:Date.now(),diceMode:state.diceMode,players:{human:{id:state.playerId,name:state.playerNames.human,connected:true},computer:null},ready:{human:false,computer:false},game:null,reaction:null});els.startModal.classList.add('show');subscribeRoom(code);showMessage('חדר נפתח');}catch(e){console.error(e);showMessage('בעיה בפתיחת חדר')}}
+async function joinRoom(){try{const code=(els.joinCodeInput.value||'').trim();if(!/^\d{4}$/.test(code))return showMessage('קוד חדר חייב להיות 4 ספרות');const snap=await get(roomRef(code));if(!snap.exists())return showMessage('החדר לא נמצא');const room=snap.val();const playerId=localPlayerId();const playerName=localPlayerName();if(room.players?.computer&&room.players.computer.id!==playerId)return showMessage('החדר מלא');state.gameMode='online';state.localActor=room.players?.human?.id===playerId?'human':'computer';state.playerId=playerId;syncPlayerProfile(playerName);if(state.localActor==='computer')await update(roomRef(code),{['players/computer']:{id:state.playerId,name:playerName,connected:true},['ready/computer']:false,updatedAt:Date.now()});state.diceMode=room.diceMode||els.onlineDiceModeSelect.value;state.status='lobby';els.startModal.classList.add('show');subscribeRoom(code);showMessage('הצטרפת לחדר');}catch(e){console.error(e);showMessage('בעיה בהצטרפות')}}
 async function toggleReady(){if(!isOnline()||!state.roomCode)return;const snap=await get(roomRef(state.roomCode+'/ready/'+state.localActor));const cur=!!snap.val();await update(roomRef(state.roomCode),{['ready/'+state.localActor]:!cur,updatedAt:Date.now()});}
 async function startOnlineOpening(){state.status='opening';state.diceMode=els.onlineDiceModeSelect.value||state.diceMode||'manual';state.difficulty='medium';state.log=[];setInitialBoard();state.gameOver=false;state.lastChance=null;state.pendingVictory=null;state.lastMove=null;state.lastMoveSeen=null;state.lastVictorySeen=null;state.winnerColor=null;state.stolen=false;state.victoryId=null;state.lastChanceRollingSeen=null;state.lastChanceResultSeen=null;state.doubleStreak={human:0,computer:0};state.dice=[0,0];state.remaining=[];addLog('גלגולת פתיחה אונליין מתחילה','special');renderAll();await syncShared('openingStart');let h,c;do{[h,c]=rollDicePair();state.dice=[h,c];addLog(`${actorName('human')} גלגל: ${h}`);addLog(`${actorName('computer')} גלגל: ${c}`);if(h===c){addLog('תיקו בפתיחה — מגלגלים שוב','special')}}while(h===c);if(h>c){state.humanColor=WHITE;state.computerColor=BLACK;state.currentActor='human';addLog(`${actorName('human')} מתחיל ומשחק בלבן`,'special')}else{state.humanColor=BLACK;state.computerColor=WHITE;state.currentActor='computer';addLog(`${actorName('computer')} מתחיל ומשחק בלבן`,'special')}await syncShared('openingDone');setTimeout(()=>startTurn(state.currentActor),900);}
 async function sendReaction(text){
