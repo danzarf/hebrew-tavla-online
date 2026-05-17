@@ -12,6 +12,7 @@ export function createAnimationHelpers({
   localActor,
   otherActor,
   defaultColor,
+  getVictorySummaryRows = () => [],
 }) {
   const soundManager = createSoundManager();
   let victoryBannerTimer = null;
@@ -109,9 +110,39 @@ export function createAnimationHelpers({
     });
   }
 
-  function showVictoryBanner(text) {
+  function showVictoryBanner(text, summaryRows = []) {
     if (!els.victoryBanner) return;
-    els.victoryBanner.textContent = text;
+    els.victoryBanner.replaceChildren();
+    const title = document.createElement('div');
+    title.className = 'victoryTitle';
+    title.textContent = text;
+    els.victoryBanner.appendChild(title);
+
+    if (Array.isArray(summaryRows) && summaryRows.length) {
+      const summary = document.createElement('div');
+      summary.className = 'matchResultSummary';
+      summary.setAttribute('aria-label', 'סיכום תוצאת המשחק');
+
+      for (const row of summaryRows) {
+        if (!row?.label || !row?.value) continue;
+        const item = document.createElement('div');
+        item.className = 'matchResultSummaryRow';
+
+        const label = document.createElement('span');
+        label.className = 'matchResultSummaryLabel';
+        label.textContent = row.label;
+
+        const value = document.createElement('strong');
+        value.className = 'matchResultSummaryValue';
+        value.textContent = row.value;
+
+        item.append(label, value);
+        summary.appendChild(item);
+      }
+
+      if (summary.childElementCount) els.victoryBanner.appendChild(summary);
+    }
+
     els.victoryBanner.classList.remove('show');
     void els.victoryBanner.offsetWidth;
     els.victoryBanner.classList.add('show');
@@ -123,7 +154,13 @@ export function createAnimationHelpers({
     if (!winnerColor) return;
     const actor = actorForColor(winnerColor);
     const text = `🏆 ${actorName(actor)} ניצח${stolen ? ' בירושלמי!' : '!'} 🎉`;
-    showVictoryBanner(text);
+    let summaryRows = [];
+    try {
+      summaryRows = getVictorySummaryRows();
+    } catch {
+      summaryRows = [];
+    }
+    showVictoryBanner(text, summaryRows);
     showMessage(text, 5000);
     playSound('win');
   }
