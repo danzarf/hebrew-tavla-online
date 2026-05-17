@@ -51,7 +51,7 @@ export function createRenderHelpers({
     if (!el.children.length) renderEmptyDie(el);
     [...el.children].forEach((c, i) => c.classList.toggle('on', (PIP_POS[n] || []).includes(i)));
   }
-  function setDice(d) { setDie(els.die1, d[0] || 0); setDie(els.die2, d[1] || 0); }
+  function setDice(d) { setDie(els.die1, d[0] || 0); setDie(els.die2, d[1] || 0); els.board3d?.renderDice(d); }
 
   function renderBoard() {
     document.querySelectorAll('.point').forEach(pt => {
@@ -74,7 +74,7 @@ export function createRenderHelpers({
     els.bar.classList.toggle('highlight', state.legalChoices.some(m => m.to === 'bar'));
     els.offWhite.classList.remove('highlight'); els.offBlack.classList.remove('highlight');
     state.legalChoices.forEach(m => { if (m.to === 'off') (m.color === WHITE ? els.offWhite : els.offBlack).classList.add('highlight'); });
-    renderBar(); renderOff(); setDice(state.dice);
+    renderBar(); renderOff(); setDice(state.dice); els.board3d?.renderState(state);
     els.diceDock.classList.toggle('clickable', canHumanRoll());
     const dice = state.dice || [];
     const sortedDice = [...dice].sort((a, b) => a - b).join('-');

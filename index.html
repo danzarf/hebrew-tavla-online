@@ -264,6 +264,27 @@ body:before{content:"";position:fixed;inset:0;pointer-events:none;background:rad
 
 
 
+/* Active 3D board layer: GLB board + procedural 3D checkers/dice, DOM grid kept only for safe hit zones. */
+.board3dLayer{position:absolute;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;border-radius:inherit;display:block}
+.board.board3dActive{background:#090403;box-shadow:inset 0 0 0 1px rgba(255,232,177,.22),0 28px 66px rgba(0,0,0,.68)}
+.board.board3dActive:before{opacity:0}
+.board.board3dActive .boardInner{z-index:5;background:transparent;box-shadow:none}
+.board.board3dActive .point:before{opacity:0 !important;filter:none !important}
+.board.board3dActive .pointLabel{opacity:0}
+.board.board3dActive .piece,.board.board3dActive .barMini,.board.board3dActive .countBadge,.board.board3dActive .barCount{opacity:0 !important;filter:none !important}
+.board.board3dActive .point:hover:not(.highlight):not(.selected):after{content:"";position:absolute;inset:6%;border-radius:4px;clip-path:polygon(50% 0,100% 100%,0 100%);background:linear-gradient(180deg,rgba(255,232,164,.16),rgba(255,190,86,.04));box-shadow:0 0 14px rgba(255,218,143,.26);pointer-events:none;z-index:6}
+.board.board3dActive .point.top:hover:not(.highlight):not(.selected):after{clip-path:polygon(0 0,100% 0,50% 100%)}
+.board.board3dActive .point.highlight:after,.board.board3dActive .point.selected:after{border:0;inset:6%;border-radius:4px;clip-path:polygon(50% 0,100% 100%,0 100%);background:linear-gradient(180deg,rgba(255,223,139,.34),rgba(255,185,75,.10));box-shadow:0 0 18px rgba(255,202,98,.42),inset 0 0 18px rgba(255,232,164,.18);animation:none;pointer-events:none}
+.board.board3dActive .point.top.highlight:after,.board.board3dActive .point.top.selected:after{clip-path:polygon(0 0,100% 0,50% 100%)}
+.board.board3dActive .point.selected:after{background:linear-gradient(180deg,rgba(122,211,255,.35),rgba(80,164,255,.12));box-shadow:0 0 20px rgba(110,201,255,.48),inset 0 0 18px rgba(122,211,255,.20)}
+.board.board3dActive .barArea{background:transparent;box-shadow:none;border-color:transparent}
+.board.board3dActive .offTray{background:rgba(15,8,5,.24);backdrop-filter:blur(2px)}
+.board.board3dActive .diceDock{background:transparent;border-color:transparent;box-shadow:none;backdrop-filter:none;opacity:.08}
+.board.board3dActive .diceDock.clickable{box-shadow:none}
+.board.board3dActive .diceDock .die{opacity:0}
+.board.board3dActive .diceDock.rolling .die{animation:none}
+
+
 /* תיקון בטוח אחרי הקובץ שעבד: חוקים נכנסים + כפתור סיים תור נעול עד סוף המהלכים */
 .side{
   gap:6px !important;
@@ -698,6 +719,7 @@ import { chooseAiSequence, chooseBestDoubleFor, pipCount } from "./src/game/ai.j
 import { HEB_COLOR, HEB_DIFF, HEB_MODE } from "./src/ui/text.js";
 import { addLog as addLogMessage, computerMoveText, escapeHtml, isImportantComputerMove, logMove as logMoveMessage, renderLog as renderLogMessage, showMessage as showMessageMessage } from "./src/ui/messages.js";
 import { createAnimationHelpers } from "./src/ui/animations.js";
+import { createBoard3DLayer } from "./src/ui/board3d.js";
 import { createRenderHelpers } from "./src/ui/render.js";
 import { createLobbyHelpers } from "./src/ui/lobby.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
@@ -729,6 +751,8 @@ const els={
   modeComputerBtn:$('#modeComputerBtn'),modeFriendBtn:$('#modeFriendBtn'),modeRulesBtn:$('#modeRulesBtn'),computerPanel:$('#computerPanel'),onlinePanel:$('#onlinePanel'),rulesPanel:$('#rulesPanel'),playerNameInput:$('#playerNameInput'),onlineDiceModeSelect:$('#onlineDiceModeSelect'),createRoomBtn:$('#createRoomBtn'),joinRoomBtn:$('#joinRoomBtn'),joinCodeInput:$('#joinCodeInput'),roomLobby:$('#roomLobby'),roomCodeDisplay:$('#roomCodeDisplay'),roomPlayers:$('#roomPlayers'),readyBtn:$('#readyBtn'),roomStatusText:$('#roomStatusText'),reactionToast:$('#reactionToast'),reactionWhite:$('#reactionWhite'),reactionBlack:$('#reactionBlack'),victoryBanner:$('#victoryBanner'),reactionCard:$('#reactionCard')
 };
 const state=createInitialState();
+const board3d = createBoard3DLayer({ boardEl: els.board });
+els.board3d = board3d;
 function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
 function rnd(min,max){return Math.floor(Math.random()*(max-min+1))+min;}
 function actorName(actor){

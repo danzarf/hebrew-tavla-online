@@ -125,6 +125,8 @@ export function createAnimationHelpers({
       const settleAt = Math.max(220, clampedDuration - 230);
       if (options.sound !== false) playSound('roll');
       els.diceDock.classList.remove(...perspectiveClasses, 'settling');
+      els.board?.classList.remove(...perspectiveClasses);
+      els.board?.classList.add(perspectiveClass);
       els.diceDock.style.setProperty('--dice-roll-ms', `${clampedDuration}ms`);
       els.diceDock.classList.add('rolling', perspectiveClass);
       let frame = 0;
