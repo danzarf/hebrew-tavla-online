@@ -697,6 +697,7 @@ import { createLobbyHelpers } from "./src/ui/lobby.js";
 import { getProfileChipTone, getProfileStatusText, resolveProfileDisplayName } from "./src/ui/profileStatus.js";
 import { startAnonymousAuth } from "./src/firebase/auth.js";
 import { syncPlayerProfile } from "./src/firebase/profile.js";
+import { recordGameEndMatchResult } from "./src/product/matchResultSession.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
 import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
 import { getDatabase, ref, set, get, update, onValue, off } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-database.js";
@@ -1204,11 +1205,25 @@ function finishGame(winnerColor,stolen){
   state.winnerColor=winnerColor;
   state.stolen=!!stolen;
   state.victoryId=Date.now()+'_'+Math.random().toString(36).slice(2,6);
+  recordMatchResultForGameEnd(winnerColor);
   const actor=actorForColor(winnerColor);
   addLog(`${actorName(actor)} ניצח${stolen?' בזכות הירושלמי!':'!'}`,'special');
   renderAll();
   showVictory(winnerColor,stolen);
   syncShared('finishGame');
+}
+
+function recordMatchResultForGameEnd(winnerColor){
+  recordGameEndMatchResult({
+    state,
+    winnerColor,
+    matchId: state.victoryId,
+    endedAt: Date.now(),
+    localActor: localActor(),
+    currentPlayerId: state.playerId || localPlayerId(),
+    currentUid: authSession.getUid(),
+    resultSource: isOnline() ? 'online-game-end' : 'client-game-end',
+  });
 }
 
 function initChanceSelectors(){
@@ -1271,6 +1286,7 @@ function applyShared(g){
   if(state.lastChance&&state.lastChance.resultId)showLastChanceResult(state.lastChance);
   if(state.gameOver&&state.victoryId&&state.lastVictorySeen!==state.victoryId){
     state.lastVictorySeen=state.victoryId;
+    recordMatchResultForGameEnd(state.winnerColor);
     showVictory(state.winnerColor,state.stolen);
   }
   clearTimeout(state.autoTimer);
