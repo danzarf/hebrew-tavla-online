@@ -1,11 +1,10 @@
-export function createLobbyHelpers({ els, state, escapeHtml }) {
+import { getOrCreateLocalGuestId, resolvePlayerId } from '../firebase/auth.js';
+
+export function createLobbyHelpers({ els, state, escapeHtml, getAuthenticatedUid = () => null }) {
   function localPlayerId() {
-    let id = localStorage.getItem('tavlaPlayerId');
-    if (!id) {
-      id = 'p_' + Math.random().toString(36).slice(2) + Date.now().toString(36);
-      localStorage.setItem('tavlaPlayerId', id);
-    }
-    return id;
+    const authenticatedUid = getAuthenticatedUid();
+    const localGuestId = getOrCreateLocalGuestId();
+    return resolvePlayerId({ authenticatedUid, localGuestId });
   }
 
   function localPlayerName() {
