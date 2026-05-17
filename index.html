@@ -264,25 +264,25 @@ body:before{content:"";position:fixed;inset:0;pointer-events:none;background:rad
 
 
 
-/* Active 3D board layer: GLB board + procedural 3D checkers/dice, DOM grid kept only for safe hit zones. */
-.board3dLayer{position:absolute;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;border-radius:inherit;display:block}
-.board.board3dActive{background:#090403;box-shadow:inset 0 0 0 1px rgba(255,232,177,.22),0 28px 66px rgba(0,0,0,.68)}
-.board.board3dActive:before{opacity:0}
-.board.board3dActive .boardInner{z-index:5;background:transparent;box-shadow:none}
-.board.board3dActive .point:before{opacity:0 !important;filter:none !important}
-.board.board3dActive .pointLabel{opacity:0}
-.board.board3dActive .piece,.board.board3dActive .barMini,.board.board3dActive .countBadge,.board.board3dActive .barCount{opacity:0 !important;filter:none !important}
-.board.board3dActive .point:hover:not(.highlight):not(.selected):after{content:"";position:absolute;inset:6%;border-radius:4px;clip-path:polygon(50% 0,100% 100%,0 100%);background:linear-gradient(180deg,rgba(255,232,164,.16),rgba(255,190,86,.04));box-shadow:0 0 14px rgba(255,218,143,.26);pointer-events:none;z-index:6}
-.board.board3dActive .point.top:hover:not(.highlight):not(.selected):after{clip-path:polygon(0 0,100% 0,50% 100%)}
-.board.board3dActive .point.highlight:after,.board.board3dActive .point.selected:after{border:0;inset:6%;border-radius:4px;clip-path:polygon(50% 0,100% 100%,0 100%);background:linear-gradient(180deg,rgba(255,223,139,.34),rgba(255,185,75,.10));box-shadow:0 0 18px rgba(255,202,98,.42),inset 0 0 18px rgba(255,232,164,.18);animation:none;pointer-events:none}
-.board.board3dActive .point.top.highlight:after,.board.board3dActive .point.top.selected:after{clip-path:polygon(0 0,100% 0,50% 100%)}
-.board.board3dActive .point.selected:after{background:linear-gradient(180deg,rgba(122,211,255,.35),rgba(80,164,255,.12));box-shadow:0 0 20px rgba(110,201,255,.48),inset 0 0 18px rgba(122,211,255,.20)}
-.board.board3dActive .barArea{background:transparent;box-shadow:none;border-color:transparent}
-.board.board3dActive .offTray{background:rgba(15,8,5,.24);backdrop-filter:blur(2px)}
-.board.board3dActive .diceDock{background:transparent;border-color:transparent;box-shadow:none;backdrop-filter:none;opacity:.08}
-.board.board3dActive .diceDock.clickable{box-shadow:none}
-.board.board3dActive .diceDock .die{opacity:0}
-.board.board3dActive .diceDock.rolling .die{animation:none}
+/* Unified premium 2.5D board: DOM remains gameplay/hit-zone layer, visuals are fully restyled to avoid old-board + overlay mixing. */
+.board.board3dActive{background:radial-gradient(circle at 18% 10%,rgba(255,229,166,.16),transparent 24%),radial-gradient(circle at 82% 88%,rgba(74,29,10,.34),transparent 30%),linear-gradient(135deg,#150805 0%,#4f230d 16%,#8a5226 31%,#2d1207 49%,#1b0904 57%,#6f3a17 78%,#b07036 100%);box-shadow:inset 0 0 0 1px rgba(255,235,190,.38),inset 0 0 0 9px rgba(49,20,8,.92),inset 0 0 0 18px rgba(7,3,1,.70),inset 0 22px 38px rgba(255,221,151,.07),inset 0 -34px 60px rgba(0,0,0,.55),0 28px 72px rgba(0,0,0,.72)}
+.board.board3dActive:before{opacity:.86;background:repeating-linear-gradient(93deg,rgba(255,230,177,.035) 0 1px,rgba(55,22,7,.06) 1px 8px,rgba(0,0,0,.05) 8px 14px),linear-gradient(115deg,rgba(255,245,210,.08),transparent 22%,rgba(0,0,0,.24) 52%,transparent 84%,rgba(255,216,142,.05));mix-blend-mode:soft-light}
+.board.board3dActive:after{content:"";position:absolute;inset:clamp(18px,2.1vw,30px);border-radius:20px;border:1px solid rgba(255,226,155,.28);box-shadow:inset 0 0 0 1px rgba(0,0,0,.46),inset 0 16px 28px rgba(255,237,190,.035),inset 0 -22px 42px rgba(0,0,0,.38);pointer-events:none;z-index:2}
+.board.board3dActive .boardInner{z-index:3;background:radial-gradient(ellipse at 50% 50%,rgba(255,232,177,.09),transparent 52%),linear-gradient(90deg,#261009 0%,#6c3c1d 24%,#2b1309 49%,#6c3c1d 76%,#261009 100%);box-shadow:inset 0 0 0 1px rgba(255,231,176,.18),inset 0 12px 24px rgba(255,255,255,.025),inset 0 -28px 46px rgba(0,0,0,.52);border-radius:20px}
+.board.board3dActive .point:before{left:7%;right:7%;height:95%;opacity:1;background-size:100% 100%,18px 18px,100% 100%;filter:drop-shadow(0 9px 7px rgba(0,0,0,.52));transition:filter .16s ease,opacity .16s ease,transform .16s ease}
+.board.board3dActive .point.red:before{background-image:linear-gradient(180deg,rgba(255,218,156,.18),transparent 28%,rgba(0,0,0,.30) 84%),repeating-linear-gradient(96deg,rgba(255,238,196,.07) 0 1px,transparent 1px 7px),linear-gradient(180deg,#a43f2c 0%,#7a2319 50%,#300d08 100%)}
+.board.board3dActive .point.green:before{background-image:linear-gradient(180deg,rgba(255,224,162,.16),transparent 28%,rgba(0,0,0,.30) 84%),repeating-linear-gradient(94deg,rgba(255,234,184,.065) 0 1px,transparent 1px 7px),linear-gradient(180deg,#9f6830 0%,#674016 52%,#261006 100%)}
+.board.board3dActive .point:hover:not(.highlight):not(.selected):before{filter:drop-shadow(0 10px 8px rgba(0,0,0,.42)) brightness(1.15) saturate(1.08);transform:translateY(-1px)}
+.board.board3dActive .point.highlight:after,.board.board3dActive .offTray.highlight:after,.board.board3dActive .barArea.highlight:after{border-color:rgba(255,214,116,.98);box-shadow:0 0 0 1px rgba(255,255,255,.20),0 0 22px rgba(255,190,86,.58),inset 0 0 22px rgba(255,190,86,.22);background:radial-gradient(circle at 50% 50%,rgba(255,212,116,.20),transparent 62%);animation:none}
+.board.board3dActive .point.selected:after,.board.board3dActive .barArea.selected:after{border-color:rgba(122,211,255,.98);box-shadow:0 0 0 1px rgba(255,255,255,.22),0 0 24px rgba(110,201,255,.64),inset 0 0 18px rgba(122,211,255,.22);background:radial-gradient(circle at 50% 50%,rgba(105,201,255,.15),transparent 62%)}
+.board.board3dActive .barArea{background:linear-gradient(180deg,rgba(12,5,2,.94),rgba(116,70,31,.54) 44%,rgba(26,10,4,.96));border:1px solid rgba(255,231,176,.16);box-shadow:inset 0 0 0 1px rgba(0,0,0,.32),inset 0 18px 28px rgba(255,229,166,.05),inset 0 -18px 32px rgba(0,0,0,.52),0 0 18px rgba(0,0,0,.38)}
+.board.board3dActive .barArea:before{content:"";inset:8px 28%;transform:none;border-radius:999px;background:linear-gradient(90deg,rgba(255,231,176,.08),rgba(255,231,176,.24),rgba(255,231,176,.08));box-shadow:0 0 18px rgba(0,0,0,.32),inset 0 0 8px rgba(255,231,176,.12)}
+.board.board3dActive .piece,.board.board3dActive .floatingPiece,.board.board3dActive .barMini{box-shadow:inset 0 4px 5px rgba(255,255,255,.50),inset 0 -8px 12px rgba(0,0,0,.42),inset 0 0 0 2px rgba(255,255,255,.08),0 10px 15px rgba(0,0,0,.50);transform:translateZ(0)}
+.board.board3dActive .piece.white,.board.board3dActive .floatingPiece.white,.board.board3dActive .barMini.white{background:radial-gradient(circle at 30% 20%,#fffaf0 0%,#efd7aa 40%,#b58b55 72%,#714a22 100%);border-color:rgba(255,255,255,.68)}
+.board.board3dActive .piece.black,.board.board3dActive .floatingPiece.black,.board.board3dActive .barMini.black{background:radial-gradient(circle at 30% 21%,#75717a 0%,#2c292e 46%,#090808 78%,#000 100%);border-color:rgba(255,255,255,.17)}
+.board.board3dActive .piece:after,.board.board3dActive .floatingPiece:after{content:"";position:absolute;inset:18%;border-radius:50%;border:1px solid rgba(255,255,255,.16);box-shadow:inset 0 2px 3px rgba(255,255,255,.13),inset 0 -2px 4px rgba(0,0,0,.22);pointer-events:none}
+.board.board3dActive .diceDock{background:radial-gradient(circle at 50% 0%,rgba(255,236,181,.18),transparent 62%),rgba(12,6,4,.76);border-color:rgba(255,231,176,.28);box-shadow:0 14px 32px rgba(0,0,0,.54),inset 0 1px 0 rgba(255,255,255,.10)}
+.board.board3dActive .die{background:radial-gradient(circle at 28% 20%,#fff 0%,#fff8e8 22%,#ead5b9 56%,#b28a5e 100%);box-shadow:inset 2px 2px 4px rgba(255,255,255,.88),inset -6px -8px 12px rgba(75,42,18,.34),0 10px 16px rgba(0,0,0,.50),0 0 0 1px rgba(60,31,14,.20)}
 
 
 /* תיקון בטוח אחרי הקובץ שעבד: חוקים נכנסים + כפתור סיים תור נעול עד סוף המהלכים */

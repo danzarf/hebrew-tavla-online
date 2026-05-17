@@ -28,10 +28,10 @@ The game automatically looks for the following files when a matching sound event
 
 ## Current model status
 
-The repository currently contains `assets/models/dice-premium.glb` and `assets/models/backgammon-board.glb`. The board model is integrated into the active game as a WebGL visual layer with safe DOM hit-zone fallback.
+The repository currently contains `assets/models/dice-premium.glb` and `assets/models/backgammon-board.glb`. Both GLB files remain attributed research assets; the active board upgrade is a procedural CSS/DOM 2.5D layer that fits the existing playable grid exactly.
 
-- `assets/models/backgammon-board.glb`: GLB 2.0, about 13.9 MB, with board, checkers, dice, hinge, wood, and fabric materials; no built-in animations. The active `src/ui/board3d.js` layer renders this model in the real board area, hides bundled dice/checker nodes, and overlays state-driven procedural 3D checkers and readable procedural 3D dice that match the existing game state. Existing DOM points remain as transparent hit zones so gameplay rules, clicks, bar, off trays, undo, and online state stay unchanged. If WebGL/model loading fails, the old DOM/CSS board remains visible and playable.
-- `assets/models/dice-premium.glb`: GLB 2.0, about 18.3 MB, with separate dice-style meshes/materials named plastic, metal, bone, and marble; no built-in animations. It remains an attributed research asset for future dice upgrades because exact 1–6 face-orientation mapping was not verified. Current gameplay uses procedural 3D dice in the board layer for readable, game-state-driven values.
+- `assets/models/backgammon-board.glb`: GLB 2.0, about 13.9 MB, with board, checkers, dice, hinge, wood, and fabric materials; no built-in animations. It is not active in gameplay because preview testing showed it did not align with the existing 24 hit zones/checker positions and created a mixed “old board plus 3D object” result. Future GLB-board work should use either true 3D checker/raycast mapping or a model authored to the current top-down board proportions.
+- `assets/models/dice-premium.glb`: GLB 2.0, about 18.3 MB, with separate dice-style meshes/materials named plastic, metal, bone, and marble; no built-in animations. It remains a research asset until exact 1–6 face-orientation mapping and mobile-safe sizing are verified. Current gameplay uses the upgraded procedural DOM dice so final values stay readable and state-driven.
 
 ## Visual assets to find later
 
