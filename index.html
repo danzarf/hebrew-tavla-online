@@ -669,7 +669,9 @@ import { addLog as addLogMessage, computerMoveText, escapeHtml, isImportantCompu
 import { createAnimationHelpers } from "./src/ui/animations.js";
 import { createRenderHelpers } from "./src/ui/render.js";
 import { createLobbyHelpers } from "./src/ui/lobby.js";
+import { startAnonymousAuth } from "./src/firebase/auth.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
+import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
 import { getDatabase, ref, set, get, update, onValue, off } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-database.js";
 const firebaseConfig = {
   apiKey: "AIzaSyBIhJj-FqyHvD1kx0u150dQa-v_vMPMhIo",
@@ -683,6 +685,12 @@ const firebaseConfig = {
 };
 const fbApp = initializeApp(firebaseConfig);
 const db = getDatabase(fbApp);
+const authSession = startAnonymousAuth({
+  firebaseApp: fbApp,
+  getAuth,
+  signInAnonymously,
+  onAuthStateChanged,
+});
 
 (() => {
 'use strict';
@@ -725,7 +733,7 @@ const {
   localPlayerId,
   localPlayerName,
   renderLobby,
-}=createLobbyHelpers({els,state,escapeHtml});
+}=createLobbyHelpers({els,state,escapeHtml,getAuthenticatedUid:authSession.getUid});
 const {
   buildBoard,
   renderEmptyDie,
