@@ -168,12 +168,13 @@ button,select,input{font-family:inherit}
 .reactionBubble.white{left:calc(50% + clamp(82px,9vw,122px));background:linear-gradient(180deg,rgba(255,248,225,.92),rgba(214,178,111,.92));color:#281609;border-color:rgba(255,255,255,.36)}
 .reactionBubble.black{right:calc(50% + clamp(82px,9vw,122px));background:linear-gradient(180deg,rgba(71,67,77,.94),rgba(18,15,20,.94));color:#fff8df;border-color:rgba(255,255,255,.16)}
 .victoryBanner{position:absolute;z-index:80;left:50%;top:50%;transform:translate(-50%,-50%) scale(.82);opacity:0;pointer-events:none;min-width:min(420px,82%);max-width:88%;padding:22px 28px;border-radius:26px;text-align:center;font-size:clamp(22px,3.4vw,44px);font-weight:1000;color:#fff;text-shadow:0 3px 6px rgba(0,0,0,.65);background:radial-gradient(circle at 50% 0%,rgba(255,237,166,.38),transparent 55%),linear-gradient(180deg,rgba(75,37,18,.97),rgba(22,9,4,.96));border:1px solid rgba(255,231,176,.36);box-shadow:0 28px 90px rgba(0,0,0,.7),inset 0 1px 0 rgba(255,255,255,.12),0 0 34px rgba(246,199,108,.28)}
-.victoryBanner.show{animation:victoryPop 3.6s ease both}@keyframes victoryPop{0%{opacity:0;transform:translate(-50%,-50%) scale(.74) rotate(-2deg)}14%{opacity:1;transform:translate(-50%,-50%) scale(1.04) rotate(1deg)}24%{transform:translate(-50%,-50%) scale(1) rotate(0)}82%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) scale(.92)}}
+.victoryBanner.show{animation:victoryPop 3.6s ease both}.victoryTitle{line-height:1.1}.matchResultSummary{margin-top:12px;display:grid;gap:6px;font-size:clamp(12px,1.25vw,16px);font-weight:800;line-height:1.25;text-shadow:none;color:#ffeec5}.matchResultSummaryRow{display:flex;justify-content:space-between;gap:14px;align-items:center;padding:6px 10px;border-radius:999px;background:rgba(0,0,0,.24);border:1px solid rgba(255,231,176,.18)}.matchResultSummaryLabel{color:rgba(255,238,197,.78)}.matchResultSummaryValue{color:#fff;font-weight:1000;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:220px}
+@keyframes victoryPop{0%{opacity:0;transform:translate(-50%,-50%) scale(.74) rotate(-2deg)}14%{opacity:1;transform:translate(-50%,-50%) scale(1.04) rotate(1deg)}24%{transform:translate(-50%,-50%) scale(1) rotate(0)}82%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) scale(.92)}}
 .diceDock.lcSuccess .die{animation:lcSuccessGlow .8s ease 2 !important;box-shadow:inset 2px 2px 4px rgba(255,255,255,.8),inset -4px -5px 8px rgba(0,0,0,.26),0 0 26px rgba(94,227,154,.92),0 8px 12px rgba(0,0,0,.42)}
 .diceDock.lcFail .die{animation:lcFailGlow .8s ease 2 !important;box-shadow:inset 2px 2px 4px rgba(255,255,255,.8),inset -4px -5px 8px rgba(0,0,0,.26),0 0 26px rgba(255,119,106,.92),0 8px 12px rgba(0,0,0,.42)}
 @keyframes lcSuccessGlow{0%,100%{filter:brightness(1)}45%{filter:brightness(1.55) drop-shadow(0 0 12px rgba(94,227,154,.9))}}@keyframes lcFailGlow{0%,100%{filter:brightness(1)}45%{filter:brightness(1.45) drop-shadow(0 0 12px rgba(255,119,106,.9))}}
 @media (max-width:900px){.boardWrap{margin-left:clamp(50px,8.6vw,82px) !important}.offTray,.pipCounter{left:calc(-1 * (clamp(48px,5.7vw,78px) + 12px)) !important}}
-@media (max-width:700px){.reactionBubble{max-width:125px;padding:6px 8px;font-size:10px}.reactionBubble.white{left:calc(50% + 58px)}.reactionBubble.black{right:calc(50% + 58px)}.victoryBanner{min-width:78%;font-size:24px;padding:18px}}
+@media (max-width:700px){.reactionBubble{max-width:125px;padding:6px 8px;font-size:10px}.reactionBubble.white{left:calc(50% + 58px)}.reactionBubble.black{right:calc(50% + 58px)}.victoryBanner{min-width:78%;font-size:24px;padding:18px}.matchResultSummaryValue{max-width:150px}}
 @media (max-width:540px){.boardWrap{margin-left:50px !important}.offTray{left:-48px !important}.pipCounter{left:-48px !important;width:42px !important;height:30px !important;font-size:16px !important}.pipCounter.black{top:calc(78px + clamp(22px,3vw,38px) + 6px) !important}.pipCounter.white{bottom:calc(78px + clamp(22px,3vw,38px) + 6px) !important}.reactions{grid-template-columns:1fr !important}}
 
 
@@ -695,9 +696,10 @@ import { createAnimationHelpers } from "./src/ui/animations.js";
 import { createRenderHelpers } from "./src/ui/render.js";
 import { createLobbyHelpers } from "./src/ui/lobby.js";
 import { getProfileChipTone, getProfileStatusText, resolveProfileDisplayName } from "./src/ui/profileStatus.js";
+import { getMatchResultSummaryRows } from "./src/ui/matchResultSummary.js";
 import { startAnonymousAuth } from "./src/firebase/auth.js";
 import { syncPlayerProfile } from "./src/firebase/profile.js";
-import { recordGameEndMatchResult } from "./src/product/matchResultSession.js";
+import { getLastMatchResult, recordGameEndMatchResult } from "./src/product/matchResultSession.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
 import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
 import { getDatabase, ref, set, get, update, onValue, off } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-database.js";
@@ -828,7 +830,7 @@ const {
   showRemoteLastChanceRolling,
   showLastChanceResult,
   showReaction,
-}=createAnimationHelpers({els,state,die,setDice,showMessage,actorName,actorForColor,actorColor,localActor,otherActor,defaultColor:WHITE});
+}=createAnimationHelpers({els,state,die,setDice,showMessage,actorName,actorForColor,actorColor,localActor,otherActor,defaultColor:WHITE,getVictorySummaryRows:()=>{const result=getLastMatchResult();return result?.matchId===state.victoryId?getMatchResultSummaryRows(result):[];}});
 function refreshSoundToggle(){if(!els.soundToggleBtn)return;const muted=isSoundMuted();els.soundToggleBtn.textContent=muted?'🔇 מושתק':'🔊 צליל';els.soundToggleBtn.setAttribute('aria-pressed',muted?'true':'false');}
 function toggleSound(){const muted=toggleSoundMuted();if(!muted)preloadRollSounds();refreshSoundToggle();}
 function setInitialBoard(){
