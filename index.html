@@ -47,6 +47,13 @@ button,select,input{font-family:inherit}
 .boardWrap{width:min(100%, calc((100vh - 102px) * 1.68));max-width:1060px;min-width:320px;aspect-ratio:16/9;position:relative;filter:drop-shadow(0 18px 25px rgba(0,0,0,.45));transform:translateZ(0)}
 .board{position:absolute;inset:0;border-radius:26px;background:linear-gradient(135deg,#71401f,#261209 50%,#8b542b);padding:clamp(9px,1.25vw,18px);box-shadow:inset 0 0 0 4px rgba(255,220,145,.19),inset 0 0 0 12px rgba(32,14,7,.7),0 18px 40px rgba(0,0,0,.55);overflow:hidden}
 .board:before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,rgba(255,255,255,.035) 0 2px,rgba(0,0,0,.035) 2px 9px),radial-gradient(circle at 20% 10%,rgba(255,229,166,.16),transparent 22%),radial-gradient(circle at 80% 90%,rgba(255,229,166,.09),transparent 26%);mix-blend-mode:screen;pointer-events:none}
+.threeBoardCanvas{position:absolute;inset:0;width:100%;height:100%;z-index:2;border-radius:24px;pointer-events:none;display:block}
+.board.threeBoardEnabled{background:linear-gradient(135deg,#5b3219,#160b07 52%,#6f3f20)}
+.board.threeBoardEnabled .boardInner{z-index:3;background:transparent;box-shadow:none}
+.board.threeBoardEnabled .point:before{opacity:0}
+.board.threeBoardEnabled .pointLabel{color:rgba(255,235,195,.58)}
+.board.threeBoardEnabled .barArea{background:transparent;box-shadow:none}
+.board.threeBoardEnabled .barArea:before{opacity:0}
 .boardInner{position:relative;z-index:1;width:100%;height:100%;display:grid;grid-template-columns:repeat(6,1fr) .5fr repeat(6,1fr);grid-template-rows:1fr .16fr 1fr;gap:clamp(3px,.55vw,8px);border-radius:18px;background:linear-gradient(90deg,rgba(34,19,11,.5),rgba(255,255,255,.035),rgba(34,19,11,.5));padding:clamp(7px,.9vw,13px);box-shadow:inset 0 0 30px rgba(0,0,0,.42)}
 .point{position:relative;min-width:0;min-height:0;border-radius:10px;cursor:pointer;overflow:visible;display:flex;justify-content:center;isolation:isolate}
 .point:before{content:"";position:absolute;left:5%;right:5%;height:93%;z-index:0;filter:drop-shadow(0 4px 4px rgba(0,0,0,.28));opacity:.97}
@@ -669,6 +676,7 @@ import { addLog as addLogMessage, computerMoveText, escapeHtml, isImportantCompu
 import { createAnimationHelpers } from "./src/ui/animations.js";
 import { createRenderHelpers } from "./src/ui/render.js";
 import { createLobbyHelpers } from "./src/ui/lobby.js";
+import { initThreeBoardPrototype } from "./src/ui/threeBoardPrototype.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
 import { getDatabase, ref, set, get, update, onValue, off } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-database.js";
 const firebaseConfig = {
@@ -1300,7 +1308,7 @@ function setupEvents(){
   document.querySelectorAll('.reactBtn').forEach(b=>b.addEventListener('click',()=>sendReaction(b.dataset.text)));
 }
 
-function init(){buildBoard();initChanceSelectors();setupEvents();refreshSoundToggle();resetForNewGame();}
+function init(){buildBoard();initThreeBoardPrototype({boardEl:els.board});initChanceSelectors();setupEvents();refreshSoundToggle();resetForNewGame();}
 init();
 })();
 </script>
