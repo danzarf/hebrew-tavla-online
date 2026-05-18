@@ -5,9 +5,25 @@ export const AVATAR_PREFERENCE_OPTIONS = Object.freeze([
   Object.freeze({ value: 'dice', label: '🎲' }),
   Object.freeze({ value: 'trophy', label: '🏆' }),
   Object.freeze({ value: 'star', label: '⭐' }),
+  Object.freeze({ value: 'crown', label: '👑' }),
   Object.freeze({ value: 'evil-eye', label: '🧿' }),
   Object.freeze({ value: 'wolf', label: '🐺' }),
+  Object.freeze({ value: 'fox', label: '🦊' }),
+  Object.freeze({ value: 'lion', label: '🦁' }),
+  Object.freeze({ value: 'dragon', label: '🐉' }),
+  Object.freeze({ value: 'fire', label: '🔥' }),
+  Object.freeze({ value: 'swords', label: '⚔️' }),
+  Object.freeze({ value: 'shield', label: '🛡️' }),
+  Object.freeze({ value: 'gem', label: '💎' }),
+  Object.freeze({ value: 'hamsa', label: '🪬' }),
+  Object.freeze({ value: 'joystick', label: '🕹️' }),
+  Object.freeze({ value: 'target', label: '🎯' }),
+  Object.freeze({ value: 'cards', label: '🃏' }),
+  Object.freeze({ value: 'bow', label: '🏹' }),
+  Object.freeze({ value: 'snake', label: '🐍' }),
+  Object.freeze({ value: 'eagle', label: '🦅' }),
 ]);
+export const RECOMMENDED_AVATAR_PREFERENCE_COUNT = 8;
 export const SAFE_PROFILE_FIELDS = Object.freeze([
   'uid',
   'displayName',
@@ -128,5 +144,38 @@ export async function syncPlayerProfile({
   } catch (error) {
     logger?.warn?.('Player profile sync failed; continuing with guest/local gameplay fallback.', error);
     return { skipped: true, reason: 'write-failed', error };
+  }
+}
+
+export async function getPlayerProfile({
+  database,
+  ref,
+  get,
+  uid,
+  logger = console,
+} = {}) {
+  if (!uid) return { skipped: true, reason: 'missing-uid', profile: null };
+
+  try {
+    const currentRef = profileRef(database, ref, uid);
+    if (!currentRef || !get) {
+      return { skipped: true, reason: 'missing-database-dependency', profile: null };
+    }
+
+    const snapshot = await get(currentRef);
+    if (!snapshot?.exists?.()) return { skipped: false, profile: null };
+
+    const rawProfile = snapshot.val() || {};
+    return {
+      skipped: false,
+      profile: {
+        displayName: sanitizeDisplayName(rawProfile.displayName),
+        avatarPreference: sanitizeAvatarPreference(rawProfile.avatarPreference),
+        isAnonymous: rawProfile.isAnonymous !== false,
+      },
+    };
+  } catch (error) {
+    logger?.warn?.('Player profile load failed; continuing with guest/local gameplay fallback.', error);
+    return { skipped: true, reason: 'read-failed', error, profile: null };
   }
 }

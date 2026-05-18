@@ -21,7 +21,8 @@ test('start home shows a clear guest account state and enabled Google linking wh
   assert.equal(view.guestButtonText, 'המשך כאורח');
   assert.equal(view.googleButtonText, 'חבר חשבון Google');
   assert.equal(view.googleButtonDisabled, false);
-  assert.match(view.saveSummary, /כאורח/);
+  assert.equal(view.shouldSkipAccountChoice, false);
+  assert.match(view.accountSummary, /כאורח/);
 });
 
 test('start home shows connected Google state without a confusing connect action', () => {
@@ -32,11 +33,12 @@ test('start home shows connected Google state without a confusing connect action
     canTryGoogleLink: false,
   });
 
-  assert.equal(view.guestButtonText, 'המשך למשחק');
+  assert.equal(view.guestButtonText, 'המשך כאורח');
   assert.equal(view.googleButtonText, 'חשבון Google מחובר');
   assert.equal(view.googleButtonDisabled, true);
   assert.equal(view.showConnectedBadge, true);
-  assert.match(view.saveSummary, /מחובר ל-Google/);
+  assert.equal(view.shouldSkipAccountChoice, true);
+  assert.match(view.accountSummary, /Google מחובר/);
 });
 
 test('start home progression note stays coming-soon only', () => {
