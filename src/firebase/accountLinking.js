@@ -56,11 +56,19 @@ export async function linkGuestToGoogle({
     return { ok: true, alreadyLinked: true, user, message: ALREADY_LINKED_MESSAGE };
   }
 
-  if (!canLinkGuestToGoogle({ auth, user }) || !GoogleAuthProvider || !linkWithPopup) {
+  if (!auth || !GoogleAuthProvider || !linkWithPopup) {
     return {
       ok: false,
       reason: 'unavailable',
-      message: 'שמירת חשבון Google תהיה זמינה בקרוב. בינתיים אפשר להמשיך כאורח.',
+      message: 'חיבור Google לא זמין כרגע. אפשר להמשיך כאורח ולנסות שוב אחר כך.',
+    };
+  }
+
+  if (!canLinkGuestToGoogle({ auth, user })) {
+    return {
+      ok: false,
+      reason: 'auth-not-ready',
+      message: 'עדיין לא הצלחנו להכין את חשבון האורח לחיבור Google. אפשר להמשיך כאורח ולנסות שוב אחר כך.',
     };
   }
 
