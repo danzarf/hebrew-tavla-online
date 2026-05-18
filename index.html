@@ -136,7 +136,15 @@ button,select,input{font-family:inherit}
 .logCard{flex:1;min-height:120px;overflow:hidden;display:flex;flex-direction:column}.log{flex:1;overflow:auto;border-radius:12px;background:rgba(0,0,0,.18);padding:8px;font-size:13px;line-height:1.38}.logItem{padding:6px 7px;margin-bottom:5px;border-radius:10px;background:rgba(255,255,255,.055);border-right:3px solid rgba(246,199,108,.55)}.logItem.special{border-right-color:var(--green);background:rgba(94,227,154,.09)}.logItem.danger{border-right-color:var(--danger);background:rgba(255,119,106,.08)}
 .modalOverlay{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.72);display:none;align-items:center;justify-content:center;padding:18px;backdrop-filter:blur(4px)}.modalOverlay.show{display:flex}.modal{width:min(520px,100%);background:linear-gradient(180deg,#422516,#1c0d08);border:1px solid rgba(255,231,176,.28);border-radius:24px;box-shadow:0 30px 80px rgba(0,0,0,.75),inset 0 1px 0 rgba(255,255,255,.08);padding:22px;text-align:center}.modal h2{margin:0 0 10px;color:#fff;font-size:26px}.modal p{color:#ffe7b0;line-height:1.45}.welcomeStep,.gameSetupStep{display:grid;gap:12px}.welcomeStep[hidden],.gameSetupStep[hidden]{display:none !important}.welcomeActions{display:grid;grid-template-columns:1fr 1fr;gap:10px}.welcomeGuestBtn,.welcomeGoogleBtn{width:100%;min-height:44px}.welcomeMessage{min-height:18px;margin:0;font-size:12px;color:rgba(255,231,176,.78)}.welcomeMessage.success{color:#9ff0bf}.welcomeMessage.warning{color:#ffd58b}.welcomeSetupNote{margin:0;font-size:12px;color:rgba(255,231,176,.72)}@media (max-width:520px){.welcomeActions{grid-template-columns:1fr}}.formRow{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}.field{display:flex;flex-direction:column;gap:5px;text-align:right}.field label{font-size:13px;font-weight:900;color:#ffe7b0}.field select,.field input{border:1px solid rgba(255,231,176,.25);background:#160905;color:#fff;border-radius:12px;padding:10px;font-weight:800}.doubleButtons{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:16px}.doubleButtons button{font-size:18px;padding:12px}.lastChancePick{display:flex;gap:12px;justify-content:center;margin:16px 0}.lastChancePick select{width:90px;text-align:center;font-size:20px;border:1px solid rgba(255,231,176,.25);background:#160905;color:#fff;border-radius:12px;padding:10px;font-weight:900}.floatingPiece{position:fixed;z-index:500;width:var(--checker);height:var(--checker);border-radius:50%;pointer-events:none;transition:transform .46s cubic-bezier(.18,.84,.26,1),opacity .18s;box-shadow:inset 0 3px 4px rgba(255,255,255,.48),inset 0 -5px 7px rgba(0,0,0,.35),0 14px 22px rgba(0,0,0,.5)}.floatingPiece.white{background:radial-gradient(circle at 35% 25%,#fff 0%,#f0dfc2 45%,#c0a277 100%)}.floatingPiece.black{background:radial-gradient(circle at 35% 25%,#5d5962 0%,#222027 48%,#050506 100%)}.hitFlash{animation:hit .48s ease}@keyframes hit{0%{filter:brightness(1)}35%{filter:brightness(2) drop-shadow(0 0 12px #ff776a)}100%{filter:brightness(1)}}.swapPulse{animation:swapPulse 1.1s ease}@keyframes swapPulse{0%{filter:hue-rotate(0deg) brightness(1)}40%{filter:hue-rotate(120deg) brightness(1.35)}100%{filter:hue-rotate(0deg) brightness(1)}}
 
-
+/* Start/Home Flow v2: compact two-step account and play flow. */
+.modal.homeModal{width:min(500px,100%);padding:clamp(14px,2vw,20px);text-align:center}
+.homeShell{display:grid;gap:12px}
+.homeHero{display:grid;gap:5px}.homeHero h2,.gameSetupStep h2{margin:0;color:#fff;font-size:clamp(23px,3.2vw,30px);text-shadow:0 2px 8px rgba(0,0,0,.55)}
+.homeHero p,.gameSetupStep>p{margin:0;color:#ffe7b0;line-height:1.35;font-size:13px}.homeAccountMini{display:flex;align-items:center;justify-content:center;gap:8px;min-height:32px;font-size:12px;color:rgba(255,231,176,.80)}
+.homeAccountMiniAvatar{width:28px;height:28px;border-radius:999px;display:grid;place-items:center;background:linear-gradient(180deg,#ffe7a8,#b9792c);box-shadow:inset 0 1px 0 rgba(255,255,255,.28)}.homeStatusBadge{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:4px 8px;background:rgba(0,0,0,.18);border:1px solid rgba(255,231,176,.15);font-weight:900;color:#ffeec5}.homeStatusBadge.connected{color:#9ff0bf;border-color:rgba(94,227,154,.35);background:rgba(94,227,154,.11)}
+.welcomeActions{grid-template-columns:1fr 1fr;align-items:stretch;margin-top:2px}.welcomeGuestBtn,.welcomeGoogleBtn{min-height:42px}.welcomeGoogleBtn.connected{border-color:rgba(94,227,154,.42);color:#9ff0bf}.welcomeMessage,.welcomeSetupNote{min-height:14px}.guestNameStep{display:grid;gap:10px}.guestNameStep[hidden],.welcomeStep[hidden],.gameSetupStep[hidden]{display:none !important}.guestNameActions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.guestNameActions .btn{min-height:40px}
+.gameSetupStep{gap:10px}.gameSetupStep .modeGrid{grid-template-columns:1fr 1fr;gap:8px;margin:4px 0}.choiceBtn{min-height:46px;padding:11px}.startRulesBtn{justify-self:center;min-height:32px;padding:7px 12px;border-radius:999px;font-size:12px}.startRulesBtn.active{background:rgba(255,255,255,.10);border-color:rgba(255,231,176,.25);color:#ffe7b0}.startProfileAction{width:100%;min-height:40px}.homeProgressNote{margin:0;text-align:center;font-size:12px;color:rgba(255,231,176,.68);line-height:1.3}.profilePanel{z-index:260}.profileAvatarMoreBtn{width:auto;min-width:56px}.profileAvatarChoices.expanded{max-height:118px;overflow:auto;padding-inline-end:2px}.rollModeToggleBtn{font-size:12px}.collapsibleCard.collapsed{flex:0 0 auto !important;min-height:0 !important;padding:0 !important;border:0;background:transparent;box-shadow:none}.collapsibleCard.collapsed .collapsibleBody{display:none !important}.collapsibleHeader{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:7px}.collapsibleHeader h3{margin:0 !important}.collapsibleCard.collapsed .collapsibleHeader{margin:0}.collapsibleCard.collapsed .collapsibleHeader h3{display:none}.panelToggleBtn{min-height:32px;padding:6px 10px !important;border-radius:999px;font-size:12px !important;white-space:nowrap}
+@media (max-width:540px){.modal.homeModal{max-height:calc(100dvh - 24px);overflow:auto}.welcomeActions,.guestNameActions,.gameSetupStep .modeGrid{grid-template-columns:1fr}.formRow{grid-template-columns:1fr}.startProfileAction{width:100%}.startRulesBtn{justify-self:stretch}}
 /* Premium visual package: board, checkers, dice and roll feedback only. */
 .boardWrap{filter:drop-shadow(0 22px 34px rgba(0,0,0,.54)) drop-shadow(0 0 22px rgba(246,199,108,.08))}
 .board{background:linear-gradient(135deg,#8a552c 0%,#4a2614 24%,#1b0d08 52%,#6f3d20 74%,#a66b36 100%);box-shadow:inset 0 0 0 2px rgba(255,236,181,.30),inset 0 0 0 10px rgba(40,17,8,.82),inset 0 18px 42px rgba(255,229,166,.08),inset 0 -22px 44px rgba(0,0,0,.38),0 24px 54px rgba(0,0,0,.62)}
@@ -515,12 +523,10 @@ body{
     max-height:46dvh;
   }
   .controls .btn{min-height:32px !important}
-  .rulesQuickCard{display:none}
   .logCard{min-height:76px !important;flex-basis:76px !important}
 }
 
 @media (max-height:520px){
-  .rulesQuickCard{display:none}
   .chatCard{display:none !important}
   .boardWrap{max-height:62dvh}
 }
@@ -621,6 +627,7 @@ body{
           <button id="endBtn" class="btn">סיים תור</button>
           <button id="newBtn2" class="btn dark">משחק חדש</button>
           <button id="soundToggleBtn" class="btn dark" type="button" aria-pressed="false">🔊 צליל</button>
+          <button id="rollModeToggleBtn" class="btn dark rollModeToggleBtn" type="button" aria-pressed="false">גלגול ידני</button>
         </div>
       </div>
       <div class="card chatCard" id="reactionCard">
@@ -634,9 +641,12 @@ body{
           <button class="btn dark reactBtn" data-text="האלגוריתם בטוח דוד שלך 🤔">האלגוריתם בטוח דוד שלך 🤔</button>
         </div>
       </div>
-      <div class="card rulesQuickCard">
-        <h3>חוקים מיוחדים</h3>
-        <div class="quickRules">
+      <div id="rulesQuickCard" class="card rulesQuickCard collapsibleCard collapsed">
+        <div class="collapsibleHeader">
+          <h3>חוקים מיוחדים</h3>
+          <button id="rulesPanelToggle" class="btn dark panelToggleBtn" type="button" aria-expanded="false" aria-controls="rulesQuickBody">📜 חוקים</button>
+        </div>
+        <div id="rulesQuickBody" class="collapsibleBody quickRules">
           <div class="quickRule"><span>1–2</span><b>מפסידים תור</b></div>
           <div class="quickRule"><span>דאבל</span><b>4 מהלכים + עוד תור</b></div>
           <div class="quickRule"><span>3 דאבלים</span><b>מחליפים צדדים</b></div>
@@ -653,99 +663,105 @@ body{
           <div id="countdownInfo" style="display:none"><span id="countdownText">—</span></div>
         </div>
       </div>
-      <div class="card logCard">
-        <h3>לוג מהלכים</h3>
-        <div id="log" class="log"></div>
+      <div id="logCard" class="card logCard collapsibleCard collapsed">
+        <div class="collapsibleHeader">
+          <h3>לוג מהלכים</h3>
+          <button id="logPanelToggle" class="btn dark panelToggleBtn" type="button" aria-expanded="false" aria-controls="log">מהלכים</button>
+        </div>
+        <div id="log" class="log collapsibleBody"></div>
       </div>
     </aside>
   </main>
 </div>
 
 <div id="startModal" class="modalOverlay show">
-  <div class="modal">
-    <section id="welcomeStep" class="welcomeStep" aria-label="כניסה למשחק">
-      <h2>ששבש טורקי</h2>
-      <p>אפשר לשחק כאורח או לשמור את פרופיל האורח עם חשבון Google.</p>
-      <div class="welcomeActions">
-        <button id="welcomeGuestBtn" class="btn welcomeGuestBtn" type="button">המשך כאורח</button>
-        <button id="welcomeGoogleBtn" class="btn dark welcomeGoogleBtn" type="button">חבר חשבון Google</button>
-      </div>
-      <p id="welcomeMessage" class="welcomeMessage" aria-live="polite"></p>
-      <p id="welcomeSetupNote" class="welcomeSetupNote">אם החיבור נכשל, אפשר להמשיך כאורח.</p>
-    </section>
-    <section id="gameSetupStep" class="gameSetupStep" aria-label="בחירת משחק" hidden>
-    <h2>משחק חדש</h2>
-    <p>בחר איך לשחק. אין מטבעות ואין הרשמה חובה — אפשר להמשיך כאורח.</p>
-    <div class="modeGrid">
-      <button id="modeComputerBtn" class="choiceBtn active">🤖 לשחק מול מחשב</button>
-      <button id="modeFriendBtn" class="choiceBtn">👥 לשחק מול חבר</button>
-      <button id="modeRulesBtn" class="choiceBtn">📜 חוקים</button>
+  <div class="modal homeModal">
+    <div class="homeShell">
+      <section id="welcomeStep" class="welcomeStep" aria-label="בחירת חשבון">
+        <div class="homeHero">
+          <h2 id="homeTitle">ששבש טורקי</h2>
+          <p>היכנס כאורח או שמור את הפרופיל עם Google.</p>
+        </div>
+        <div class="homeAccountMini" aria-live="polite">
+          <span id="homeAccountAvatar" class="homeAccountMiniAvatar" aria-hidden="true">👤</span>
+          <span id="homeAccountName">אורח</span>
+          <span id="homeAccountBadge" class="homeStatusBadge">מתחבר כאורח</span>
+        </div>
+        <p id="homeAccountStatus" class="welcomeSetupNote">מכינים פרופיל אורח</p>
+        <div class="welcomeActions">
+          <button id="welcomeGuestBtn" class="btn welcomeGuestBtn" type="button">המשך כאורח</button>
+          <button id="welcomeGoogleBtn" class="btn dark welcomeGoogleBtn" type="button">חבר חשבון Google</button>
+        </div>
+        <p id="welcomeMessage" class="welcomeMessage" aria-live="polite"></p>
+        <p id="welcomeSetupNote" class="welcomeSetupNote">אם החיבור נכשל, אפשר להמשיך כאורח.</p>
+      </section>
+
+      <section id="guestNameStep" class="guestNameStep" aria-label="שם אורח" hidden>
+        <div class="homeHero">
+          <h2>איך לקרוא לך?</h2>
+          <p>שם קצר שיופיע במשחק. אפשר להשאיר ריק ולהמשיך כאורח.</p>
+        </div>
+        <div class="field">
+          <label for="guestNameInput">שם אורח</label>
+          <input id="guestNameInput" placeholder="למשל: דנה" maxlength="18" autocomplete="nickname" inputmode="text">
+        </div>
+        <div class="guestNameActions">
+          <button id="guestNameContinueBtn" class="btn" type="button">המשך</button>
+          <button id="guestNameBackBtn" class="btn dark" type="button">חזרה</button>
+        </div>
+      </section>
+
+      <section id="gameSetupStep" class="gameSetupStep" aria-label="בחירת משחק" hidden>
+        <h2>בחר משחק</h2>
+        <p id="homeSaveSummary">אפשר להתחיל מיד.</p>
+        <div class="modeGrid">
+          <button id="modeComputerBtn" class="choiceBtn active">🤖 שחק מול מחשב</button>
+          <button id="modeFriendBtn" class="choiceBtn">👥 שחק מול חבר</button>
+        </div>
+        <button id="modeRulesBtn" class="choiceBtn startRulesBtn">📜 חוקים</button>
+        <button id="homeProfileBtn" class="btn dark startProfileAction" type="button">הפרופיל שלי</button>
+        <div id="computerPanel" class="subPanel show">
+          <div class="formRow">
+            <div class="field">
+              <label for="difficultySelect">רמת קושי</label>
+              <select id="difficultySelect">
+                <option value="easy">קל</option>
+                <option value="medium" selected>בינוני</option>
+                <option value="hard">קשה</option>
+              </select>
+            </div>
+          </div>
+          <button id="startBtn" class="btn" style="font-size:18px;padding:12px 24px">שחק מול מחשב</button>
+        </div>
+        <div id="onlinePanel" class="subPanel">
+          <div class="formRow">
+            <button id="createRoomBtn" class="btn">פתח חדר</button>
+            <div class="field">
+              <label for="joinCodeInput">קוד חדר</label>
+              <input id="joinCodeInput" inputmode="numeric" maxlength="4" placeholder="1234" dir="ltr">
+            </div>
+          </div>
+          <button id="joinRoomBtn" class="btn dark" style="width:100%">הצטרף לחדר</button>
+          <input id="playerNameInput" type="hidden">
+          <div id="roomLobby" class="roomBox" style="display:none">
+            <div class="onlineHint">שלח לחבר את קוד החדר:</div>
+            <div id="roomCodeDisplay" class="roomCode">----</div>
+            <div id="roomPlayers"></div>
+            <button id="readyBtn" class="btn" style="width:100%;margin-top:8px">✅ אני מוכן</button>
+            <div id="roomStatusText" class="onlineHint" style="margin-top:8px">מחכים לשחקן נוסף...</div>
+          </div>
+        </div>
+        <div id="rulesPanel" class="subPanel">
+          <div class="rulesIntro">החוקים הטורקיים מוסיפים מזל ומהפכים — בלי לשנות את הלוח הירוק.</div>
+          <div class="rulesLongList">
+            <div class="ruleLong"><span>1</span><div><b>1–2 — מפסידים תור</b><p>אם יוצא 1–2 או 2–1, לא מזיזים כלום והתור עובר ליריב.</p></div></div>
+            <div class="ruleLong"><span>2</span><div><b>דאבל רגיל</b><p>דאבל אמיתי נותן ארבעה מהלכים ועוד תור.</p></div></div>
+            <div class="ruleLong"><span>3</span><div><b>ירושלמי</b><p>בסוף המשחק יש הזדמנות אחרונה לגנוב ניצחון.</p></div></div>
+          </div>
+        </div>
+        <p id="homeProgressNote" class="homeProgressNote">סטטיסטיקות, רמות ומטבעות יתווספו בהמשך.</p>
+      </section>
     </div>
-    <div id="computerPanel" class="subPanel show">
-      <div class="formRow">
-        <div class="field">
-          <label for="difficultySelect">רמת קושי</label>
-          <select id="difficultySelect">
-            <option value="easy">קל</option>
-            <option value="medium" selected>בינוני</option>
-            <option value="hard">קשה</option>
-          </select>
-        </div>
-        <div class="field">
-          <label for="diceModeSelect">מצב גלגול</label>
-          <select id="diceModeSelect">
-            <option value="auto">גלגול אוטומטי</option>
-            <option value="manual" selected>גלגול ידני</option>
-          </select>
-        </div>
-      </div>
-      <button id="startBtn" class="btn" style="font-size:18px;padding:12px 24px">התחל מול מחשב</button>
-    </div>
-    <div id="onlinePanel" class="subPanel">
-      <div class="formRow">
-        <div class="field">
-          <label for="playerNameInput">שם שחקן</label>
-          <input id="playerNameInput" placeholder="אם ריק: אורח" maxlength="18">
-        </div>
-        <div class="field">
-          <label for="onlineDiceModeSelect">מצב גלגול</label>
-          <select id="onlineDiceModeSelect">
-            <option value="manual" selected>גלגול ידני</option>
-            <option value="auto">גלגול אוטומטי</option>
-          </select>
-        </div>
-      </div>
-      <div class="formRow">
-        <button id="createRoomBtn" class="btn">פתח חדר</button>
-        <div class="field">
-          <label for="joinCodeInput">קוד חדר</label>
-          <input id="joinCodeInput" inputmode="numeric" maxlength="4" placeholder="1234" dir="ltr">
-        </div>
-      </div>
-      <button id="joinRoomBtn" class="btn dark" style="width:100%">הצטרף לחדר</button>
-      <div id="roomLobby" class="roomBox" style="display:none">
-        <div class="onlineHint">שלח לחבר את קוד החדר:</div>
-        <div id="roomCodeDisplay" class="roomCode">----</div>
-        <div id="roomPlayers"></div>
-        <button id="readyBtn" class="btn" style="width:100%;margin-top:8px">✅ אני מוכן</button>
-        <div id="roomStatusText" class="onlineHint" style="margin-top:8px">מחכים לשחקן נוסף...</div>
-      </div>
-    </div>
-    <div id="rulesPanel" class="subPanel">
-      <div class="rulesIntro">
-        זה כמו ששבש רגיל, רק עם כמה חוקים טורקיים שמוסיפים בלגן, מזל ומהפכים.
-        אי אפשר לדעת מי באמת מנצח עד הקובייה האחרונה.
-      </div>
-      <div class="rulesLongList">
-        <div class="ruleLong"><span>1</span><div><b>1–2 — מפסידים תור</b><p>אם יוצא 1–2 או 2–1, לא מזיזים כלום והתור עובר ליריב.</p><em>דוגמה: יצא 2–1 → נגמר התור.</em></div></div>
-        <div class="ruleLong"><span>2</span><div><b>דאבל רגיל — 4 מהלכים + עוד תור</b><p>דאבל אמיתי כמו 3–3 או 6–6 נותן 4 מהלכים, ואחריהם עוד תור מלא.</p><em>דוגמה: 4–4 → ארבעה צעדים של 4 ואז מגלגלים שוב.</em></div></div>
-        <div class="ruleLong"><span>3</span><div><b>3 דאבלים ברצף — מחליפים צדדים</b><p>אם אותו שחקן מוציא 3 דאבלים רצוף, השליטה בצדדים מתחלפת.</p><em>דוגמה: היית שחור? עכשיו אתה משחק את הלבן.</em></div></div>
-        <div class="ruleLong"><span>4</span><div><b>4–5 — בוחרים דאבל</b><p>אם יוצא 4–5 או 5–4, בוחרים איזה דאבל לשחק מ־1–1 עד 6–6.</p><em>חשוב: הדאבל הנבחר לא נותן עוד תור.</em></div></div>
-        <div class="ruleLong"><span>5</span><div><b>5–6 — שני מהלכים חופשיים</b><p>מקבלים 2 מהלכים לכל מקום חוקי, קדימה או אחורה, עם אותה אבן או שתי אבנים.</p><em>אם יש אבן אכולה — קודם מכניסים אותה כרגיל.</em></div></div>
-        <div class="ruleLong"><span>6</span><div><b>ירושלמי — הזדמנות אחרונה</b><p>בסוף המשחק המפסיד בוחר 2 מספרים, והמנצח זורק קוביות.</p><em>אם יצא בדיוק מה שהמפסיד בחר — המפסיד גונב ניצחון.</em></div></div>
-      </div>
-    </div>
-    </section>
   </div>
 </div>
 
@@ -787,10 +803,11 @@ import { createRenderHelpers } from "./src/ui/render.js";
 import { createLobbyHelpers } from "./src/ui/lobby.js";
 import { getProfileChipTone } from "./src/ui/profileStatus.js";
 import { buildProfilePanelViewModel, buildSafeProfileEditView } from "./src/ui/profilePanel.js";
+import { buildStartHomeViewModel } from "./src/ui/startScreen.js";
 import { getMatchResultSummaryRows } from "./src/ui/matchResultSummary.js";
 import { startAnonymousAuth } from "./src/firebase/auth.js";
 import { linkGuestToGoogle } from "./src/firebase/accountLinking.js";
-import { DEFAULT_AVATAR_PREFERENCE, syncPlayerProfile } from "./src/firebase/profile.js";
+import { DEFAULT_AVATAR_PREFERENCE, getPlayerProfile, syncPlayerProfile } from "./src/firebase/profile.js";
 import { getLastMatchResult, recordGameEndMatchResult } from "./src/product/matchResultSession.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
 import { getAuth, signInAnonymously, onAuthStateChanged, GoogleAuthProvider, linkWithPopup } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
@@ -821,17 +838,17 @@ const authSession = startAnonymousAuth({
 const $=sel=>document.querySelector(sel);
 const els={
   board:$('#board'),inner:$('#boardInner'),bar:$('#barArea'),diceDock:$('#diceDock'),die1:$('#die1'),die2:$('#die2'),msg:$('#boardMessage'),
-  rollBtn:$('#rollBtn'),undoBtn:$('#undoBtn'),endBtn:$('#endBtn'),newBtn:$('#newBtn'),newBtn2:$('#newBtn2'),soundToggleBtn:$('#soundToggleBtn'),welcomeStep:$('#welcomeStep'),gameSetupStep:$('#gameSetupStep'),welcomeGuestBtn:$('#welcomeGuestBtn'),welcomeGoogleBtn:$('#welcomeGoogleBtn'),welcomeMessage:$('#welcomeMessage'),welcomeSetupNote:$('#welcomeSetupNote'),
+  rollBtn:$('#rollBtn'),undoBtn:$('#undoBtn'),endBtn:$('#endBtn'),newBtn:$('#newBtn'),newBtn2:$('#newBtn2'),soundToggleBtn:$('#soundToggleBtn'),rollModeToggleBtn:$('#rollModeToggleBtn'),welcomeStep:$('#welcomeStep'),guestNameStep:$('#guestNameStep'),gameSetupStep:$('#gameSetupStep'),welcomeGuestBtn:$('#welcomeGuestBtn'),welcomeGoogleBtn:$('#welcomeGoogleBtn'),welcomeMessage:$('#welcomeMessage'),welcomeSetupNote:$('#welcomeSetupNote'),homeTitle:$('#homeTitle'),homeAccountAvatar:$('#homeAccountAvatar'),homeAccountName:$('#homeAccountName'),homeAccountBadge:$('#homeAccountBadge'),homeAccountStatus:$('#homeAccountStatus'),homeSaveSummary:$('#homeSaveSummary'),homeProfileBtn:$('#homeProfileBtn'),homeProgressNote:$('#homeProgressNote'),guestNameInput:$('#guestNameInput'),guestNameContinueBtn:$('#guestNameContinueBtn'),guestNameBackBtn:$('#guestNameBackBtn'),
   turnPill:$('#turnPill'),colorPill:$('#colorPill'),dicePill:$('#dicePill'),specialPill:$('#specialPill'),profileChip:$('#profileChip'),profileChipAvatar:$('#profileChipAvatar'),profileChipName:$('#profileChipName'),profileChipStatus:$('#profileChipStatus'),
   profilePanel:$('#profilePanel'),profilePanelAvatar:$('#profilePanelAvatar'),profilePanelName:$('#profilePanelName'),profilePanelStatus:$('#profilePanelStatus'),profilePanelNote:$('#profilePanelNote'),profilePanelUpgradeTitle:$('#profilePanelUpgradeTitle'),profilePanelUpgradeBody:$('#profilePanelUpgradeBody'),profilePanelGoogleBtn:$('#profilePanelGoogleBtn'),profilePanelLinkMessage:$('#profilePanelLinkMessage'),profilePanelUpgradeNote:$('#profilePanelUpgradeNote'),profilePanelStats:$('#profilePanelStats'),profilePanelPlaceholderNote:$('#profilePanelPlaceholderNote'),profilePanelForm:$('#profilePanelForm'),profileDisplayNameInput:$('#profileDisplayNameInput'),profileAvatarChoices:$('#profileAvatarChoices'),profilePanelSaveBtn:$('#profilePanelSaveBtn'),profilePanelSaveMessage:$('#profilePanelSaveMessage'),profilePanelCloseBtn:$('#profilePanelCloseBtn'),profilePanelCloseAction:$('#profilePanelCloseAction'),
   difficultyInfo:$('#difficultyInfo'),modeInfo:$('#modeInfo'),barInfo:$('#barInfo'),offInfo:$('#offInfo'),remainingMoves:$('#remainingMoves'),
   countdownInfo:$('#countdownInfo'),countdownText:$('#countdownText'),log:$('#log'),barWhite:$('#barWhite'),barBlack:$('#barBlack'),
-  offWhite:$('#offWhite'),offBlack:$('#offBlack'),pipWhite:$('#pipWhite'),pipBlack:$('#pipBlack'),startModal:$('#startModal'),startBtn:$('#startBtn'),difficultySelect:$('#difficultySelect'),diceModeSelect:$('#diceModeSelect'),
+  offWhite:$('#offWhite'),offBlack:$('#offBlack'),pipWhite:$('#pipWhite'),pipBlack:$('#pipBlack'),startModal:$('#startModal'),startBtn:$('#startBtn'),difficultySelect:$('#difficultySelect'),
   doubleModal:$('#doubleModal'),doubleButtons:$('#doubleButtons'),lastChanceModal:$('#lastChanceModal'),lastChanceText:$('#lastChanceText'),chanceA:$('#chanceA'),chanceB:$('#chanceB'),chanceBtn:$('#chanceBtn'),
-  modeComputerBtn:$('#modeComputerBtn'),modeFriendBtn:$('#modeFriendBtn'),modeRulesBtn:$('#modeRulesBtn'),computerPanel:$('#computerPanel'),onlinePanel:$('#onlinePanel'),rulesPanel:$('#rulesPanel'),playerNameInput:$('#playerNameInput'),onlineDiceModeSelect:$('#onlineDiceModeSelect'),createRoomBtn:$('#createRoomBtn'),joinRoomBtn:$('#joinRoomBtn'),joinCodeInput:$('#joinCodeInput'),roomLobby:$('#roomLobby'),roomCodeDisplay:$('#roomCodeDisplay'),roomPlayers:$('#roomPlayers'),readyBtn:$('#readyBtn'),roomStatusText:$('#roomStatusText'),reactionToast:$('#reactionToast'),reactionWhite:$('#reactionWhite'),reactionBlack:$('#reactionBlack'),victoryBanner:$('#victoryBanner'),reactionCard:$('#reactionCard')
+  modeComputerBtn:$('#modeComputerBtn'),modeFriendBtn:$('#modeFriendBtn'),modeRulesBtn:$('#modeRulesBtn'),computerPanel:$('#computerPanel'),onlinePanel:$('#onlinePanel'),rulesPanel:$('#rulesPanel'),playerNameInput:$('#playerNameInput'),createRoomBtn:$('#createRoomBtn'),joinRoomBtn:$('#joinRoomBtn'),joinCodeInput:$('#joinCodeInput'),roomLobby:$('#roomLobby'),roomCodeDisplay:$('#roomCodeDisplay'),roomPlayers:$('#roomPlayers'),readyBtn:$('#readyBtn'),roomStatusText:$('#roomStatusText'),reactionToast:$('#reactionToast'),reactionWhite:$('#reactionWhite'),reactionBlack:$('#reactionBlack'),victoryBanner:$('#victoryBanner'),reactionCard:$('#reactionCard'),rulesQuickCard:$('#rulesQuickCard'),rulesPanelToggle:$('#rulesPanelToggle'),logCard:$('#logCard'),logPanelToggle:$('#logPanelToggle')
 };
 const state=createInitialState();
-const profilePreferences={displayName:'',avatarPreference:DEFAULT_AVATAR_PREFERENCE,saveMessage:'',saveTone:'',linkMessage:'',linkTone:''};
+const profilePreferences={displayName:'',avatarPreference:DEFAULT_AVATAR_PREFERENCE,avatarPickerExpanded:false,saveMessage:'',saveTone:'',linkMessage:'',linkTone:''};
 const welcomeState={completed:false,message:'',tone:''};
 function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
 function rnd(min,max){return Math.floor(Math.random()*(max-min+1))+min;}
@@ -852,17 +869,45 @@ function getGoogleLinkReadiness(){
 }
 function renderWelcomeAccountEntry(){
   const googleLinkReadiness=getGoogleLinkReadiness();
+  const profileView=getCurrentProfilePanelViewModel();
+  const homeView=buildStartHomeViewModel({
+    displayName:profileView.displayName,
+    avatarText:profileView.avatarText,
+    authLabel:profileView.authLabel,
+    statusText:profileView.statusText,
+    isLinkedAccount:googleLinkReadiness.isLinkedAccount,
+    canTryGoogleLink:googleLinkReadiness.canTryGoogleLink,
+    googleLinkingEnabled:GOOGLE_ACCOUNT_LINKING_ENABLED,
+  });
+
+  if(els.homeTitle)els.homeTitle.textContent=homeView.title;
+  if(els.homeAccountAvatar)els.homeAccountAvatar.textContent=homeView.avatarText;
+  if(els.homeAccountName)els.homeAccountName.textContent=homeView.displayName;
+  if(els.homeAccountBadge){
+    els.homeAccountBadge.textContent=homeView.showConnectedBadge?'מחובר עם Google':homeView.authLabel;
+    els.homeAccountBadge.classList.toggle('connected',homeView.showConnectedBadge);
+  }
+  if(els.homeAccountStatus)els.homeAccountStatus.textContent=homeView.accountSummary;
+  if(els.homeSaveSummary)els.homeSaveSummary.textContent=homeView.showConnectedBadge
+    ? `משחקים כ־${homeView.displayName}`
+    : 'בחר מצב משחק. אפשר לפתוח פרופיל בכל רגע.';
+  if(els.homeProgressNote)els.homeProgressNote.textContent=homeView.progressNote;
+  if(els.welcomeGuestBtn)els.welcomeGuestBtn.textContent=homeView.guestButtonText;
+  if(els.homeProfileBtn)els.homeProfileBtn.textContent=homeView.profileButtonText;
   if(els.welcomeGoogleBtn){
-    els.welcomeGoogleBtn.textContent=GOOGLE_ACCOUNT_LINKING_ENABLED?'חבר חשבון Google':'Google יופעל בקרוב';
-    els.welcomeGoogleBtn.disabled=!googleLinkReadiness.canTryGoogleLink;
+    els.welcomeGoogleBtn.textContent=homeView.googleButtonText;
+    els.welcomeGoogleBtn.disabled=!!homeView.googleButtonDisabled;
+    els.welcomeGoogleBtn.classList.toggle('connected',homeView.googleStatusClass==='connected');
   }
   if(els.welcomeSetupNote)els.welcomeSetupNote.textContent=!GOOGLE_ACCOUNT_LINKING_ENABLED
     ? 'התחברות Google תופעל אחרי הגדרת Firebase והדומיין המורשה.'
-    : googleLinkReadiness.authStatus==='fallback'
-      ? 'חיבור האורח לא זמין כרגע, אבל אפשר להמשיך כאורח ולנסות שוב אחר כך.'
-      : googleLinkReadiness.hasAuthenticatedUid
-        ? 'אם החיבור נכשל, אפשר להמשיך כאורח.'
-        : 'מכינים חשבון אורח כדי שאפשר יהיה לחבר Google בלי לאבד התקדמות.';
+    : googleLinkReadiness.isLinkedAccount
+      ? 'החשבון כבר שמור. לא צריך לחבר שוב.'
+      : googleLinkReadiness.authStatus==='fallback'
+        ? 'חיבור האורח לא זמין כרגע, אבל אפשר להמשיך כאורח.'
+        : googleLinkReadiness.hasAuthenticatedUid
+          ? 'אם החיבור נכשל, אפשר להמשיך כאורח.'
+          : 'מכינים חשבון אורח כדי שאפשר יהיה לחבר Google בלי לאבד פרופיל.';
   if(els.welcomeMessage){
     els.welcomeMessage.textContent=welcomeState.message;
     els.welcomeMessage.classList.remove('success','warning');
@@ -870,11 +915,27 @@ function renderWelcomeAccountEntry(){
   }
 }
 function setStartFlowStep(step){
-  if(els.welcomeStep)els.welcomeStep.hidden=step!=='welcome';
-  if(els.gameSetupStep)els.gameSetupStep.hidden=step!=='game';
+  const targetStep=step || (welcomeState.completed?'game':'welcome');
+  if(els.welcomeStep)els.welcomeStep.hidden=targetStep!=='welcome';
+  if(els.guestNameStep)els.guestNameStep.hidden=targetStep!=='guestName';
+  if(els.gameSetupStep)els.gameSetupStep.hidden=targetStep!=='game';
   renderWelcomeAccountEntry();
 }
 function continueAsGuest(){
+  welcomeState.message='';
+  welcomeState.tone='';
+  if(els.guestNameInput&&!els.guestNameInput.value&&profilePreferences.displayName)els.guestNameInput.value=profilePreferences.displayName;
+  setStartFlowStep('guestName');
+  setTimeout(()=>els.guestNameInput?.focus(),0);
+}
+function finishGuestNameStep(){
+  const editView=buildSafeProfileEditView({
+    displayName:els.guestNameInput?.value||profilePreferences.displayName||'',
+    avatarPreference:profilePreferences.avatarPreference,
+  });
+  applyProfileEditView(editView);
+  if(els.playerNameInput)els.playerNameInput.value=editView.displayName;
+  syncCurrentPlayerProfile(editView.displayName,editView.avatarPreference);
   welcomeState.completed=true;
   welcomeState.message='';
   welcomeState.tone='';
@@ -882,6 +943,25 @@ function continueAsGuest(){
 }
 function resetStartFlowForNewGame(){
   setStartFlowStep(welcomeState.completed?'game':'welcome');
+}
+
+async function loadSavedProfileIfAvailable(){
+  const uid=authSession.getUid?.();
+  if(!uid)return;
+  const result=await getPlayerProfile({database:db,ref,get,uid});
+  if(result.profile){
+    const editView=buildSafeProfileEditView({
+      displayName:result.profile.displayName,
+      avatarPreference:result.profile.avatarPreference,
+    });
+    applyProfileEditView(editView);
+    if(els.guestNameInput&&!els.guestNameInput.value)els.guestNameInput.value=editView.displayName;
+  }
+  if(authSession.getIsAnonymous?.()===false){
+    welcomeState.completed=true;
+    setStartFlowStep('game');
+  }
+  renderProfileStatus();
 }
 function showGoogleSetupRequiredInWelcome(){
   welcomeState.message=GOOGLE_SETUP_REQUIRED_MESSAGE;
@@ -923,7 +1003,11 @@ function renderProfileLinkMessage(fallbackMessage=''){
 function renderProfileAvatarChoices(view){
   if(!els.profileAvatarChoices)return;
   els.profileAvatarChoices.innerHTML='';
-  view.avatarOptions.forEach(option=>{
+  els.profileAvatarChoices.classList.toggle('expanded',profilePreferences.avatarPickerExpanded);
+  const visibleOptions=profilePreferences.avatarPickerExpanded
+    ? view.avatarOptions
+    : view.recommendedAvatarOptions;
+  visibleOptions.forEach(option=>{
     const button=document.createElement('button');
     button.type='button';
     button.className='profilePanelAvatarChoice';
@@ -940,13 +1024,32 @@ function renderProfileAvatarChoices(view){
     });
     els.profileAvatarChoices.append(button);
   });
+  if(view.hasMoreAvatars){
+    const moreButton=document.createElement('button');
+    moreButton.type='button';
+    moreButton.className='profilePanelAvatarChoice profileAvatarMoreBtn';
+    moreButton.textContent=profilePreferences.avatarPickerExpanded?'פחות':'עוד';
+    moreButton.setAttribute('aria-label',profilePreferences.avatarPickerExpanded?'הצג פחות אווטארים':'הצג עוד אווטארים');
+    moreButton.addEventListener('click',()=>{
+      profilePreferences.avatarPickerExpanded=!profilePreferences.avatarPickerExpanded;
+      renderProfileStatus();
+    });
+    els.profileAvatarChoices.append(moreButton);
+  }
 }
+
 async function connectGoogleAccount(){
   if(!GOOGLE_ACCOUNT_LINKING_ENABLED){
     profilePreferences.linkMessage=GOOGLE_SETUP_REQUIRED_MESSAGE;
     profilePreferences.linkTone='warning';
     renderProfileStatus();
     return {ok:false,reason:'disabled',message:GOOGLE_SETUP_REQUIRED_MESSAGE};
+  }
+  if(authSession.getUid?.()&&authSession.getIsAnonymous?.()===false){
+    profilePreferences.linkMessage='חשבון Google כבר מחובר.';
+    profilePreferences.linkTone='success';
+    renderProfileStatus();
+    return {ok:true,reason:'already-linked',message:'חשבון Google כבר מחובר.'};
   }
   if(!authSession.getUid?.()){
     profilePreferences.linkMessage='מכינים חשבון אורח לפני חיבור Google...';
@@ -1002,7 +1105,10 @@ async function connectGoogleAccountFromWelcome(){
   welcomeState.message=result?.message||'לא הצלחנו להתחבר כרגע, אפשר להמשיך כאורח.';
   welcomeState.tone=result?.ok?'success':'warning';
   renderWelcomeAccountEntry();
-  if(result?.ok)continueAsGuest();
+  if(result?.ok){
+    welcomeState.completed=true;
+    setStartFlowStep('game');
+  }
 }
 async function saveProfilePanelEdits(event){
   event?.preventDefault?.();
@@ -1031,7 +1137,7 @@ async function saveProfilePanelEdits(event){
     profilePreferences.saveMessage='השם והאווטאר עודכנו כאן. שמירה מלאה תנסה שוב כשהחיבור יהיה זמין.';
     profilePreferences.saveTone='warning';
   }else{
-    profilePreferences.saveMessage='נשמר בפרופיל האורח.';
+    profilePreferences.saveMessage=authSession.getIsAnonymous?.()===false?'נשמר בפרופיל Google.':'נשמר בפרופיל האורח.';
     profilePreferences.saveTone='success';
   }
   renderProfileStatus();
@@ -1094,6 +1200,7 @@ function renderProfileStatus(){
   els.profileChip.classList.add(tone);
   els.profileChip.title=`${view.displayName} · ${view.statusText} · לחץ לפתיחת הפרופיל שלי`;
   if(!els.profilePanel?.hidden)renderProfilePanel();
+  renderWelcomeAccountEntry();
 }
 
 function otherActor(actor){return actor==='human'?'computer':'human';}
@@ -1163,6 +1270,8 @@ const {
 }=createAnimationHelpers({els,state,die,setDice,showMessage,actorName,actorForColor,actorColor,localActor,otherActor,defaultColor:WHITE,getVictorySummaryRows:()=>{const result=getLastMatchResult();return result?.matchId===state.victoryId?getMatchResultSummaryRows(result):[];}});
 function refreshSoundToggle(){if(!els.soundToggleBtn)return;const muted=isSoundMuted();els.soundToggleBtn.textContent=muted?'🔇 מושתק':'🔊 צליל';els.soundToggleBtn.setAttribute('aria-pressed',muted?'true':'false');}
 function toggleSound(){const muted=toggleSoundMuted();if(!muted)preloadRollSounds();refreshSoundToggle();}
+function refreshRollModeToggle(){if(!els.rollModeToggleBtn)return;const isAuto=state.diceMode==='auto';els.rollModeToggleBtn.textContent=isAuto?'גלגול אוטומטי':'גלגול ידני';els.rollModeToggleBtn.setAttribute('aria-pressed',isAuto?'true':'false');}
+function toggleRollMode(){state.diceMode=state.diceMode==='auto'?'manual':'auto';refreshRollModeToggle();renderUI();syncShared('diceModeToggle');if(state.status==='waitingRoll'&&state.currentActor===localActor()&&state.diceMode==='auto'&&!state.gameOver&&!state.animating){clearTimeout(state.autoTimer);state.autoTimer=setTimeout(()=>rollForCurrent(),250);}else if(state.diceMode==='manual'){clearTimeout(state.autoTimer);}}
 function setInitialBoard(){
   state.board=createInitialBoard();
   state.bar={white:0,black:0};state.off={white:0,black:0};
@@ -1176,7 +1285,7 @@ function resetForNewGame(){
   renderAll();renderLog();els.startModal.classList.add('show');if(els.roomLobby)els.roomLobby.style.display='none';showMessage('משחק חדש');
 }
 
-function renderAll(){renderBoard();renderUI();renderProfileStatus();}
+function renderAll(){renderBoard();renderUI();renderProfileStatus();refreshRollModeToggle();}
 function canEndCurrentTurn(){
   const local=localActor();
   if(!(state.currentActor===local&&state.status==='humanMoving'&&!state.gameOver&&!state.animating))return false;
@@ -1631,10 +1740,10 @@ async function syncShared(reason=''){
 }
 async function generateRoomCode(){for(let i=0;i<40;i++){const code=String(rnd(1000,9999));const snap=await get(roomRef(code));if(!snap.exists())return code}return String(Date.now()).slice(-4);}
 function subscribeRoom(code){if(state.roomUnsub){state.roomUnsub();state.roomUnsub=null;}state.roomCode=code;const rr=roomRef(code);state.roomUnsub=onValue(rr,snap=>{const room=snap.val();if(!room){showMessage('החדר לא קיים');return}renderLobby(room);renderProfileStatus();if(room.reaction&&room.reaction.id!==subscribeRoom.lastReaction){subscribeRoom.lastReaction=room.reaction.id;if(room.reaction.from!==state.localActor)showReaction(room.reaction.text,room.reaction.from)}if(room.game)applyShared(room.game);if(!room.game&&room.players?.human&&room.players?.computer&&room.ready?.human&&room.ready?.computer&&state.localActor==='human'&&state.status!=='opening')startOnlineOpening();});}
-async function createRoom(){try{const code=await generateRoomCode();state.gameMode='online';state.localActor='human';state.playerId=localPlayerId();state.playerNames={human:localPlayerName(),computer:'מחכה לחבר'};renderProfileStatus();syncCurrentPlayerProfile(state.playerNames.human);state.diceMode=els.onlineDiceModeSelect.value;state.status='lobby';await set(roomRef(code),{createdAt:Date.now(),updatedAt:Date.now(),diceMode:state.diceMode,players:{human:{id:state.playerId,name:state.playerNames.human,connected:true},computer:null},ready:{human:false,computer:false},game:null,reaction:null});els.startModal.classList.add('show');subscribeRoom(code);showMessage('חדר נפתח');}catch(e){console.error(e);showMessage('בעיה בפתיחת חדר')}}
-async function joinRoom(){try{const code=(els.joinCodeInput.value||'').trim();if(!/^\d{4}$/.test(code))return showMessage('קוד חדר חייב להיות 4 ספרות');const snap=await get(roomRef(code));if(!snap.exists())return showMessage('החדר לא נמצא');const room=snap.val();if(room.players?.computer&&room.players.computer.id!==localPlayerId())return showMessage('החדר מלא');state.gameMode='online';state.localActor=room.players?.human?.id===localPlayerId()?'human':'computer';state.playerId=localPlayerId();if(state.localActor==='computer'){const joiningPlayerName=localPlayerName();syncCurrentPlayerProfile(joiningPlayerName);await update(roomRef(code),{['players/computer']:{id:state.playerId,name:joiningPlayerName,connected:true},['ready/computer']:false,updatedAt:Date.now()});}else{syncCurrentPlayerProfile(room.players?.human?.name||localPlayerName());}state.diceMode=room.diceMode||els.onlineDiceModeSelect.value;state.status='lobby';renderProfileStatus();els.startModal.classList.add('show');subscribeRoom(code);showMessage('הצטרפת לחדר');}catch(e){console.error(e);showMessage('בעיה בהצטרפות')}}
+async function createRoom(){try{const code=await generateRoomCode();state.gameMode='online';state.localActor='human';state.playerId=localPlayerId();state.playerNames={human:localPlayerName(),computer:'מחכה לחבר'};renderProfileStatus();syncCurrentPlayerProfile(state.playerNames.human);state.diceMode=state.diceMode||'manual';state.status='lobby';await set(roomRef(code),{createdAt:Date.now(),updatedAt:Date.now(),diceMode:state.diceMode,players:{human:{id:state.playerId,name:state.playerNames.human,connected:true},computer:null},ready:{human:false,computer:false},game:null,reaction:null});els.startModal.classList.add('show');subscribeRoom(code);showMessage('חדר נפתח');}catch(e){console.error(e);showMessage('בעיה בפתיחת חדר')}}
+async function joinRoom(){try{const code=(els.joinCodeInput.value||'').trim();if(!/^\d{4}$/.test(code))return showMessage('קוד חדר חייב להיות 4 ספרות');const snap=await get(roomRef(code));if(!snap.exists())return showMessage('החדר לא נמצא');const room=snap.val();if(room.players?.computer&&room.players.computer.id!==localPlayerId())return showMessage('החדר מלא');state.gameMode='online';state.localActor=room.players?.human?.id===localPlayerId()?'human':'computer';state.playerId=localPlayerId();if(state.localActor==='computer'){const joiningPlayerName=localPlayerName();syncCurrentPlayerProfile(joiningPlayerName);await update(roomRef(code),{['players/computer']:{id:state.playerId,name:joiningPlayerName,connected:true},['ready/computer']:false,updatedAt:Date.now()});}else{syncCurrentPlayerProfile(room.players?.human?.name||localPlayerName());}state.diceMode=room.diceMode||state.diceMode||'manual';state.status='lobby';renderProfileStatus();els.startModal.classList.add('show');subscribeRoom(code);showMessage('הצטרפת לחדר');}catch(e){console.error(e);showMessage('בעיה בהצטרפות')}}
 async function toggleReady(){if(!isOnline()||!state.roomCode)return;const snap=await get(roomRef(state.roomCode+'/ready/'+state.localActor));const cur=!!snap.val();await update(roomRef(state.roomCode),{['ready/'+state.localActor]:!cur,updatedAt:Date.now()});}
-async function startOnlineOpening(){state.status='opening';state.diceMode=els.onlineDiceModeSelect.value||state.diceMode||'manual';state.difficulty='medium';state.log=[];setInitialBoard();state.gameOver=false;state.lastChance=null;state.pendingVictory=null;state.lastMove=null;state.lastMoveSeen=null;state.lastVictorySeen=null;state.winnerColor=null;state.stolen=false;state.victoryId=null;state.lastChanceRollingSeen=null;state.lastChanceResultSeen=null;state.doubleStreak={human:0,computer:0};state.dice=[0,0];state.remaining=[];addLog('גלגולת פתיחה אונליין מתחילה','special');renderAll();await syncShared('openingStart');let h,c;do{[h,c]=rollDicePair();state.dice=[h,c];addLog(`${actorName('human')} גלגל: ${h}`);addLog(`${actorName('computer')} גלגל: ${c}`);if(h===c){addLog('תיקו בפתיחה — מגלגלים שוב','special')}}while(h===c);if(h>c){state.humanColor=WHITE;state.computerColor=BLACK;state.currentActor='human';addLog(`${actorName('human')} מתחיל ומשחק בלבן`,'special')}else{state.humanColor=BLACK;state.computerColor=WHITE;state.currentActor='computer';addLog(`${actorName('computer')} מתחיל ומשחק בלבן`,'special')}await syncShared('openingDone');setTimeout(()=>startTurn(state.currentActor),900);}
+async function startOnlineOpening(){state.status='opening';state.diceMode=state.diceMode||'manual';state.difficulty='medium';state.log=[];setInitialBoard();state.gameOver=false;state.lastChance=null;state.pendingVictory=null;state.lastMove=null;state.lastMoveSeen=null;state.lastVictorySeen=null;state.winnerColor=null;state.stolen=false;state.victoryId=null;state.lastChanceRollingSeen=null;state.lastChanceResultSeen=null;state.doubleStreak={human:0,computer:0};state.dice=[0,0];state.remaining=[];addLog('גלגולת פתיחה אונליין מתחילה','special');renderAll();await syncShared('openingStart');let h,c;do{[h,c]=rollDicePair();state.dice=[h,c];addLog(`${actorName('human')} גלגל: ${h}`);addLog(`${actorName('computer')} גלגל: ${c}`);if(h===c){addLog('תיקו בפתיחה — מגלגלים שוב','special')}}while(h===c);if(h>c){state.humanColor=WHITE;state.computerColor=BLACK;state.currentActor='human';addLog(`${actorName('human')} מתחיל ומשחק בלבן`,'special')}else{state.humanColor=BLACK;state.computerColor=WHITE;state.currentActor='computer';addLog(`${actorName('computer')} מתחיל ומשחק בלבן`,'special')}await syncShared('openingDone');setTimeout(()=>startTurn(state.currentActor),900);}
 async function sendReaction(text){
   showReaction(text,localActor());
   if(isOnline()&&state.roomCode)await update(roomRef(state.roomCode),{reaction:{id:Date.now()+'_'+Math.random().toString(36).slice(2,5),from:state.localActor,text,at:Date.now()}});
@@ -1682,11 +1791,25 @@ async function lastChanceButton(){
 }
 
 function newGameFromModal(){
-  state.gameMode='computer';state.localActor='human';state.playerNames={human:'אתה',computer:'המחשב'};state.difficulty=els.difficultySelect.value;state.diceMode=els.diceModeSelect.value;els.startModal.classList.remove('show');state.log=[];setInitialBoard();state.gameOver=false;state.lastChance=null;state.pendingVictory=null;state.doubleStreak={human:0,computer:0};state.dice=[0,0];state.remaining=[];state.status='opening';addLog(`רמת קושי: ${HEB_DIFF[state.difficulty]}`,'special');addLog(`מצב גלגול: ${HEB_MODE[state.diceMode]}`,'special');renderAll();startOpeningRoll();
+  state.gameMode='computer';state.localActor='human';state.playerNames={human:getCurrentProfilePanelViewModel().displayName,computer:'המחשב'};state.difficulty=els.difficultySelect.value;state.diceMode=state.diceMode||'manual';els.startModal.classList.remove('show');state.log=[];setInitialBoard();state.gameOver=false;state.lastChance=null;state.pendingVictory=null;state.doubleStreak={human:0,computer:0};state.dice=[0,0];state.remaining=[];state.status='opening';addLog(`רמת קושי: ${HEB_DIFF[state.difficulty]}`,'special');addLog(`מצב גלגול: ${HEB_MODE[state.diceMode]}`,'special');renderAll();startOpeningRoll();
 }
 
 function openNewGame(){clearTimers();resetStartFlowForNewGame();els.startModal.classList.add('show');}
 function buttonRoll(){if(canHumanRoll())rollForCurrent();}
+function setCollapsiblePanel(card,toggle,expanded,openText,closeText){
+  if(!card||!toggle)return;
+  card.classList.toggle('collapsed',!expanded);
+  toggle.setAttribute('aria-expanded',expanded?'true':'false');
+  toggle.textContent=expanded?closeText:openText;
+}
+function toggleRulesQuickPanel(){
+  const expanded=els.rulesQuickCard?.classList.contains('collapsed');
+  setCollapsiblePanel(els.rulesQuickCard,els.rulesPanelToggle,expanded,'📜 חוקים','סגור חוקים');
+}
+function toggleLogPanel(){
+  const expanded=els.logCard?.classList.contains('collapsed');
+  setCollapsiblePanel(els.logCard,els.logPanelToggle,expanded,'מהלכים','סגור מהלכים');
+}
 function setupEvents(){
   const warmRollSounds=()=>preloadRollSounds();
   document.addEventListener('pointerdown',warmRollSounds,{once:true,capture:true,passive:true});
@@ -1695,8 +1818,15 @@ function setupEvents(){
   els.rollBtn.addEventListener('click',buttonRoll);els.diceDock.addEventListener('click',buttonRoll);els.undoBtn.addEventListener('click',undo);els.endBtn.addEventListener('click',manualEndTurn);
   els.chanceBtn.addEventListener('click',lastChanceButton);
   els.soundToggleBtn.addEventListener('click',toggleSound);
+  els.rollModeToggleBtn?.addEventListener('click',toggleRollMode);
+  els.rulesPanelToggle?.addEventListener('click',toggleRulesQuickPanel);
+  els.logPanelToggle?.addEventListener('click',toggleLogPanel);
   els.welcomeGuestBtn?.addEventListener('click',continueAsGuest);
   els.welcomeGoogleBtn?.addEventListener('click',connectGoogleAccountFromWelcome);
+  els.guestNameContinueBtn?.addEventListener('click',finishGuestNameStep);
+  els.guestNameBackBtn?.addEventListener('click',()=>setStartFlowStep('welcome'));
+  els.guestNameInput?.addEventListener('keydown',event=>{if(event.key==='Enter')finishGuestNameStep();});
+  els.homeProfileBtn?.addEventListener('click',()=>setProfilePanelOpen(true));
   els.profileChip?.addEventListener('click',toggleProfilePanel);
   els.profilePanelCloseBtn?.addEventListener('click',()=>setProfilePanelOpen(false));
   els.profilePanelCloseAction?.addEventListener('click',()=>setProfilePanelOpen(false));
@@ -1712,7 +1842,7 @@ function setupEvents(){
   document.querySelectorAll('.reactBtn').forEach(b=>b.addEventListener('click',()=>sendReaction(b.dataset.text)));
 }
 
-function init(){buildBoard();initChanceSelectors();setupEvents();refreshSoundToggle();resetStartFlowForNewGame();resetForNewGame();authSession.ready.finally(()=>{renderProfileStatus();renderWelcomeAccountEntry();});}
+function init(){buildBoard();initChanceSelectors();setupEvents();refreshSoundToggle();refreshRollModeToggle();resetStartFlowForNewGame();resetForNewGame();authSession.ready.finally(()=>{authSession.refreshUser?.();void loadSavedProfileIfAvailable();renderProfileStatus();renderWelcomeAccountEntry();});}
 init();
 })();
 </script>

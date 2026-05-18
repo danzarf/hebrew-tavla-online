@@ -7,6 +7,7 @@ import {
   buildProfilePayload,
   createGuestDisplayName,
   getAvatarPreferenceLabel,
+  getPlayerProfile,
   profilePath,
   SAFE_PROFILE_FIELDS,
   sanitizeAvatarPreference,
@@ -41,8 +42,35 @@ test('sanitizeAvatarPreference accepts only built-in safe avatar choices', () =>
   assert.equal(sanitizeAvatarPreference('https://example.com/avatar.png'), DEFAULT_AVATAR_PREFERENCE);
   assert.equal(sanitizeAvatarPreference('<img>'), DEFAULT_AVATAR_PREFERENCE);
   assert.equal(getAvatarPreferenceLabel('wolf'), '🐺');
+  assert.equal(getAvatarPreferenceLabel('dragon'), '🐉');
   assert.equal(getAvatarPreferenceLabel('not-allowed'), '👤');
   assert.ok(AVATAR_PREFERENCE_OPTIONS.every(option => typeof option.value === 'string' && typeof option.label === 'string'));
+});
+
+
+test('getPlayerProfile loads only safe display profile fields', async () => {
+  const database = {};
+  const result = await getPlayerProfile({
+    uid: 'uid_4',
+    database,
+    ref: (db, path) => ({ db, path }),
+    get: async targetRef => {
+      assert.equal(targetRef.path, 'profiles/uid_4');
+      return makeSnapshot({
+        displayName: '  דנה  ',
+        avatarPreference: 'dragon',
+        coins: 999,
+        xp: 123,
+      });
+    },
+  });
+
+  assert.equal(result.skipped, false);
+  assert.deepEqual(result.profile, {
+    displayName: 'דנה',
+    avatarPreference: 'dragon',
+    isAnonymous: true,
+  });
 });
 
 test('profilePath stores profiles under profiles/{uid}', () => {

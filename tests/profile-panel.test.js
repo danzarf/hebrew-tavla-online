@@ -57,7 +57,9 @@ test('profile panel avatar choices are built-in values only', () => {
   const view = buildProfilePanelViewModel({ avatarPreference: 'wolf' });
 
   assert.ok(view.avatarOptions.length >= 6);
-  assert.deepEqual(view.avatarOptions.map(option => option.label), ['👤', '🎲', '🏆', '⭐', '🧿', '🐺']);
+  assert.deepEqual(view.recommendedAvatarOptions.map(option => option.label), ['👤', '🎲', '🏆', '⭐', '👑', '🧿', '🐺', '🦊']);
+  assert.ok(view.expandedAvatarOptions.some(option => option.label === '🐉'));
+  assert.equal(view.hasMoreAvatars, true);
   assert.ok(view.avatarOptions.every(option => !String(option.value).includes('://')));
 });
 

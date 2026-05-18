@@ -1,6 +1,7 @@
 import {
   AVATAR_PREFERENCE_OPTIONS,
   DEFAULT_AVATAR_PREFERENCE,
+  RECOMMENDED_AVATAR_PREFERENCE_COUNT,
   getAvatarPreferenceLabel,
   sanitizeAvatarPreference,
 } from '../firebase/profile.js';
@@ -63,6 +64,9 @@ export function buildProfilePanelViewModel({
     avatarPreference: safeAvatarPreference,
     avatarText: getAvatarPreferenceLabel(safeAvatarPreference),
     avatarOptions: AVATAR_PREFERENCE_OPTIONS.map(option => ({ ...option })),
+    recommendedAvatarOptions: AVATAR_PREFERENCE_OPTIONS.slice(0, RECOMMENDED_AVATAR_PREFERENCE_COUNT).map(option => ({ ...option })),
+    expandedAvatarOptions: AVATAR_PREFERENCE_OPTIONS.slice(RECOMMENDED_AVATAR_PREFERENCE_COUNT).map(option => ({ ...option })),
+    hasMoreAvatars: AVATAR_PREFERENCE_OPTIONS.length > RECOMMENDED_AVATAR_PREFERENCE_COUNT,
     note: isLinkedAccount
       ? 'החשבון מחובר. בהמשך התקדמות תוכל להישמר בין מכשירים.'
       : 'כרגע אתה משחק כאורח. ההתקדמות קשורה לדפדפן או למכשיר הזה.',
