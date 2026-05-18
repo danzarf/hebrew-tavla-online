@@ -46,18 +46,18 @@ button,select,input{font-family:inherit}
 .profileChip.connected{border-color:rgba(94,227,154,.55);background:linear-gradient(180deg,rgba(94,227,154,.18),rgba(255,255,255,.07))}
 .profileChip.fallback{border-color:rgba(255,255,255,.24)}
 .profileChip.loading{opacity:.86}
-.profilePanel{position:fixed;z-index:45;top:88px;right:14px;width:min(360px,calc(100vw - 28px));border-radius:22px;background:linear-gradient(180deg,rgba(50,28,18,.98),rgba(25,12,7,.98));border:1px solid rgba(246,199,108,.34);box-shadow:0 18px 46px rgba(0,0,0,.48),inset 0 1px 0 rgba(255,255,255,.08);padding:14px;color:#fff}
+.profilePanel{position:fixed;z-index:45;top:88px;right:clamp(8px,2vw,14px);left:auto;width:min(360px,calc(100% - 28px));max-width:calc(100% - 28px);max-height:calc(100dvh - 104px);overflow-y:auto;overflow-x:hidden;border-radius:22px;background:linear-gradient(180deg,rgba(50,28,18,.98),rgba(25,12,7,.98));border:1px solid rgba(246,199,108,.34);box-shadow:0 18px 46px rgba(0,0,0,.48),inset 0 1px 0 rgba(255,255,255,.08);padding:14px;color:#fff}
 .profilePanel[hidden]{display:none !important}
-.profilePanelHeader{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;margin-bottom:12px}
+.profilePanelHeader{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;margin-bottom:12px;min-width:0}
 .profilePanelAvatar{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(180deg,#ffe7a8,#b9792c);box-shadow:0 6px 14px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.36);font-size:22px}
 .profilePanelTitleBlock h2{margin:0 0 3px;font-size:18px;color:#fff;text-shadow:0 1px 0 #000}
 .profilePanelStatus{font-size:12px;font-weight:900;color:#9ff0bf}
 .profilePanelClose{width:32px;height:32px;border:1px solid rgba(255,231,176,.22);border-radius:12px;background:rgba(255,255,255,.07);color:#ffe7b0;font-size:22px;line-height:1;cursor:pointer}
 .profilePanelClose:hover{background:rgba(255,255,255,.12)}
-.profilePanelBody{display:grid;gap:10px}
+.profilePanelBody{display:grid;gap:10px;min-width:0}
 .profilePanelNameLabel{font-size:12px;color:rgba(255,231,176,.72);font-weight:800}
 .profilePanelName{padding:9px 11px;border-radius:14px;background:rgba(255,255,255,.075);border:1px solid rgba(255,255,255,.12);font-size:16px;font-weight:900;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.profilePanelForm{display:grid;gap:8px;padding:9px;border-radius:16px;background:rgba(255,255,255,.045);border:1px solid rgba(255,231,176,.13)}
+.profilePanelForm{display:grid;gap:8px;min-width:0;padding:9px;border-radius:16px;background:rgba(255,255,255,.045);border:1px solid rgba(255,231,176,.13)}
 .profilePanelInput{width:100%;border-radius:12px;border:1px solid rgba(255,231,176,.22);background:rgba(0,0,0,.16);color:#fff;padding:9px 10px;font-size:15px;font-weight:800;outline:none}
 .profilePanelInput:focus{border-color:rgba(246,199,108,.7);box-shadow:0 0 0 3px rgba(246,199,108,.13)}
 .profilePanelAvatarChoices{display:flex;flex-wrap:wrap;gap:7px}
@@ -65,7 +65,7 @@ button,select,input{font-family:inherit}
 .profilePanelAvatarChoice:hover{filter:brightness(1.1)}
 .profilePanelAvatarChoice.active{border-color:rgba(94,227,154,.75);background:linear-gradient(180deg,rgba(94,227,154,.24),rgba(255,255,255,.07));box-shadow:0 0 0 2px rgba(94,227,154,.14),inset 0 1px 0 rgba(255,255,255,.12)}
 .profilePanelActions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-.profilePanelSaveMessage{min-height:18px;margin:0;font-size:12px;color:rgba(255,231,176,.78);line-height:1.35}
+.profilePanelSaveMessage{flex:1 1 160px;min-width:0;min-height:18px;margin:0;font-size:12px;color:rgba(255,231,176,.78);line-height:1.35;overflow-wrap:anywhere}
 .profilePanelSaveMessage.success{color:#9ff0bf}
 .profilePanelSaveMessage.warning{color:#ffd58b}
 .profilePanelNote,.profilePanelPlaceholderNote{margin:0;line-height:1.45;font-size:13px;color:#ffe7b0}
@@ -515,7 +515,7 @@ body{
   .boardWrap{max-height:62dvh}
 }
 
-@media (max-width:620px){.profilePanel{top:76px;right:8px;left:8px;width:auto;padding:12px}.profilePanelStats{grid-template-columns:1fr}.profilePanelCloseAction{width:100%}}
+@media (max-width:620px){.profilePanel{top:76px;right:8px;left:8px;width:auto;max-width:none;max-height:calc(100dvh - 88px);padding:12px}.profilePanelStats{grid-template-columns:1fr}.profilePanelCloseAction{width:100%}}
 </style>
 </head>
 <body>
