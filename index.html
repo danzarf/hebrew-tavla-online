@@ -552,11 +552,15 @@ body{
 .panelToggleBtn{width:100%;min-width:0;min-height:30px;padding:5px 10px !important;border-radius:999px !important;font-size:12px !important;font-weight:900;background:rgba(255,255,255,.065) !important;border-color:rgba(255,231,176,.18) !important;box-shadow:inset 0 1px 0 rgba(255,255,255,.07) !important}
 .collapsibleCard:not(.collapsed) .panelToggleBtn{width:auto;min-width:72px}
 .sideMiniToolbar .collapsibleCard:not(.collapsed){padding:8px !important;border-color:rgba(255,231,176,.18);background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.03));box-shadow:inset 0 1px 0 rgba(255,255,255,.05)}
-.sideMiniToolbar .rulesQuickCard:not(.collapsed){max-height:190px;overflow:auto}
-.sideMiniToolbar .logCard:not(.collapsed){min-height:120px !important;max-height:220px}
-.sideMiniToolbar .logCard:not(.collapsed) .log{max-height:160px}
+.sideMiniToolbar .rulesQuickCard:not(.collapsed){overflow:visible}
+.sideMiniToolbar .rulesQuickCard:not(.collapsed) .quickRules{gap:2px !important}
+.sideMiniToolbar .rulesQuickCard:not(.collapsed) .quickRule{min-height:24px !important;padding:2px 5px !important}
+.sideMiniToolbar .rulesQuickCard:not(.collapsed) .quickRule b{font-size:10.4px !important;line-height:1.05 !important}
+.sideMiniToolbar .rulesQuickCard:not(.collapsed) .quickRule span{font-size:9.8px !important;padding:1px 4px !important}
+.sideMiniToolbar .logCard:not(.collapsed){min-height:92px !important;max-height:150px}
+.sideMiniToolbar .logCard:not(.collapsed) .log{max-height:92px;overflow:auto}
 .profilePanel{max-height:min(620px,calc(100dvh - 96px));scrollbar-gutter:stable}
-@media (max-width:900px){.sideMiniToolbar{grid-template-columns:repeat(2,minmax(0,1fr))}.sideMiniToolbar .logCard:not(.collapsed){min-height:120px !important}}
+@media (max-width:900px){.sideMiniToolbar{grid-template-columns:repeat(2,minmax(0,1fr))}.sideMiniToolbar .logCard:not(.collapsed){min-height:92px !important}}
 
 </style>
 </head>
@@ -901,6 +905,7 @@ const els={
 const state=createInitialState();
 const profilePreferences={displayName:'',displayNameDraft:null,avatarPreference:DEFAULT_AVATAR_PREFERENCE,avatarPickerExpanded:false,saveMessage:'',saveTone:'',linkMessage:'',linkTone:''};
 const welcomeState={completed:false,message:'',tone:''};
+const lobbySelection={lastMode:'computer'};
 function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
 function rnd(min,max){return Math.floor(Math.random()*(max-min+1))+min;}
 function actorName(actor){
@@ -1886,9 +1891,9 @@ function setupEvents(){
   els.profilePanelCloseAction?.addEventListener('click',()=>setProfilePanelOpen(false));
   document.addEventListener('keydown',event=>{if(event.key==='Escape')setProfilePanelOpen(false);});
   document.addEventListener('pointerdown',event=>{if(els.profilePanel?.hidden)return;if(els.profilePanel.contains(event.target)||els.profileChip?.contains(event.target))return;setProfilePanelOpen(false);});
-  els.modeComputerBtn.addEventListener('click',()=>{els.modeComputerBtn.classList.add('active');els.modeFriendBtn.classList.remove('active');els.modeRulesBtn.classList.remove('active');els.computerPanel.classList.add('show');els.onlinePanel.classList.remove('show');els.rulesPanel.classList.remove('show')});
-  els.modeFriendBtn.addEventListener('click',()=>{els.modeFriendBtn.classList.add('active');els.modeComputerBtn.classList.remove('active');els.modeRulesBtn.classList.remove('active');els.onlinePanel.classList.add('show');els.computerPanel.classList.remove('show');els.rulesPanel.classList.remove('show')});
-  els.modeRulesBtn.addEventListener('click',()=>{els.modeRulesBtn.classList.add('active');els.modeComputerBtn.classList.remove('active');els.modeFriendBtn.classList.remove('active');els.rulesPanel.classList.add('show');els.computerPanel.classList.remove('show');els.onlinePanel.classList.remove('show')});
+  els.modeComputerBtn.addEventListener('click',()=>{lobbySelection.lastMode='computer';els.modeComputerBtn.classList.add('active');els.modeFriendBtn.classList.remove('active');els.modeRulesBtn.classList.remove('active');els.computerPanel.classList.add('show');els.onlinePanel.classList.remove('show');els.rulesPanel.classList.remove('show')});
+  els.modeFriendBtn.addEventListener('click',()=>{lobbySelection.lastMode='friend';els.modeFriendBtn.classList.add('active');els.modeComputerBtn.classList.remove('active');els.modeRulesBtn.classList.remove('active');els.onlinePanel.classList.add('show');els.computerPanel.classList.remove('show');els.rulesPanel.classList.remove('show')});
+  els.modeRulesBtn.addEventListener('click',()=>{const isOpen=els.rulesPanel.classList.contains('show');els.modeRulesBtn.classList.toggle('active',!isOpen);els.modeComputerBtn.classList.toggle('active',isOpen&&lobbySelection.lastMode==='computer');els.modeFriendBtn.classList.toggle('active',isOpen&&lobbySelection.lastMode==='friend');els.rulesPanel.classList.toggle('show',!isOpen);els.computerPanel.classList.toggle('show',isOpen&&lobbySelection.lastMode==='computer');els.onlinePanel.classList.toggle('show',isOpen&&lobbySelection.lastMode==='friend')});
   els.createRoomBtn.addEventListener('click',createRoom);els.joinRoomBtn.addEventListener('click',joinRoom);els.readyBtn.addEventListener('click',toggleReady);
   els.playerNameInput?.addEventListener('input',()=>{profilePreferences.displayName='';renderProfileStatus();});
   els.profileDisplayNameInput?.addEventListener('input',()=>{profilePreferences.displayNameDraft=els.profileDisplayNameInput.value;profilePreferences.saveMessage='';profilePreferences.saveTone='';renderProfileStatus();});
