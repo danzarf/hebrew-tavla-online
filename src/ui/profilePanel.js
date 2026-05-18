@@ -19,7 +19,8 @@ export const PROFILE_PANEL_SAFE_EDIT_FIELDS = Object.freeze([
   'avatarPreference',
 ]);
 
-export function getProfilePanelAuthLabel({ authStatus = 'initializing', hasAuthenticatedUid = false } = {}) {
+export function getProfilePanelAuthLabel({ authStatus = 'initializing', hasAuthenticatedUid = false, isAnonymous = true } = {}) {
+  if ((hasAuthenticatedUid || authStatus === 'linked') && isAnonymous === false) return 'חשבון שמור';
   if (hasAuthenticatedUid || authStatus === 'authenticated') return 'מחובר כאורח';
   if (authStatus === 'fallback') return 'אורח מקומי';
   if (authStatus === 'signedOut') return 'מתחבר כאורח';
@@ -44,11 +45,15 @@ export function buildProfilePanelViewModel({
   stateName = '',
   authStatus = 'initializing',
   hasAuthenticatedUid = false,
+  isAnonymous = true,
+  googleLinkingEnabled = false,
   avatarPreference = DEFAULT_AVATAR_PREFERENCE,
 } = {}) {
   const displayName = resolveProfileDisplayName({ typedName, stateName });
-  const statusText = getProfileStatusText({ authStatus, hasAuthenticatedUid });
-  const authLabel = getProfilePanelAuthLabel({ authStatus, hasAuthenticatedUid });
+  const statusText = getProfileStatusText({ authStatus, hasAuthenticatedUid, isAnonymous });
+  const authLabel = getProfilePanelAuthLabel({ authStatus, hasAuthenticatedUid, isAnonymous });
+  const isLinkedAccount = Boolean((hasAuthenticatedUid || authStatus === 'linked') && isAnonymous === false);
+  const canTryGoogleLink = Boolean(googleLinkingEnabled && hasAuthenticatedUid && authStatus !== 'fallback' && !isLinkedAccount);
   const safeAvatarPreference = sanitizeAvatarPreference(avatarPreference);
 
   return {
@@ -58,7 +63,22 @@ export function buildProfilePanelViewModel({
     avatarPreference: safeAvatarPreference,
     avatarText: getAvatarPreferenceLabel(safeAvatarPreference),
     avatarOptions: AVATAR_PREFERENCE_OPTIONS.map(option => ({ ...option })),
-    note: 'התחברות מלאה ושמירת התקדמות יתווספו בהמשך.',
+    note: isLinkedAccount
+      ? 'החשבון מחובר. בהמשך התקדמות תוכל להישמר בין מכשירים.'
+      : 'כרגע אתה משחק כאורח. ההתקדמות קשורה לדפדפן או למכשיר הזה.',
+    accountUpgradeTitle: 'שמור התקדמות',
+    accountUpgradeBody: isLinkedAccount
+      ? 'החשבון מחובר ל-Google. פרופיל האורח נשמר תחת אותו משתמש.'
+      : 'חיבור מלא יאפשר בהמשך לשמור התקדמות בין מכשירים בלי לאבד את פרופיל האורח.',
+    googleButtonText: isLinkedAccount
+      ? 'חשבון Google מחובר'
+      : googleLinkingEnabled ? 'חבר חשבון Google' : 'Google יופעל בקרוב',
+    googleButtonDisabled: !canTryGoogleLink,
+    googleSetupNote: isLinkedAccount
+      ? 'אין צורך בפעולה נוספת כרגע.'
+      : googleLinkingEnabled
+        ? 'אם החיבור נכשל, אפשר להמשיך כאורח והמשחק לא ייחסם.'
+        : 'התחברות Google תופעל אחרי הגדרת Firebase והדומיין המורשה.',
     placeholderNote: 'הנתונים כאן הם מצייני מקום ולא נשמרים עדיין.',
     saveHint: hasAuthenticatedUid
       ? 'נשמרים רק שם ואווטאר בטוחים.'

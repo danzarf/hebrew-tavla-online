@@ -24,7 +24,12 @@ test('buildProfilePanelViewModel shows sanitized display name and anonymous conn
   assert.equal(view.authLabel, 'מחובר כאורח');
   assert.equal(view.avatarPreference, 'star');
   assert.equal(view.avatarText, '⭐');
-  assert.match(view.note, /התחברות מלאה/);
+  assert.match(view.note, /כאורח/);
+  assert.equal(view.accountUpgradeTitle, 'שמור התקדמות');
+  assert.match(view.accountUpgradeBody, /בין מכשירים/);
+  assert.equal(view.googleButtonText, 'Google יופעל בקרוב');
+  assert.equal(view.googleButtonDisabled, true);
+  assert.match(view.googleSetupNote, /Firebase/);
 });
 
 test('profile panel exposes only safe editable profile fields', () => {
@@ -65,6 +70,36 @@ test('profile panel progression fields are coming-soon placeholders only', () =>
   );
   assert.ok(view.progressPlaceholders.every(item => item.value === 'בקרוב'));
   assert.match(view.placeholderNote, /לא נשמרים עדיין/);
+});
+
+test('profile panel enables Google button only when the feature is configured', () => {
+  const view = buildProfilePanelViewModel({
+    typedName: 'דנה',
+    authStatus: 'authenticated',
+    hasAuthenticatedUid: true,
+    googleLinkingEnabled: true,
+  });
+
+  assert.equal(view.googleButtonText, 'חבר חשבון Google');
+  assert.equal(view.googleButtonDisabled, false);
+  assert.match(view.googleSetupNote, /אפשר להמשיך כאורח/);
+});
+
+test('profile panel shows linked Google account copy without exposing technical details', () => {
+  assert.equal(getProfilePanelAuthLabel({ authStatus: 'linked', hasAuthenticatedUid: true, isAnonymous: false }), 'חשבון שמור');
+
+  const view = buildProfilePanelViewModel({
+    typedName: 'דנה',
+    authStatus: 'linked',
+    hasAuthenticatedUid: true,
+    isAnonymous: false,
+  });
+
+  assert.equal(view.statusText, 'חשבון שמור');
+  assert.equal(view.authLabel, 'חשבון שמור');
+  assert.equal(view.googleButtonText, 'חשבון Google מחובר');
+  assert.equal(view.googleButtonDisabled, true);
+  assert.match(view.accountUpgradeBody, /פרופיל האורח נשמר/);
 });
 
 test('profile panel uses safe guest fallback labels when auth is unavailable', () => {

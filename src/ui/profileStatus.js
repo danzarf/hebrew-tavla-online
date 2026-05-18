@@ -8,14 +8,15 @@ export function resolveProfileDisplayName({ typedName = '', stateName = '', fall
   return sanitizeDisplayName(preferredName, { fallbackName });
 }
 
-export function getProfileStatusText({ authStatus = 'initializing', hasAuthenticatedUid = false } = {}) {
+export function getProfileStatusText({ authStatus = 'initializing', hasAuthenticatedUid = false, isAnonymous = true } = {}) {
+  if ((hasAuthenticatedUid || authStatus === 'linked') && isAnonymous === false) return 'חשבון שמור';
   if (hasAuthenticatedUid || authStatus === 'authenticated') return 'אורח מחובר';
   if (authStatus === 'initializing' || authStatus === 'signedOut') return 'מתחבר כאורח';
   return 'אורח מקומי';
 }
 
 export function getProfileChipTone({ authStatus = 'initializing', hasAuthenticatedUid = false } = {}) {
-  if (hasAuthenticatedUid || authStatus === 'authenticated') return 'connected';
+  if (hasAuthenticatedUid || authStatus === 'authenticated' || authStatus === 'linked') return 'connected';
   if (authStatus === 'fallback') return 'fallback';
   return 'loading';
 }
