@@ -49,3 +49,18 @@ test('start home progression note stays coming-soon only', () => {
     assert.equal(JSON.stringify(view).includes(copy), false);
   }
 });
+
+test('index start rules panel keeps the complete Hebrew rules structure', async () => {
+  const { readFile } = await import('node:fs/promises');
+  const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
+
+  for (const heading of ['מה זה ששבש טורקי?', 'בסיס המשחק בקצרה', 'החוקים המיוחדים', 'חשוב לדעת']) {
+    assert.ok(html.includes(heading), `${heading} heading should be present`);
+  }
+
+  for (const rule of ['1–2', 'דאבל', 'שלושה דאבלים', '4–5', '5–6', 'ירושלמי']) {
+    assert.ok(html.includes(rule), `${rule} rule should be documented`);
+  }
+
+  assert.match(html, /סטטיסטיקות, רמות ומטבעות יתווספו בהמשך/);
+});

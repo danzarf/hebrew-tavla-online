@@ -532,6 +532,36 @@ body{
 }
 
 @media (max-width:620px){.profilePanel{top:76px;right:8px;left:8px;width:auto;max-width:none;max-height:calc(100dvh - 88px);padding:10px}.profilePanelStats{grid-template-columns:repeat(2,minmax(0,1fr))}.profilePanelCloseAction{width:100%}}
+
+/* UI polish: readable start rules and compact in-game info toolbar. */
+.startRulesPanel{display:none;gap:10px;text-align:right;max-height:min(56vh,520px);overflow:auto;padding:2px 4px 4px;scrollbar-gutter:stable}
+.startRulesPanel.show{display:grid}
+.startRulesSection{padding:11px 12px;border-radius:16px;background:rgba(255,255,255,.052);border:1px solid rgba(255,231,176,.14);box-shadow:inset 0 1px 0 rgba(255,255,255,.05)}
+.startRulesSection h3{margin:0 0 7px;color:#fff;font-size:15px;text-shadow:0 1px 2px #000}
+.startRulesSection p{margin:0;color:#ffe7b0;font-size:13px;line-height:1.55}
+.startRulesHero{background:linear-gradient(180deg,rgba(94,227,154,.12),rgba(255,255,255,.045));border-color:rgba(94,227,154,.24)}
+.startRulesBullets{margin:0;padding:0 18px 0 0;color:#ffe7b0;font-size:13px;line-height:1.5}
+.startRulesBullets li{margin:4px 0}
+.startRulesSpecials{max-height:none;overflow:visible;gap:7px;padding:0}
+.startRulesSpecials .ruleLong{grid-template-columns:54px 1fr;padding:9px;border-radius:14px}
+.startRulesSpecials .ruleLong>span{width:48px;height:30px;font-size:11px}
+.startRulesNote{background:rgba(125,198,255,.08);border-color:rgba(125,198,255,.2)}
+.sideMiniToolbar{display:grid;grid-template-columns:1fr 1fr;gap:6px;align-items:start;flex:0 0 auto}
+.sideMiniToolbar .collapsibleCard:not(.collapsed){grid-column:1/-1}
+.sideMiniToolbar .collapsibleCard.collapsed{display:block !important;width:100%}
+.panelToggleBtn{width:100%;min-width:0;min-height:30px;padding:5px 10px !important;border-radius:999px !important;font-size:12px !important;font-weight:900;background:rgba(255,255,255,.065) !important;border-color:rgba(255,231,176,.18) !important;box-shadow:inset 0 1px 0 rgba(255,255,255,.07) !important}
+.collapsibleCard:not(.collapsed) .panelToggleBtn{width:auto;min-width:72px}
+.sideMiniToolbar .collapsibleCard:not(.collapsed){padding:8px !important;border-color:rgba(255,231,176,.18);background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.03));box-shadow:inset 0 1px 0 rgba(255,255,255,.05)}
+.sideMiniToolbar .rulesQuickCard:not(.collapsed){overflow:visible}
+.sideMiniToolbar .rulesQuickCard:not(.collapsed) .quickRules{gap:2px !important}
+.sideMiniToolbar .rulesQuickCard:not(.collapsed) .quickRule{min-height:24px !important;padding:2px 5px !important}
+.sideMiniToolbar .rulesQuickCard:not(.collapsed) .quickRule b{font-size:10.4px !important;line-height:1.05 !important}
+.sideMiniToolbar .rulesQuickCard:not(.collapsed) .quickRule span{font-size:9.8px !important;padding:1px 4px !important}
+.sideMiniToolbar .logCard:not(.collapsed){min-height:92px !important;max-height:150px}
+.sideMiniToolbar .logCard:not(.collapsed) .log{max-height:92px;overflow:auto}
+.profilePanel{max-height:min(620px,calc(100dvh - 96px));scrollbar-gutter:stable}
+@media (max-width:900px){.sideMiniToolbar{grid-template-columns:repeat(2,minmax(0,1fr))}.sideMiniToolbar .logCard:not(.collapsed){min-height:92px !important}}
+
 </style>
 </head>
 <body>
@@ -641,34 +671,36 @@ body{
           <button class="btn dark reactBtn" data-text="האלגוריתם בטוח דוד שלך 🤔">האלגוריתם בטוח דוד שלך 🤔</button>
         </div>
       </div>
-      <div id="rulesQuickCard" class="card rulesQuickCard collapsibleCard collapsed">
-        <div class="collapsibleHeader">
-          <h3>חוקים מיוחדים</h3>
-          <button id="rulesPanelToggle" class="btn dark panelToggleBtn" type="button" aria-expanded="false" aria-controls="rulesQuickBody">📜 חוקים</button>
+      <div class="sideMiniToolbar" aria-label="סרגל מידע במשחק">
+        <div id="rulesQuickCard" class="card rulesQuickCard collapsibleCard collapsed">
+          <div class="collapsibleHeader">
+            <h3>חוקים מיוחדים</h3>
+            <button id="rulesPanelToggle" class="btn dark panelToggleBtn" type="button" aria-expanded="false" aria-controls="rulesQuickBody">חוקים</button>
+          </div>
+          <div id="rulesQuickBody" class="collapsibleBody quickRules">
+            <div class="quickRule"><span>1–2</span><b>מפסידים תור</b></div>
+            <div class="quickRule"><span>דאבל</span><b>4 מהלכים + עוד תור</b></div>
+            <div class="quickRule"><span>3 דאבלים</span><b>מחליפים צדדים</b></div>
+            <div class="quickRule"><span>4–5</span><b>בוחרים דאבל</b></div>
+            <div class="quickRule"><span>5–6</span><b>2 מהלכים חופשיים</b></div>
+            <div class="quickRule"><span>ירושלמי</span><b>המפסיד יכול לגנוב ניצחון</b></div>
+          </div>
+          <div class="hiddenGameState" aria-hidden="true">
+            <span id="difficultyInfo">—</span>
+            <span id="modeInfo">—</span>
+            <span id="barInfo">—</span>
+            <span id="offInfo">—</span>
+            <div id="remainingMoves" class="movesLeft"></div>
+            <div id="countdownInfo" style="display:none"><span id="countdownText">—</span></div>
+          </div>
         </div>
-        <div id="rulesQuickBody" class="collapsibleBody quickRules">
-          <div class="quickRule"><span>1–2</span><b>מפסידים תור</b></div>
-          <div class="quickRule"><span>דאבל</span><b>4 מהלכים + עוד תור</b></div>
-          <div class="quickRule"><span>3 דאבלים</span><b>מחליפים צדדים</b></div>
-          <div class="quickRule"><span>4–5</span><b>בוחרים דאבל</b></div>
-          <div class="quickRule"><span>5–6</span><b>2 מהלכים חופשיים</b></div>
-          <div class="quickRule"><span>ירושלמי</span><b>המפסיד יכול לגנוב ניצחון</b></div>
+        <div id="logCard" class="card logCard collapsibleCard collapsed">
+          <div class="collapsibleHeader">
+            <h3>לוג מהלכים</h3>
+            <button id="logPanelToggle" class="btn dark panelToggleBtn" type="button" aria-expanded="false" aria-controls="log">מהלכים</button>
+          </div>
+          <div id="log" class="log collapsibleBody"></div>
         </div>
-        <div class="hiddenGameState" aria-hidden="true">
-          <span id="difficultyInfo">—</span>
-          <span id="modeInfo">—</span>
-          <span id="barInfo">—</span>
-          <span id="offInfo">—</span>
-          <div id="remainingMoves" class="movesLeft"></div>
-          <div id="countdownInfo" style="display:none"><span id="countdownText">—</span></div>
-        </div>
-      </div>
-      <div id="logCard" class="card logCard collapsibleCard collapsed">
-        <div class="collapsibleHeader">
-          <h3>לוג מהלכים</h3>
-          <button id="logPanelToggle" class="btn dark panelToggleBtn" type="button" aria-expanded="false" aria-controls="log">מהלכים</button>
-        </div>
-        <div id="log" class="log collapsibleBody"></div>
       </div>
     </aside>
   </main>
@@ -751,13 +783,36 @@ body{
             <div id="roomStatusText" class="onlineHint" style="margin-top:8px">מחכים לשחקן נוסף...</div>
           </div>
         </div>
-        <div id="rulesPanel" class="subPanel">
-          <div class="rulesIntro">החוקים הטורקיים מוסיפים מזל ומהפכים — בלי לשנות את הלוח הירוק.</div>
-          <div class="rulesLongList">
-            <div class="ruleLong"><span>1</span><div><b>1–2 — מפסידים תור</b><p>אם יוצא 1–2 או 2–1, לא מזיזים כלום והתור עובר ליריב.</p></div></div>
-            <div class="ruleLong"><span>2</span><div><b>דאבל רגיל</b><p>דאבל אמיתי נותן ארבעה מהלכים ועוד תור.</p></div></div>
-            <div class="ruleLong"><span>3</span><div><b>ירושלמי</b><p>בסוף המשחק יש הזדמנות אחרונה לגנוב ניצחון.</p></div></div>
-          </div>
+        <div id="rulesPanel" class="subPanel startRulesPanel" dir="rtl">
+          <section class="startRulesSection startRulesHero">
+            <h3>מה זה ששבש טורקי?</h3>
+            <p>ששבש טורקי הוא ששבש קלאסי עם כמה חוקי הפתעה שמוסיפים קצב, מהפכים וסיכוי לקאמבק — בלי לשנות את מטרת המשחק הבסיסית.</p>
+          </section>
+          <section class="startRulesSection">
+            <h3>בסיס המשחק בקצרה</h3>
+            <ul class="startRulesBullets">
+              <li>מזיזים אבנים לפי תוצאות הקוביות.</li>
+              <li>אפשר להכות אבן יריבה בודדת ולהעביר אותה לבר.</li>
+              <li>אבן שעל הבר חייבת להיכנס חזרה לפני שממשיכים להזיז אבנים אחרות.</li>
+              <li>בסוף, כשכל האבנים בבית, מוציאים אותן מהלוח.</li>
+              <li>הראשון שמוציא את כל האבנים מנצח.</li>
+            </ul>
+          </section>
+          <section class="startRulesSection">
+            <h3>החוקים המיוחדים</h3>
+            <div class="rulesLongList startRulesSpecials">
+              <div class="ruleLong"><span>1–2</span><div><b>מפסידים תור</b><p>אם יוצא 1–2 או 2–1, לא מזיזים אבנים והתור עובר ליריב.</p></div></div>
+              <div class="ruleLong"><span>דאבל</span><div><b>ארבעה מהלכים ועוד תור</b><p>דאבל רגיל נותן ארבעה מהלכים לפי אותה קובייה, ולאחריהם מקבלים תור נוסף.</p></div></div>
+              <div class="ruleLong"><span>3×</span><div><b>שלושה דאבלים ברצף</b><p>שלושה דאבלים רצופים של אותו שחקן מחליפים בין הצדדים על הלוח.</p></div></div>
+              <div class="ruleLong"><span>4–5</span><div><b>בחירת דאבל לתור הנוכחי</b><p>ב־4–5 בוחרים דאבל אחד ומשחקים אותו בתור הזה, בלי לקבל תור נוסף.</p></div></div>
+              <div class="ruleLong"><span>5–6</span><div><b>שני מהלכים חופשיים</b><p>ב־5–6 מקבלים שני מהלכים גמישים: אפשר לנוע קדימה או אחורה לפי הערכים הזמינים, בהתאם למהלכים החוקיים שהמשחק מציג.</p></div></div>
+              <div class="ruleLong"><span>ירושלמי</span><div><b>הזדמנות אחרונה בסוף</b><p>בסיום המשחק מופעל כלל ההצלה הקיים: למפסיד יכולה להיות הזדמנות אחרונה לגנוב ניצחון.</p></div></div>
+            </div>
+          </section>
+          <section class="startRulesSection startRulesNote">
+            <h3>חשוב לדעת</h3>
+            <p>סטטיסטיקות, רמות ומטבעות יתווספו בהמשך. כרגע אלו רק מצייני מקום — אין כאן כלכלה או התקדמות אמיתית.</p>
+          </section>
         </div>
         <p id="homeProgressNote" class="homeProgressNote">סטטיסטיקות, רמות ומטבעות יתווספו בהמשך.</p>
       </section>
@@ -848,8 +903,9 @@ const els={
   modeComputerBtn:$('#modeComputerBtn'),modeFriendBtn:$('#modeFriendBtn'),modeRulesBtn:$('#modeRulesBtn'),computerPanel:$('#computerPanel'),onlinePanel:$('#onlinePanel'),rulesPanel:$('#rulesPanel'),playerNameInput:$('#playerNameInput'),createRoomBtn:$('#createRoomBtn'),joinRoomBtn:$('#joinRoomBtn'),joinCodeInput:$('#joinCodeInput'),roomLobby:$('#roomLobby'),roomCodeDisplay:$('#roomCodeDisplay'),roomPlayers:$('#roomPlayers'),readyBtn:$('#readyBtn'),roomStatusText:$('#roomStatusText'),reactionToast:$('#reactionToast'),reactionWhite:$('#reactionWhite'),reactionBlack:$('#reactionBlack'),victoryBanner:$('#victoryBanner'),reactionCard:$('#reactionCard'),rulesQuickCard:$('#rulesQuickCard'),rulesPanelToggle:$('#rulesPanelToggle'),logCard:$('#logCard'),logPanelToggle:$('#logPanelToggle')
 };
 const state=createInitialState();
-const profilePreferences={displayName:'',avatarPreference:DEFAULT_AVATAR_PREFERENCE,avatarPickerExpanded:false,saveMessage:'',saveTone:'',linkMessage:'',linkTone:''};
+const profilePreferences={displayName:'',displayNameDraft:null,avatarPreference:DEFAULT_AVATAR_PREFERENCE,avatarPickerExpanded:false,saveMessage:'',saveTone:'',linkMessage:'',linkTone:''};
 const welcomeState={completed:false,message:'',tone:''};
+const lobbySelection={lastMode:'computer'};
 function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
 function rnd(min,max){return Math.floor(Math.random()*(max-min+1))+min;}
 function actorName(actor){
@@ -972,7 +1028,7 @@ function syncCurrentPlayerProfile(displayName,avatarPreference=profilePreference
   void syncPlayerProfile({database:db,ref,get,set,update,uid:authSession.getUid(),displayName,avatarPreference,isAnonymous:authSession.getIsAnonymous?.()!==false});
 }
 function getCurrentProfilePanelViewModel(){
-  const typedName=profilePreferences.displayName||els.playerNameInput?.value||'';
+  const typedName=profilePreferences.displayNameDraft!==null?profilePreferences.displayNameDraft:(profilePreferences.displayName||els.playerNameInput?.value||'');
   const actor=localActor();
   const stateName=state.playerNames?.[actor]||state.playerNames?.human||'';
   const authStatus=authSession.getStatus?.()||'fallback';
@@ -982,6 +1038,7 @@ function getCurrentProfilePanelViewModel(){
 }
 function applyProfileEditView(editView){
   profilePreferences.displayName=editView.displayName;
+  profilePreferences.displayNameDraft=null;
   profilePreferences.avatarPreference=editView.avatarPreference;
   if(els.playerNameInput)els.playerNameInput.value=editView.displayName;
   const actor=localActor();
@@ -1147,7 +1204,7 @@ function renderProfilePanel(){
   const view=getCurrentProfilePanelViewModel();
   if(els.profilePanelAvatar)els.profilePanelAvatar.textContent=view.avatarText;
   if(els.profilePanelName)els.profilePanelName.textContent=view.displayName;
-  if(els.profileDisplayNameInput&&document.activeElement!==els.profileDisplayNameInput)els.profileDisplayNameInput.value=view.displayName;
+  if(els.profileDisplayNameInput&&document.activeElement!==els.profileDisplayNameInput)els.profileDisplayNameInput.value=profilePreferences.displayNameDraft!==null?profilePreferences.displayNameDraft:view.displayName;
   if(els.profilePanelStatus)els.profilePanelStatus.textContent=view.authLabel;
   if(els.profilePanelNote)els.profilePanelNote.textContent=view.note;
   if(els.profilePanelUpgradeTitle)els.profilePanelUpgradeTitle.textContent=view.accountUpgradeTitle;
@@ -1179,6 +1236,8 @@ function renderProfilePanel(){
 }
 function setProfilePanelOpen(isOpen){
   if(!els.profilePanel)return;
+  if(isOpen&&profilePreferences.displayNameDraft===null)profilePreferences.displayNameDraft=getCurrentProfilePanelViewModel().displayName;
+  if(!isOpen)profilePreferences.displayNameDraft=null;
   renderProfilePanel();
   els.profilePanel.hidden=!isOpen;
   els.profileChip?.setAttribute('aria-expanded',isOpen?'true':'false');
@@ -1804,11 +1863,11 @@ function setCollapsiblePanel(card,toggle,expanded,openText,closeText){
 }
 function toggleRulesQuickPanel(){
   const expanded=els.rulesQuickCard?.classList.contains('collapsed');
-  setCollapsiblePanel(els.rulesQuickCard,els.rulesPanelToggle,expanded,'📜 חוקים','סגור חוקים');
+  setCollapsiblePanel(els.rulesQuickCard,els.rulesPanelToggle,expanded,'חוקים','סגור');
 }
 function toggleLogPanel(){
   const expanded=els.logCard?.classList.contains('collapsed');
-  setCollapsiblePanel(els.logCard,els.logPanelToggle,expanded,'מהלכים','סגור מהלכים');
+  setCollapsiblePanel(els.logCard,els.logPanelToggle,expanded,'מהלכים','סגור');
 }
 function setupEvents(){
   const warmRollSounds=()=>preloadRollSounds();
@@ -1832,11 +1891,12 @@ function setupEvents(){
   els.profilePanelCloseAction?.addEventListener('click',()=>setProfilePanelOpen(false));
   document.addEventListener('keydown',event=>{if(event.key==='Escape')setProfilePanelOpen(false);});
   document.addEventListener('pointerdown',event=>{if(els.profilePanel?.hidden)return;if(els.profilePanel.contains(event.target)||els.profileChip?.contains(event.target))return;setProfilePanelOpen(false);});
-  els.modeComputerBtn.addEventListener('click',()=>{els.modeComputerBtn.classList.add('active');els.modeFriendBtn.classList.remove('active');els.modeRulesBtn.classList.remove('active');els.computerPanel.classList.add('show');els.onlinePanel.classList.remove('show');els.rulesPanel.classList.remove('show')});
-  els.modeFriendBtn.addEventListener('click',()=>{els.modeFriendBtn.classList.add('active');els.modeComputerBtn.classList.remove('active');els.modeRulesBtn.classList.remove('active');els.onlinePanel.classList.add('show');els.computerPanel.classList.remove('show');els.rulesPanel.classList.remove('show')});
-  els.modeRulesBtn.addEventListener('click',()=>{els.modeRulesBtn.classList.add('active');els.modeComputerBtn.classList.remove('active');els.modeFriendBtn.classList.remove('active');els.rulesPanel.classList.add('show');els.computerPanel.classList.remove('show');els.onlinePanel.classList.remove('show')});
+  els.modeComputerBtn.addEventListener('click',()=>{lobbySelection.lastMode='computer';els.modeComputerBtn.classList.add('active');els.modeFriendBtn.classList.remove('active');els.modeRulesBtn.classList.remove('active');els.computerPanel.classList.add('show');els.onlinePanel.classList.remove('show');els.rulesPanel.classList.remove('show')});
+  els.modeFriendBtn.addEventListener('click',()=>{lobbySelection.lastMode='friend';els.modeFriendBtn.classList.add('active');els.modeComputerBtn.classList.remove('active');els.modeRulesBtn.classList.remove('active');els.onlinePanel.classList.add('show');els.computerPanel.classList.remove('show');els.rulesPanel.classList.remove('show')});
+  els.modeRulesBtn.addEventListener('click',()=>{const isOpen=els.rulesPanel.classList.contains('show');els.modeRulesBtn.classList.toggle('active',!isOpen);els.modeComputerBtn.classList.toggle('active',isOpen&&lobbySelection.lastMode==='computer');els.modeFriendBtn.classList.toggle('active',isOpen&&lobbySelection.lastMode==='friend');els.rulesPanel.classList.toggle('show',!isOpen);els.computerPanel.classList.toggle('show',isOpen&&lobbySelection.lastMode==='computer');els.onlinePanel.classList.toggle('show',isOpen&&lobbySelection.lastMode==='friend')});
   els.createRoomBtn.addEventListener('click',createRoom);els.joinRoomBtn.addEventListener('click',joinRoom);els.readyBtn.addEventListener('click',toggleReady);
   els.playerNameInput?.addEventListener('input',()=>{profilePreferences.displayName='';renderProfileStatus();});
+  els.profileDisplayNameInput?.addEventListener('input',()=>{profilePreferences.displayNameDraft=els.profileDisplayNameInput.value;profilePreferences.saveMessage='';profilePreferences.saveTone='';renderProfileStatus();});
   els.profilePanelForm?.addEventListener('submit',saveProfilePanelEdits);
   els.profilePanelGoogleBtn?.addEventListener('click',connectGoogleAccount);
   document.querySelectorAll('.reactBtn').forEach(b=>b.addEventListener('click',()=>sendReaction(b.dataset.text)));
