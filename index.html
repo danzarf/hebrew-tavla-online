@@ -261,6 +261,58 @@ body:before{content:"";position:fixed;inset:0;pointer-events:none;background:rad
 @media (prefers-reduced-motion:reduce){.floatingPiece.inFlight{animation:none !important;transform:translate(var(--dx),var(--dy)) translate(-50%,-50%) scale(1) !important}}
 
 
+/* Safe premium board-game presentation pass: CSS/DOM only, no click-zone or rules changes. */
+.board{background:radial-gradient(circle at 18% 12%,rgba(255,221,153,.15),transparent 22%),radial-gradient(circle at 82% 88%,rgba(143,76,31,.22),transparent 28%),linear-gradient(135deg,#4b210d 0%,#7c4821 22%,#2a1207 47%,#130805 58%,#5f3215 82%,#a2632f 100%);box-shadow:inset 0 0 0 1px rgba(255,232,177,.36),inset 0 0 0 8px rgba(37,16,7,.88),inset 0 0 0 15px rgba(5,2,1,.58),inset 0 22px 34px rgba(255,219,146,.055),inset 0 -30px 56px rgba(0,0,0,.52),0 28px 66px rgba(0,0,0,.68)}
+.board:before{background:repeating-linear-gradient(92deg,rgba(255,232,177,.035) 0 1px,rgba(61,25,9,.055) 1px 8px,rgba(0,0,0,.045) 8px 13px),linear-gradient(115deg,rgba(255,241,204,.06),transparent 22%,rgba(0,0,0,.20) 52%,transparent 84%,rgba(255,221,151,.04));opacity:.72;mix-blend-mode:soft-light}
+.boardInner{background:radial-gradient(ellipse at 50% 50%,rgba(255,238,190,.055),transparent 52%),linear-gradient(90deg,#281309 0%,#5a2e13 22%,#2d1509 49%,#5a2e13 78%,#281309 100%);box-shadow:inset 0 0 0 1px rgba(255,231,176,.16),inset 0 14px 26px rgba(255,255,255,.03),inset 0 -26px 46px rgba(0,0,0,.50),0 0 0 1px rgba(0,0,0,.30)}
+.point:before{left:6%;right:6%;height:94%;filter:drop-shadow(0 8px 5px rgba(0,0,0,.48));background-size:100% 100%,18px 18px,100% 100%;transition:filter .16s ease,opacity .16s ease,transform .16s ease}
+.point.red:before{background-image:linear-gradient(180deg,rgba(255,211,151,.18),transparent 26%,rgba(0,0,0,.22) 78%),repeating-linear-gradient(96deg,rgba(255,237,191,.060) 0 1px,transparent 1px 6px),linear-gradient(180deg,#a5452e 0%,#6f2018 52%,#2f0d09 100%)}
+.point.green:before{background-image:linear-gradient(180deg,rgba(255,220,154,.16),transparent 28%,rgba(0,0,0,.24) 80%),repeating-linear-gradient(94deg,rgba(255,231,176,.055) 0 1px,transparent 1px 7px),linear-gradient(180deg,#9b6731 0%,#653514 52%,#271005 100%)}
+.point:hover:not(.highlight):not(.selected):before{filter:drop-shadow(0 8px 6px rgba(0,0,0,.40)) brightness(1.15) saturate(1.08);opacity:1;transform:translateY(-1px)}
+.point.highlight:after,.offTray.highlight:after,.barArea.highlight:after{border-color:rgba(255,217,128,.96);box-shadow:0 0 0 1px rgba(255,255,255,.18),0 0 18px rgba(255,190,86,.58),inset 0 0 22px rgba(255,190,86,.22);background:radial-gradient(circle at 50% 50%,rgba(255,212,116,.18),transparent 62%)}
+.point.selected:after,.barArea.selected:after{border-color:rgba(120,213,255,.98);box-shadow:0 0 0 1px rgba(255,255,255,.20),0 0 22px rgba(105,201,255,.66),inset 0 0 17px rgba(105,201,255,.20);background:radial-gradient(circle at 50% 50%,rgba(105,201,255,.13),transparent 62%)}
+.piece,.floatingPiece,.barMini{background-size:100% 100%;box-shadow:inset 0 3px 4px rgba(255,255,255,.52),inset 0 -7px 10px rgba(0,0,0,.38),inset 0 0 0 2px rgba(255,255,255,.08),0 9px 14px rgba(0,0,0,.44);transition:filter .18s ease,transform .18s cubic-bezier(.2,.7,.2,1)}
+.piece.white,.floatingPiece.white,.barMini.white{background:radial-gradient(circle at 31% 22%,#fffaf0 0%,#f2dfbd 42%,#b8935f 72%,#7a552d 100%);border:1px solid rgba(255,255,255,.66)}
+.piece.black,.floatingPiece.black,.barMini.black{background:radial-gradient(circle at 30% 22%,#6d6872 0%,#2d2a30 48%,#090808 78%,#000 100%);border:1px solid rgba(255,255,255,.16)}
+.piece:after,.floatingPiece:after{content:"";position:absolute;inset:17%;border-radius:50%;border:1px solid rgba(255,255,255,.16);box-shadow:inset 0 2px 3px rgba(255,255,255,.13),inset 0 -2px 4px rgba(0,0,0,.20);pointer-events:none}
+.piece:hover{transform:translateY(-2px) scale(1.055);filter:brightness(1.12)}
+.floatingPiece.inFlight{animation:pieceFlightPremium var(--flight-ms,360ms) cubic-bezier(.18,.72,.18,1) forwards}
+@keyframes pieceFlightPremium{0%{transform:translate(-50%,-50%) scale(1);filter:brightness(1)}38%{transform:translate(calc(var(--dx) * .38),calc(var(--dy) * .38 - 18px)) translate(-50%,-50%) scale(1.06);filter:brightness(1.10)}100%{transform:translate(var(--dx),var(--dy)) translate(-50%,-50%) scale(1);filter:brightness(1.03)}}
+.diceDock{--dice-x:-50%;--dice-y:-50%;--throw-x:0px;--throw-y:0px;transition:left .28s var(--ease-premium),transform .28s var(--ease-premium),box-shadow .18s ease;perspective:700px;pointer-events:auto}
+.diceDock.dicePerspectiveOwn{left:73%;--dice-x:-50%;--throw-x:clamp(46px,8vw,110px);--throw-y:clamp(-18px,-2vw,-6px)}
+.diceDock.dicePerspectiveOpponent{left:27%;--dice-x:-50%;--throw-x:clamp(-110px,-8vw,-46px);--throw-y:clamp(-18px,-2vw,-6px)}
+.diceDock.dicePerspectiveCenter{left:50%;--dice-x:-50%;--throw-x:0px;--throw-y:clamp(-18px,-2vw,-6px)}
+.diceDock.rolling{animation:diceDockThrowPremium var(--dice-roll-ms,1050ms) cubic-bezier(.16,.72,.16,1) both;box-shadow:0 16px 34px rgba(0,0,0,.56),0 0 28px rgba(255,218,143,.18),inset 0 1px 0 rgba(255,255,255,.14)}
+.diceDock.settling .die{filter:drop-shadow(0 7px 6px rgba(0,0,0,.42)) brightness(1.08)}
+@keyframes diceDockThrowPremium{0%{transform:translate(calc(var(--dice-x) + var(--throw-x)),calc(var(--dice-y) + var(--throw-y))) scale(.90) rotateZ(-7deg)}42%{transform:translate(calc(var(--dice-x) - var(--throw-x) * .16),calc(var(--dice-y) + 9px)) scale(1.035) rotateZ(4deg)}64%{transform:translate(calc(var(--dice-x) + var(--throw-x) * .05),calc(var(--dice-y) - 5px)) scale(1.01) rotateZ(-2deg)}82%{transform:translate(var(--dice-x),calc(var(--dice-y) + 3px)) scale(1.004) rotateZ(1deg)}100%{transform:translate(var(--dice-x),var(--dice-y)) scale(1) rotateZ(0)}}
+.diceDock.rolling .die{animation:premiumDiceTumble .22s cubic-bezier(.34,.72,.34,1) infinite alternate}.diceDock.rolling .die:nth-child(2){animation-delay:.065s}
+@keyframes premiumDiceTumble{from{transform:translateY(-4px) rotateX(28deg) rotateY(-18deg) rotateZ(-11deg);filter:brightness(1.12)}to{transform:translateY(5px) rotateX(58deg) rotateY(17deg) rotateZ(15deg);filter:brightness(.98)}}
+@media (max-width:700px){.diceDock.dicePerspectiveOwn{left:69%}.diceDock.dicePerspectiveOpponent{left:31%}.point:before{left:4%;right:4%}}
+@media (prefers-reduced-motion:reduce){.diceDock.rolling{animation:none !important}.floatingPiece.inFlight{animation:none !important;transform:translate(var(--dx),var(--dy)) translate(-50%,-50%) scale(1) !important}}
+
+
+
+/* Unified premium 2.5D board: DOM remains gameplay/hit-zone layer, visuals are fully restyled to avoid old-board + overlay mixing. */
+.board.board3dActive{background:radial-gradient(circle at 18% 10%,rgba(255,229,166,.16),transparent 24%),radial-gradient(circle at 82% 88%,rgba(74,29,10,.34),transparent 30%),linear-gradient(135deg,#150805 0%,#4f230d 16%,#8a5226 31%,#2d1207 49%,#1b0904 57%,#6f3a17 78%,#b07036 100%);box-shadow:inset 0 0 0 1px rgba(255,235,190,.38),inset 0 0 0 9px rgba(49,20,8,.92),inset 0 0 0 18px rgba(7,3,1,.70),inset 0 22px 38px rgba(255,221,151,.07),inset 0 -34px 60px rgba(0,0,0,.55),0 28px 72px rgba(0,0,0,.72)}
+.board.board3dActive:before{opacity:.86;background:repeating-linear-gradient(93deg,rgba(255,230,177,.035) 0 1px,rgba(55,22,7,.06) 1px 8px,rgba(0,0,0,.05) 8px 14px),linear-gradient(115deg,rgba(255,245,210,.08),transparent 22%,rgba(0,0,0,.24) 52%,transparent 84%,rgba(255,216,142,.05));mix-blend-mode:soft-light}
+.board.board3dActive:after{content:"";position:absolute;inset:clamp(18px,2.1vw,30px);border-radius:20px;border:1px solid rgba(255,226,155,.28);box-shadow:inset 0 0 0 1px rgba(0,0,0,.46),inset 0 16px 28px rgba(255,237,190,.035),inset 0 -22px 42px rgba(0,0,0,.38);pointer-events:none;z-index:2}
+.board.board3dActive .boardInner{z-index:3;background:radial-gradient(ellipse at 50% 50%,rgba(255,232,177,.09),transparent 52%),linear-gradient(90deg,#261009 0%,#6c3c1d 24%,#2b1309 49%,#6c3c1d 76%,#261009 100%);box-shadow:inset 0 0 0 1px rgba(255,231,176,.18),inset 0 12px 24px rgba(255,255,255,.025),inset 0 -28px 46px rgba(0,0,0,.52);border-radius:20px}
+.board.board3dActive .point:before{left:7%;right:7%;height:95%;opacity:1;background-size:100% 100%,18px 18px,100% 100%;filter:drop-shadow(0 9px 7px rgba(0,0,0,.52));transition:filter .16s ease,opacity .16s ease,transform .16s ease}
+.board.board3dActive .point.red:before{background-image:linear-gradient(180deg,rgba(255,218,156,.18),transparent 28%,rgba(0,0,0,.30) 84%),repeating-linear-gradient(96deg,rgba(255,238,196,.07) 0 1px,transparent 1px 7px),linear-gradient(180deg,#a43f2c 0%,#7a2319 50%,#300d08 100%)}
+.board.board3dActive .point.green:before{background-image:linear-gradient(180deg,rgba(255,224,162,.16),transparent 28%,rgba(0,0,0,.30) 84%),repeating-linear-gradient(94deg,rgba(255,234,184,.065) 0 1px,transparent 1px 7px),linear-gradient(180deg,#9f6830 0%,#674016 52%,#261006 100%)}
+.board.board3dActive .point:hover:not(.highlight):not(.selected):before{filter:drop-shadow(0 10px 8px rgba(0,0,0,.42)) brightness(1.15) saturate(1.08);transform:translateY(-1px)}
+.board.board3dActive .point.highlight:after,.board.board3dActive .offTray.highlight:after,.board.board3dActive .barArea.highlight:after{border-color:rgba(255,214,116,.98);box-shadow:0 0 0 1px rgba(255,255,255,.20),0 0 22px rgba(255,190,86,.58),inset 0 0 22px rgba(255,190,86,.22);background:radial-gradient(circle at 50% 50%,rgba(255,212,116,.20),transparent 62%);animation:none}
+.board.board3dActive .point.selected:after,.board.board3dActive .barArea.selected:after{border-color:rgba(122,211,255,.98);box-shadow:0 0 0 1px rgba(255,255,255,.22),0 0 24px rgba(110,201,255,.64),inset 0 0 18px rgba(122,211,255,.22);background:radial-gradient(circle at 50% 50%,rgba(105,201,255,.15),transparent 62%)}
+.board.board3dActive .barArea{background:linear-gradient(180deg,rgba(12,5,2,.94),rgba(116,70,31,.54) 44%,rgba(26,10,4,.96));border:1px solid rgba(255,231,176,.16);box-shadow:inset 0 0 0 1px rgba(0,0,0,.32),inset 0 18px 28px rgba(255,229,166,.05),inset 0 -18px 32px rgba(0,0,0,.52),0 0 18px rgba(0,0,0,.38)}
+.board.board3dActive .barArea:before{content:"";inset:8px 28%;transform:none;border-radius:999px;background:linear-gradient(90deg,rgba(255,231,176,.08),rgba(255,231,176,.24),rgba(255,231,176,.08));box-shadow:0 0 18px rgba(0,0,0,.32),inset 0 0 8px rgba(255,231,176,.12)}
+.board.board3dActive .piece,.board.board3dActive .floatingPiece,.board.board3dActive .barMini{box-shadow:inset 0 4px 5px rgba(255,255,255,.50),inset 0 -8px 12px rgba(0,0,0,.42),inset 0 0 0 2px rgba(255,255,255,.08),0 10px 15px rgba(0,0,0,.50);transform:translateZ(0)}
+.board.board3dActive .piece.white,.board.board3dActive .floatingPiece.white,.board.board3dActive .barMini.white{background:radial-gradient(circle at 30% 20%,#fffaf0 0%,#efd7aa 40%,#b58b55 72%,#714a22 100%);border-color:rgba(255,255,255,.68)}
+.board.board3dActive .piece.black,.board.board3dActive .floatingPiece.black,.board.board3dActive .barMini.black{background:radial-gradient(circle at 30% 21%,#75717a 0%,#2c292e 46%,#090808 78%,#000 100%);border-color:rgba(255,255,255,.17)}
+.board.board3dActive .piece:after,.board.board3dActive .floatingPiece:after{content:"";position:absolute;inset:18%;border-radius:50%;border:1px solid rgba(255,255,255,.16);box-shadow:inset 0 2px 3px rgba(255,255,255,.13),inset 0 -2px 4px rgba(0,0,0,.22);pointer-events:none}
+.board.board3dActive .diceDock{background:radial-gradient(circle at 50% 0%,rgba(255,236,181,.18),transparent 62%),rgba(12,6,4,.76);border-color:rgba(255,231,176,.28);box-shadow:0 14px 32px rgba(0,0,0,.54),inset 0 1px 0 rgba(255,255,255,.10)}
+.board.board3dActive .die{background:radial-gradient(circle at 28% 20%,#fff 0%,#fff8e8 22%,#ead5b9 56%,#b28a5e 100%);box-shadow:inset 2px 2px 4px rgba(255,255,255,.88),inset -6px -8px 12px rgba(75,42,18,.34),0 10px 16px rgba(0,0,0,.50),0 0 0 1px rgba(60,31,14,.20)}
+
+
 /* תיקון בטוח אחרי הקובץ שעבד: חוקים נכנסים + כפתור סיים תור נעול עד סוף המהלכים */
 .side{
   gap:6px !important;
@@ -733,6 +785,7 @@ import { chooseAiSequence, chooseBestDoubleFor, pipCount } from "./src/game/ai.j
 import { HEB_COLOR, HEB_DIFF, HEB_MODE } from "./src/ui/text.js";
 import { addLog as addLogMessage, computerMoveText, escapeHtml, isImportantComputerMove, logMove as logMoveMessage, renderLog as renderLogMessage, showMessage as showMessageMessage } from "./src/ui/messages.js";
 import { createAnimationHelpers } from "./src/ui/animations.js";
+import { createBoard3DLayer } from "./src/ui/board3d.js";
 import { createRenderHelpers } from "./src/ui/render.js";
 import { createLobbyHelpers } from "./src/ui/lobby.js";
 import { getProfileChipTone } from "./src/ui/profileStatus.js";
@@ -778,6 +831,8 @@ const els={
   modeComputerBtn:$('#modeComputerBtn'),modeFriendBtn:$('#modeFriendBtn'),modeRulesBtn:$('#modeRulesBtn'),computerPanel:$('#computerPanel'),onlinePanel:$('#onlinePanel'),rulesPanel:$('#rulesPanel'),playerNameInput:$('#playerNameInput'),onlineDiceModeSelect:$('#onlineDiceModeSelect'),createRoomBtn:$('#createRoomBtn'),joinRoomBtn:$('#joinRoomBtn'),joinCodeInput:$('#joinCodeInput'),roomLobby:$('#roomLobby'),roomCodeDisplay:$('#roomCodeDisplay'),roomPlayers:$('#roomPlayers'),readyBtn:$('#readyBtn'),roomStatusText:$('#roomStatusText'),reactionToast:$('#reactionToast'),reactionWhite:$('#reactionWhite'),reactionBlack:$('#reactionBlack'),victoryBanner:$('#victoryBanner'),reactionCard:$('#reactionCard')
 };
 const state=createInitialState();
+const board3d = createBoard3DLayer({ boardEl: els.board });
+els.board3d = board3d;
 function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
 function rnd(min,max){return Math.floor(Math.random()*(max-min+1))+min;}
 function actorName(actor){
@@ -1034,7 +1089,7 @@ function startOpeningRoll(){
 }
 async function openingRollLoop(){
   if(state.status!=='opening')return;
-  let [h,c]=rollDicePair();await rollDiceVisual([h,c],1200);
+  let [h,c]=rollDicePair();await rollDiceVisual([h,c],1200,{perspectiveClass:'dicePerspectiveCenter'});
   addLog(`אתה גלגלת: ${h}`);addLog(`המחשב גלגל: ${c}`);
   if(h===c){addLog('תיקו בפתיחה — מגלגלים שוב','special');showMessage('תיקו — מגלגלים שוב');await sleep(900);return openingRollLoop();}
   if(h>c){state.humanColor=WHITE;state.computerColor=BLACK;state.currentActor='human';addLog(`אתה מתחיל ומשחק בלבן`,'special');showMessage('אתה מתחיל ומשחק בלבן',2200);}
@@ -1057,7 +1112,7 @@ async function rollForCurrent(){
   if(isOnline()&&state.currentActor!==localActor())return;
   const actor=state.currentActor;state.status='rolling';renderUI();await syncShared('rolling');
   // rollDiceVisual owns dice-roll audio so each roll action plays only one roll sound.
-  const d=rollDicePair();await rollDiceVisual(d,rnd(1000,1350));state.dice=d;
+  const d=rollDicePair();await rollDiceVisual(d,rnd(1000,1350),{actor});state.dice=d;
   addLog(`${actorName(actor)} גלגל: ${d[0]}–${d[1]}`);renderAll();await syncShared('roll');await sleep(350);processRoll(d);
 }
 
@@ -1256,11 +1311,10 @@ async function rollLastChanceNow(){
   lc.roll=null;
   await syncShared('lastChanceRolling');
   showMessage(`${actorName(actorForColor(winner))} מגלגל לירושלמי...`,2000);
-  playSound('lastChance');
-  await sleep(450);
+  await sleep(250);
   const d=rollDicePair();
   state.dice=d;
-  await rollDiceVisual(d,2200);
+  await rollDiceVisual(d,1500,{actor:actorForColor(winner)});
   lc.roll=d;
   const ok=(d[0]===ch[0]&&d[1]===ch[1])||(d[0]===ch[1]&&d[1]===ch[0]);
   lc.phase='result';
@@ -1364,6 +1418,13 @@ function applyShared(g){
   renderLastChanceUI();
   notifyRemoteDoubleChoice(g);
   if(remoteMove)animateRemoteMove(lm,remoteStart);
+  const remoteRollSignature = g.currentActor !== localActor() && Array.isArray(g.dice) && g.dice[0] && g.dice[1] && g.status === 'rolling'
+    ? `${g.currentActor}|${g.dice[0]}-${g.dice[1]}|${g.log?.length || 0}`
+    : null;
+  if(remoteRollSignature && state.lastRemoteRollSignature !== remoteRollSignature){
+    state.lastRemoteRollSignature = remoteRollSignature;
+    rollDiceVisual(g.dice,1150,{actor:g.currentActor});
+  }
   if(state.lastChance&&state.lastChance.phase==='rolling'&&state.lastChance.rollingId)showRemoteLastChanceRolling(state.lastChance);
   if(state.lastChance&&state.lastChance.resultId)showLastChanceResult(state.lastChance);
   if(state.gameOver&&state.victoryId&&state.lastVictorySeen!==state.victoryId){

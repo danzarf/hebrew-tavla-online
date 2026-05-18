@@ -12,6 +12,9 @@ This project includes user-provided audio assets with attribution recorded below
 | `assets/sounds/dice-roll.mp3` | [Freesound sound 538960](https://freesound.org/s/538960/) by VM83 | Attribution / CC BY | Yes | Kept as the dice-roll fallback. Original audio contained 3 dice throws. Before each throw there was shaking/mixing sound. This output was trimmed to keep only the clean dice landing / roll impact; small fade in/out and volume normalization were applied. |
 | `assets/sounds/.gitkeep` | Project placeholder | N/A | No | Keeps the future sound folder in Git. |
 | `assets/images/.gitkeep` | Project placeholder | N/A | No | Keeps the future image folder in Git. |
+| `assets/models/dice-premium.glb` | ["Dices"](https://skfb.ly/oKKox) by mvision3d | [Creative Commons Attribution 4.0](http://creativecommons.org/licenses/by/4.0/) | Yes | Uploaded GLB asset inspected for future premium dice styles. Not yet rendered in-game; current PR keeps CSS/DOM dice as the active fallback. |
+| `assets/models/backgammon-board.glb` | ["Backgammon"](https://skfb.ly/6zGsY) by tridiart | [Creative Commons Attribution 4.0](http://creativecommons.org/licenses/by/4.0/) | Yes | Uploaded GLB asset inspected for future board presentation. Not yet rendered in-game because it contains board/checker/dice meshes that require safe separation and point mapping. |
+| `assets/models/.gitkeep` | Project placeholder | N/A | No | Keeps the future model folder in Git. |
 
 
 ## Asset requirements

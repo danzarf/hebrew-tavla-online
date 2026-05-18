@@ -26,6 +26,13 @@ The game automatically looks for the following files when a matching sound event
 - Normalize conservatively. Short UI/game SFX should feel quieter than the player's expectation, not louder.
 - Prefer dry sounds or very subtle room tone/reverb so repeated gameplay stays pleasant.
 
+## Current model status
+
+The repository currently contains `assets/models/dice-premium.glb` and `assets/models/backgammon-board.glb`. Both GLB files remain attributed research assets; the active board upgrade is a procedural CSS/DOM 2.5D layer that fits the existing playable grid exactly.
+
+- `assets/models/backgammon-board.glb`: GLB 2.0, about 13.9 MB, with board, checkers, dice, hinge, wood, and fabric materials; no built-in animations. It is not active in gameplay because preview testing showed it did not align with the existing 24 hit zones/checker positions and created a mixed “old board plus 3D object” result. Future GLB-board work should use either true 3D checker/raycast mapping or a model authored to the current top-down board proportions.
+- `assets/models/dice-premium.glb`: GLB 2.0, about 18.3 MB, with separate dice-style meshes/materials named plastic, metal, bone, and marble; no built-in animations. It remains a research asset until exact 1–6 face-orientation mapping and mobile-safe sizing are verified. Current gameplay uses the upgraded procedural DOM dice so final values stay readable and state-driven.
+
 ## Visual assets to find later
 
 Do not replace visuals until the chosen direction is reviewed on desktop and mobile. CSS/SVG is likely safer than bitmap textures for dice and checkers because it keeps edges sharp, reduces download size, and avoids click-zone issues.
