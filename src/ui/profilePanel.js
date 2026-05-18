@@ -46,12 +46,14 @@ export function buildProfilePanelViewModel({
   authStatus = 'initializing',
   hasAuthenticatedUid = false,
   isAnonymous = true,
+  googleLinkingEnabled = false,
   avatarPreference = DEFAULT_AVATAR_PREFERENCE,
 } = {}) {
   const displayName = resolveProfileDisplayName({ typedName, stateName });
   const statusText = getProfileStatusText({ authStatus, hasAuthenticatedUid, isAnonymous });
   const authLabel = getProfilePanelAuthLabel({ authStatus, hasAuthenticatedUid, isAnonymous });
   const isLinkedAccount = Boolean((hasAuthenticatedUid || authStatus === 'linked') && isAnonymous === false);
+  const canTryGoogleLink = Boolean(googleLinkingEnabled && hasAuthenticatedUid && authStatus !== 'fallback' && !isLinkedAccount);
   const safeAvatarPreference = sanitizeAvatarPreference(avatarPreference);
 
   return {
@@ -68,11 +70,15 @@ export function buildProfilePanelViewModel({
     accountUpgradeBody: isLinkedAccount
       ? 'החשבון מחובר ל-Google. פרופיל האורח נשמר תחת אותו משתמש.'
       : 'חיבור מלא יאפשר בהמשך לשמור התקדמות בין מכשירים בלי לאבד את פרופיל האורח.',
-    googleButtonText: isLinkedAccount ? 'חשבון Google מחובר' : 'חבר חשבון Google',
-    googleButtonDisabled: isLinkedAccount || !hasAuthenticatedUid || authStatus === 'fallback',
+    googleButtonText: isLinkedAccount
+      ? 'חשבון Google מחובר'
+      : googleLinkingEnabled ? 'חבר חשבון Google' : 'Google יופעל בקרוב',
+    googleButtonDisabled: !canTryGoogleLink,
     googleSetupNote: isLinkedAccount
       ? 'אין צורך בפעולה נוספת כרגע.'
-      : 'אם החיבור לא זמין, אפשר להמשיך כאורח והמשחק לא ייחסם.',
+      : googleLinkingEnabled
+        ? 'אם החיבור נכשל, אפשר להמשיך כאורח והמשחק לא ייחסם.'
+        : 'התחברות Google תופעל אחרי הגדרת Firebase והדומיין המורשה.',
     placeholderNote: 'הנתונים כאן הם מצייני מקום ולא נשמרים עדיין.',
     saveHint: hasAuthenticatedUid
       ? 'נשמרים רק שם ואווטאר בטוחים.'

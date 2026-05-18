@@ -18,12 +18,16 @@ export function getGoogleLinkFriendlyMessage(error) {
     return 'החיבור בוטל, אפשר להמשיך כאורח.';
   }
 
+  if (code === 'auth/popup-blocked') {
+    return 'הדפדפן חסם את חלון Google. אפשר להמשיך כאורח ולנסות שוב אחר כך.';
+  }
+
   if (code === 'auth/credential-already-in-use' || code === 'auth/email-already-in-use') {
     return 'חשבון Google הזה כבר מחובר לשחקן אחר. נשארים כאורח כדי לא לאבד את הפרופיל הנוכחי.';
   }
 
-  if (code === 'auth/operation-not-allowed' || code === 'auth/configuration-not-found') {
-    return 'התחברות Google עדיין לא זמינה כאן. אפשר להמשיך כאורח.';
+  if (code === 'auth/operation-not-allowed' || code === 'auth/configuration-not-found' || code === 'auth/unauthorized-domain') {
+    return 'התחברות Google תופעל אחרי הגדרת Firebase והדומיין המורשה. אפשר להמשיך כאורח.';
   }
 
   return FRIENDLY_GOOGLE_LINK_ERROR;

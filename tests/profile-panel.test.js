@@ -27,7 +27,9 @@ test('buildProfilePanelViewModel shows sanitized display name and anonymous conn
   assert.match(view.note, /כאורח/);
   assert.equal(view.accountUpgradeTitle, 'שמור התקדמות');
   assert.match(view.accountUpgradeBody, /בין מכשירים/);
-  assert.equal(view.googleButtonText, 'חבר חשבון Google');
+  assert.equal(view.googleButtonText, 'Google יופעל בקרוב');
+  assert.equal(view.googleButtonDisabled, true);
+  assert.match(view.googleSetupNote, /Firebase/);
 });
 
 test('profile panel exposes only safe editable profile fields', () => {
@@ -68,6 +70,19 @@ test('profile panel progression fields are coming-soon placeholders only', () =>
   );
   assert.ok(view.progressPlaceholders.every(item => item.value === 'בקרוב'));
   assert.match(view.placeholderNote, /לא נשמרים עדיין/);
+});
+
+test('profile panel enables Google button only when the feature is configured', () => {
+  const view = buildProfilePanelViewModel({
+    typedName: 'דנה',
+    authStatus: 'authenticated',
+    hasAuthenticatedUid: true,
+    googleLinkingEnabled: true,
+  });
+
+  assert.equal(view.googleButtonText, 'חבר חשבון Google');
+  assert.equal(view.googleButtonDisabled, false);
+  assert.match(view.googleSetupNote, /אפשר להמשיך כאורח/);
 });
 
 test('profile panel shows linked Google account copy without exposing technical details', () => {
