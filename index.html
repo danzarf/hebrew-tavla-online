@@ -143,8 +143,8 @@ button,select,input{font-family:inherit}
 .homeHero p,.gameSetupStep>p{margin:0;color:#ffe7b0;line-height:1.35;font-size:13px}.homeAccountMini{display:flex;align-items:center;justify-content:center;gap:8px;min-height:32px;font-size:12px;color:rgba(255,231,176,.80)}
 .homeAccountMiniAvatar{width:28px;height:28px;border-radius:999px;display:grid;place-items:center;background:linear-gradient(180deg,#ffe7a8,#b9792c);box-shadow:inset 0 1px 0 rgba(255,255,255,.28)}.homeStatusBadge{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:4px 8px;background:rgba(0,0,0,.18);border:1px solid rgba(255,231,176,.15);font-weight:900;color:#ffeec5}.homeStatusBadge.connected{color:#9ff0bf;border-color:rgba(94,227,154,.35);background:rgba(94,227,154,.11)}
 .welcomeActions{grid-template-columns:1fr 1fr;align-items:stretch;margin-top:2px}.welcomeGuestBtn,.welcomeGoogleBtn{min-height:42px}.welcomeGoogleBtn.connected{border-color:rgba(94,227,154,.42);color:#9ff0bf}.welcomeMessage,.welcomeSetupNote{min-height:14px}.guestNameStep{display:grid;gap:10px}.guestNameStep[hidden],.welcomeStep[hidden],.gameSetupStep[hidden]{display:none !important}.guestNameActions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.guestNameActions .btn{min-height:40px}
-.gameSetupStep{gap:10px}.gameSetupStep .modeGrid{grid-template-columns:1fr 1fr;gap:8px;margin:4px 0}.choiceBtn{min-height:46px;padding:11px}.startProfileAction{width:100%;min-height:40px}.homeProgressNote{margin:0;text-align:center;font-size:12px;color:rgba(255,231,176,.68);line-height:1.3}.profilePanel{z-index:260}.profileAvatarMoreBtn{width:auto;min-width:56px}.profileAvatarChoices.expanded{max-height:118px;overflow:auto;padding-inline-end:2px}.rollModeToggleBtn{font-size:12px}
-@media (max-width:540px){.modal.homeModal{max-height:calc(100dvh - 24px);overflow:auto}.welcomeActions,.guestNameActions,.gameSetupStep .modeGrid{grid-template-columns:1fr}.formRow{grid-template-columns:1fr}.startProfileAction{width:100%}}
+.gameSetupStep{gap:10px}.gameSetupStep .modeGrid{grid-template-columns:1fr 1fr;gap:8px;margin:4px 0}.choiceBtn{min-height:46px;padding:11px}.startRulesBtn{justify-self:center;min-height:32px;padding:7px 12px;border-radius:999px;font-size:12px}.startRulesBtn.active{background:rgba(255,255,255,.10);border-color:rgba(255,231,176,.25);color:#ffe7b0}.startProfileAction{width:100%;min-height:40px}.homeProgressNote{margin:0;text-align:center;font-size:12px;color:rgba(255,231,176,.68);line-height:1.3}.profilePanel{z-index:260}.profileAvatarMoreBtn{width:auto;min-width:56px}.profileAvatarChoices.expanded{max-height:118px;overflow:auto;padding-inline-end:2px}.rollModeToggleBtn{font-size:12px}.collapsibleCard.collapsed{flex:0 0 auto !important;min-height:0 !important;padding:0 !important;border:0;background:transparent;box-shadow:none}.collapsibleCard.collapsed .collapsibleBody{display:none !important}.collapsibleHeader{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:7px}.collapsibleHeader h3{margin:0 !important}.collapsibleCard.collapsed .collapsibleHeader{margin:0}.collapsibleCard.collapsed .collapsibleHeader h3{display:none}.panelToggleBtn{min-height:32px;padding:6px 10px !important;border-radius:999px;font-size:12px !important;white-space:nowrap}
+@media (max-width:540px){.modal.homeModal{max-height:calc(100dvh - 24px);overflow:auto}.welcomeActions,.guestNameActions,.gameSetupStep .modeGrid{grid-template-columns:1fr}.formRow{grid-template-columns:1fr}.startProfileAction{width:100%}.startRulesBtn{justify-self:stretch}}
 /* Premium visual package: board, checkers, dice and roll feedback only. */
 .boardWrap{filter:drop-shadow(0 22px 34px rgba(0,0,0,.54)) drop-shadow(0 0 22px rgba(246,199,108,.08))}
 .board{background:linear-gradient(135deg,#8a552c 0%,#4a2614 24%,#1b0d08 52%,#6f3d20 74%,#a66b36 100%);box-shadow:inset 0 0 0 2px rgba(255,236,181,.30),inset 0 0 0 10px rgba(40,17,8,.82),inset 0 18px 42px rgba(255,229,166,.08),inset 0 -22px 44px rgba(0,0,0,.38),0 24px 54px rgba(0,0,0,.62)}
@@ -523,12 +523,10 @@ body{
     max-height:46dvh;
   }
   .controls .btn{min-height:32px !important}
-  .rulesQuickCard{display:none}
   .logCard{min-height:76px !important;flex-basis:76px !important}
 }
 
 @media (max-height:520px){
-  .rulesQuickCard{display:none}
   .chatCard{display:none !important}
   .boardWrap{max-height:62dvh}
 }
@@ -643,9 +641,12 @@ body{
           <button class="btn dark reactBtn" data-text="האלגוריתם בטוח דוד שלך 🤔">האלגוריתם בטוח דוד שלך 🤔</button>
         </div>
       </div>
-      <div class="card rulesQuickCard">
-        <h3>חוקים מיוחדים</h3>
-        <div class="quickRules">
+      <div id="rulesQuickCard" class="card rulesQuickCard collapsibleCard collapsed">
+        <div class="collapsibleHeader">
+          <h3>חוקים מיוחדים</h3>
+          <button id="rulesPanelToggle" class="btn dark panelToggleBtn" type="button" aria-expanded="false" aria-controls="rulesQuickBody">📜 חוקים</button>
+        </div>
+        <div id="rulesQuickBody" class="collapsibleBody quickRules">
           <div class="quickRule"><span>1–2</span><b>מפסידים תור</b></div>
           <div class="quickRule"><span>דאבל</span><b>4 מהלכים + עוד תור</b></div>
           <div class="quickRule"><span>3 דאבלים</span><b>מחליפים צדדים</b></div>
@@ -662,9 +663,12 @@ body{
           <div id="countdownInfo" style="display:none"><span id="countdownText">—</span></div>
         </div>
       </div>
-      <div class="card logCard">
-        <h3>לוג מהלכים</h3>
-        <div id="log" class="log"></div>
+      <div id="logCard" class="card logCard collapsibleCard collapsed">
+        <div class="collapsibleHeader">
+          <h3>לוג מהלכים</h3>
+          <button id="logPanelToggle" class="btn dark panelToggleBtn" type="button" aria-expanded="false" aria-controls="log">מהלכים</button>
+        </div>
+        <div id="log" class="log collapsibleBody"></div>
       </div>
     </aside>
   </main>
@@ -713,8 +717,8 @@ body{
         <div class="modeGrid">
           <button id="modeComputerBtn" class="choiceBtn active">🤖 שחק מול מחשב</button>
           <button id="modeFriendBtn" class="choiceBtn">👥 שחק מול חבר</button>
-          <button id="modeRulesBtn" class="choiceBtn">📜 חוקים</button>
         </div>
+        <button id="modeRulesBtn" class="choiceBtn startRulesBtn">📜 חוקים</button>
         <button id="homeProfileBtn" class="btn dark startProfileAction" type="button">הפרופיל שלי</button>
         <div id="computerPanel" class="subPanel show">
           <div class="formRow">
@@ -841,7 +845,7 @@ const els={
   countdownInfo:$('#countdownInfo'),countdownText:$('#countdownText'),log:$('#log'),barWhite:$('#barWhite'),barBlack:$('#barBlack'),
   offWhite:$('#offWhite'),offBlack:$('#offBlack'),pipWhite:$('#pipWhite'),pipBlack:$('#pipBlack'),startModal:$('#startModal'),startBtn:$('#startBtn'),difficultySelect:$('#difficultySelect'),
   doubleModal:$('#doubleModal'),doubleButtons:$('#doubleButtons'),lastChanceModal:$('#lastChanceModal'),lastChanceText:$('#lastChanceText'),chanceA:$('#chanceA'),chanceB:$('#chanceB'),chanceBtn:$('#chanceBtn'),
-  modeComputerBtn:$('#modeComputerBtn'),modeFriendBtn:$('#modeFriendBtn'),modeRulesBtn:$('#modeRulesBtn'),computerPanel:$('#computerPanel'),onlinePanel:$('#onlinePanel'),rulesPanel:$('#rulesPanel'),playerNameInput:$('#playerNameInput'),createRoomBtn:$('#createRoomBtn'),joinRoomBtn:$('#joinRoomBtn'),joinCodeInput:$('#joinCodeInput'),roomLobby:$('#roomLobby'),roomCodeDisplay:$('#roomCodeDisplay'),roomPlayers:$('#roomPlayers'),readyBtn:$('#readyBtn'),roomStatusText:$('#roomStatusText'),reactionToast:$('#reactionToast'),reactionWhite:$('#reactionWhite'),reactionBlack:$('#reactionBlack'),victoryBanner:$('#victoryBanner'),reactionCard:$('#reactionCard')
+  modeComputerBtn:$('#modeComputerBtn'),modeFriendBtn:$('#modeFriendBtn'),modeRulesBtn:$('#modeRulesBtn'),computerPanel:$('#computerPanel'),onlinePanel:$('#onlinePanel'),rulesPanel:$('#rulesPanel'),playerNameInput:$('#playerNameInput'),createRoomBtn:$('#createRoomBtn'),joinRoomBtn:$('#joinRoomBtn'),joinCodeInput:$('#joinCodeInput'),roomLobby:$('#roomLobby'),roomCodeDisplay:$('#roomCodeDisplay'),roomPlayers:$('#roomPlayers'),readyBtn:$('#readyBtn'),roomStatusText:$('#roomStatusText'),reactionToast:$('#reactionToast'),reactionWhite:$('#reactionWhite'),reactionBlack:$('#reactionBlack'),victoryBanner:$('#victoryBanner'),reactionCard:$('#reactionCard'),rulesQuickCard:$('#rulesQuickCard'),rulesPanelToggle:$('#rulesPanelToggle'),logCard:$('#logCard'),logPanelToggle:$('#logPanelToggle')
 };
 const state=createInitialState();
 const profilePreferences={displayName:'',avatarPreference:DEFAULT_AVATAR_PREFERENCE,avatarPickerExpanded:false,saveMessage:'',saveTone:'',linkMessage:'',linkTone:''};
@@ -1792,6 +1796,20 @@ function newGameFromModal(){
 
 function openNewGame(){clearTimers();resetStartFlowForNewGame();els.startModal.classList.add('show');}
 function buttonRoll(){if(canHumanRoll())rollForCurrent();}
+function setCollapsiblePanel(card,toggle,expanded,openText,closeText){
+  if(!card||!toggle)return;
+  card.classList.toggle('collapsed',!expanded);
+  toggle.setAttribute('aria-expanded',expanded?'true':'false');
+  toggle.textContent=expanded?closeText:openText;
+}
+function toggleRulesQuickPanel(){
+  const expanded=els.rulesQuickCard?.classList.contains('collapsed');
+  setCollapsiblePanel(els.rulesQuickCard,els.rulesPanelToggle,expanded,'📜 חוקים','סגור חוקים');
+}
+function toggleLogPanel(){
+  const expanded=els.logCard?.classList.contains('collapsed');
+  setCollapsiblePanel(els.logCard,els.logPanelToggle,expanded,'מהלכים','סגור מהלכים');
+}
 function setupEvents(){
   const warmRollSounds=()=>preloadRollSounds();
   document.addEventListener('pointerdown',warmRollSounds,{once:true,capture:true,passive:true});
@@ -1801,6 +1819,8 @@ function setupEvents(){
   els.chanceBtn.addEventListener('click',lastChanceButton);
   els.soundToggleBtn.addEventListener('click',toggleSound);
   els.rollModeToggleBtn?.addEventListener('click',toggleRollMode);
+  els.rulesPanelToggle?.addEventListener('click',toggleRulesQuickPanel);
+  els.logPanelToggle?.addEventListener('click',toggleLogPanel);
   els.welcomeGuestBtn?.addEventListener('click',continueAsGuest);
   els.welcomeGoogleBtn?.addEventListener('click',connectGoogleAccountFromWelcome);
   els.guestNameContinueBtn?.addEventListener('click',finishGuestNameStep);
