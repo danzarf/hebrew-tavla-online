@@ -665,13 +665,13 @@ body{
   <div class="modal">
     <section id="welcomeStep" class="welcomeStep" aria-label="כניסה למשחק">
       <h2>ששבש טורקי</h2>
-      <p>אפשר לשחק כאורח או לשמור התקדמות עם חשבון כש-Google יהיה זמין.</p>
+      <p>אפשר לשחק כאורח או לשמור את פרופיל האורח עם חשבון Google.</p>
       <div class="welcomeActions">
         <button id="welcomeGuestBtn" class="btn welcomeGuestBtn" type="button">המשך כאורח</button>
-        <button id="welcomeGoogleBtn" class="btn dark welcomeGoogleBtn" type="button">Google יופעל בקרוב</button>
+        <button id="welcomeGoogleBtn" class="btn dark welcomeGoogleBtn" type="button">חבר חשבון Google</button>
       </div>
       <p id="welcomeMessage" class="welcomeMessage" aria-live="polite"></p>
-      <p id="welcomeSetupNote" class="welcomeSetupNote">התחברות Google תופעל אחרי הגדרת Firebase והדומיין המורשה.</p>
+      <p id="welcomeSetupNote" class="welcomeSetupNote">אם החיבור נכשל, אפשר להמשיך כאורח.</p>
     </section>
     <section id="gameSetupStep" class="gameSetupStep" aria-label="בחירת משחק" hidden>
     <h2>משחק חדש</h2>
@@ -807,8 +807,8 @@ const firebaseConfig = {
 };
 const fbApp = initializeApp(firebaseConfig);
 const db = getDatabase(fbApp);
-const GOOGLE_ACCOUNT_LINKING_ENABLED = false;
-const GOOGLE_SETUP_REQUIRED_MESSAGE = 'התחברות Google תופעל אחרי הגדרת Firebase והדומיין המורשה. אפשר להמשיך כאורח.';
+const GOOGLE_ACCOUNT_LINKING_ENABLED = true;
+const GOOGLE_SETUP_REQUIRED_MESSAGE = 'חיבור Google לא זמין כרגע. אפשר להמשיך כאורח ולנסות שוב אחר כך.';
 const authSession = startAnonymousAuth({
   firebaseApp: fbApp,
   getAuth,
@@ -843,14 +843,26 @@ function isOnline(){return state.gameMode==='online';}
 function localActor(){return isOnline()?state.localActor:'human';}
 function roomRef(code){return ref(db,'rooms/'+code);}
 function roomGameRef(code){return ref(db,'rooms/'+code+'/game');}
+function getGoogleLinkReadiness(){
+  const authStatus=authSession.getStatus?.()||'fallback';
+  const hasAuthenticatedUid=!!authSession.getUid?.();
+  const isLinkedAccount=authSession.getIsAnonymous?.()===false;
+  const canTryGoogleLink=Boolean(GOOGLE_ACCOUNT_LINKING_ENABLED&&hasAuthenticatedUid&&authStatus!=='fallback'&&!isLinkedAccount);
+  return {authStatus,hasAuthenticatedUid,isLinkedAccount,canTryGoogleLink};
+}
 function renderWelcomeAccountEntry(){
+  const googleLinkReadiness=getGoogleLinkReadiness();
   if(els.welcomeGoogleBtn){
     els.welcomeGoogleBtn.textContent=GOOGLE_ACCOUNT_LINKING_ENABLED?'חבר חשבון Google':'Google יופעל בקרוב';
-    els.welcomeGoogleBtn.disabled=!GOOGLE_ACCOUNT_LINKING_ENABLED;
+    els.welcomeGoogleBtn.disabled=!googleLinkReadiness.canTryGoogleLink;
   }
-  if(els.welcomeSetupNote)els.welcomeSetupNote.textContent=GOOGLE_ACCOUNT_LINKING_ENABLED
-    ? 'אם החיבור נכשל, אפשר להמשיך כאורח.'
-    : 'התחברות Google תופעל אחרי הגדרת Firebase והדומיין המורשה.';
+  if(els.welcomeSetupNote)els.welcomeSetupNote.textContent=!GOOGLE_ACCOUNT_LINKING_ENABLED
+    ? 'התחברות Google תופעל אחרי הגדרת Firebase והדומיין המורשה.'
+    : googleLinkReadiness.authStatus==='fallback'
+      ? 'חיבור האורח לא זמין כרגע, אבל אפשר להמשיך כאורח ולנסות שוב אחר כך.'
+      : googleLinkReadiness.hasAuthenticatedUid
+        ? 'אם החיבור נכשל, אפשר להמשיך כאורח.'
+        : 'מכינים חשבון אורח כדי שאפשר יהיה לחבר Google בלי לאבד התקדמות.';
   if(els.welcomeMessage){
     els.welcomeMessage.textContent=welcomeState.message;
     els.welcomeMessage.classList.remove('success','warning');
@@ -936,6 +948,13 @@ async function connectGoogleAccount(){
     renderProfileStatus();
     return {ok:false,reason:'disabled',message:GOOGLE_SETUP_REQUIRED_MESSAGE};
   }
+  if(!authSession.getUid?.()){
+    profilePreferences.linkMessage='מכינים חשבון אורח לפני חיבור Google...';
+    profilePreferences.linkTone='';
+    renderProfileStatus();
+    await authSession.ready.catch(()=>null);
+    authSession.refreshUser?.();
+  }
   profilePreferences.linkMessage='פותחים חיבור Google...';
   profilePreferences.linkTone='';
   renderProfileStatus();
@@ -967,6 +986,7 @@ async function connectGoogleAccount(){
     profilePreferences.linkTone='warning';
   }
   renderProfileStatus();
+  return result;
 }
 async function connectGoogleAccountFromWelcome(){
   if(!GOOGLE_ACCOUNT_LINKING_ENABLED){
