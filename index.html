@@ -665,13 +665,13 @@ body{
   <div class="modal">
     <section id="welcomeStep" class="welcomeStep" aria-label="כניסה למשחק">
       <h2>ששבש טורקי</h2>
-      <p>אפשר לשחק כאורח או לשמור התקדמות עם חשבון כש-Google יהיה זמין.</p>
+      <p>אפשר לשחק כאורח או לשמור את פרופיל האורח עם חשבון Google.</p>
       <div class="welcomeActions">
         <button id="welcomeGuestBtn" class="btn welcomeGuestBtn" type="button">המשך כאורח</button>
-        <button id="welcomeGoogleBtn" class="btn dark welcomeGoogleBtn" type="button">Google יופעל בקרוב</button>
+        <button id="welcomeGoogleBtn" class="btn dark welcomeGoogleBtn" type="button">חבר חשבון Google</button>
       </div>
       <p id="welcomeMessage" class="welcomeMessage" aria-live="polite"></p>
-      <p id="welcomeSetupNote" class="welcomeSetupNote">התחברות Google תופעל אחרי הגדרת Firebase והדומיין המורשה.</p>
+      <p id="welcomeSetupNote" class="welcomeSetupNote">אם החיבור נכשל, אפשר להמשיך כאורח.</p>
     </section>
     <section id="gameSetupStep" class="gameSetupStep" aria-label="בחירת משחק" hidden>
     <h2>משחק חדש</h2>
@@ -807,8 +807,8 @@ const firebaseConfig = {
 };
 const fbApp = initializeApp(firebaseConfig);
 const db = getDatabase(fbApp);
-const GOOGLE_ACCOUNT_LINKING_ENABLED = false;
-const GOOGLE_SETUP_REQUIRED_MESSAGE = 'התחברות Google תופעל אחרי הגדרת Firebase והדומיין המורשה. אפשר להמשיך כאורח.';
+const GOOGLE_ACCOUNT_LINKING_ENABLED = true;
+const GOOGLE_SETUP_REQUIRED_MESSAGE = 'חיבור Google לא זמין כרגע. אפשר להמשיך כאורח ולנסות שוב אחר כך.';
 const authSession = startAnonymousAuth({
   firebaseApp: fbApp,
   getAuth,
@@ -967,6 +967,7 @@ async function connectGoogleAccount(){
     profilePreferences.linkTone='warning';
   }
   renderProfileStatus();
+  return result;
 }
 async function connectGoogleAccountFromWelcome(){
   if(!GOOGLE_ACCOUNT_LINKING_ENABLED){

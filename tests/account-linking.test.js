@@ -71,8 +71,8 @@ test('linkGuestToGoogle does not sign into an existing Google account over the g
 
 test('Google linking errors are mapped to friendly player messages', () => {
   assert.match(getGoogleLinkFriendlyMessage({ code: 'auth/popup-closed-by-user' }), /בוטל/);
-  assert.match(getGoogleLinkFriendlyMessage({ code: 'auth/operation-not-allowed' }), /Firebase/);
-  assert.match(getGoogleLinkFriendlyMessage({ code: 'auth/unauthorized-domain' }), /הדומיין המורשה/);
+  assert.match(getGoogleLinkFriendlyMessage({ code: 'auth/operation-not-allowed' }), /ספק Google/);
+  assert.match(getGoogleLinkFriendlyMessage({ code: 'auth/unauthorized-domain' }), /לא מורשה/);
   assert.match(getGoogleLinkFriendlyMessage({ code: 'auth/popup-blocked' }), /חסם/);
   assert.match(getGoogleLinkFriendlyMessage({ code: 'auth/network-request-failed' }), /אפשר להמשיך כאורח/);
 });

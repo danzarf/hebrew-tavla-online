@@ -26,8 +26,20 @@ export function getGoogleLinkFriendlyMessage(error) {
     return 'חשבון Google הזה כבר מחובר לשחקן אחר. נשארים כאורח כדי לא לאבד את הפרופיל הנוכחי.';
   }
 
-  if (code === 'auth/operation-not-allowed' || code === 'auth/configuration-not-found' || code === 'auth/unauthorized-domain') {
-    return 'התחברות Google תופעל אחרי הגדרת Firebase והדומיין המורשה. אפשר להמשיך כאורח.';
+  if (code === 'auth/operation-not-allowed') {
+    return 'ספק Google עדיין לא מופעל ב-Firebase. אפשר להמשיך כאורח.';
+  }
+
+  if (code === 'auth/configuration-not-found') {
+    return 'הגדרת Firebase לחיבור Google לא זמינה כרגע. אפשר להמשיך כאורח.';
+  }
+
+  if (code === 'auth/unauthorized-domain') {
+    return 'הדומיין הזה עדיין לא מורשה להתחברות Google ב-Firebase. אפשר להמשיך כאורח.';
+  }
+
+  if (code === 'auth/network-request-failed') {
+    return 'יש בעיית רשת בחיבור ל-Google. אפשר להמשיך כאורח ולנסות שוב אחר כך.';
   }
 
   return FRIENDLY_GOOGLE_LINK_ERROR;
