@@ -39,6 +39,15 @@ export function getAuthenticatedUid(authState) {
   return authState?.uid || authState?.user?.uid || null;
 }
 
+export function isAnonymousAuthUser(user) {
+  return user?.isAnonymous !== false;
+}
+
+export function getAuthSessionStatus(user, fallbackStatus = 'signedOut') {
+  if (!user?.uid) return fallbackStatus;
+  return isAnonymousAuthUser(user) ? 'authenticated' : 'linked';
+}
+
 export function resolvePlayerId({ authenticatedUid, localGuestId }) {
   return authenticatedUid || localGuestId;
 }
@@ -46,8 +55,12 @@ export function resolvePlayerId({ authenticatedUid, localGuestId }) {
 export function createAuthFallbackSession(error = null) {
   return {
     ready: Promise.resolve(null),
+    getAuth: () => null,
+    getUser: () => null,
     getUid: () => null,
     getStatus: () => 'fallback',
+    getIsAnonymous: () => true,
+    refreshUser: () => null,
     getError: () => error,
     stop: () => {},
   };
@@ -77,6 +90,14 @@ export function startAnonymousAuth({
     unsubscribe: null,
   };
 
+  const applyUser = user => {
+    state.user = user || null;
+    state.uid = user?.uid || null;
+    state.status = getAuthSessionStatus(user, state.uid ? 'authenticated' : 'signedOut');
+    if (state.uid) onReady?.(state.uid, state.user);
+    return state.uid;
+  };
+
   try {
     state.auth = getAuth(firebaseApp);
 
@@ -84,10 +105,7 @@ export function startAnonymousAuth({
       state.unsubscribe = onAuthStateChanged(
         state.auth,
         user => {
-          state.user = user || null;
-          state.uid = user?.uid || null;
-          state.status = state.uid ? 'authenticated' : 'signedOut';
-          if (state.uid) onReady?.(state.uid, state.user);
+          applyUser(user);
         },
         error => {
           state.error = error;
@@ -98,14 +116,12 @@ export function startAnonymousAuth({
       );
     }
 
-    const ready = signInAnonymously(state.auth)
-      .then(credential => {
-        state.user = credential?.user || state.auth.currentUser || null;
-        state.uid = state.user?.uid || null;
-        state.status = state.uid ? 'authenticated' : 'fallback';
-        if (state.uid) onReady?.(state.uid, state.user);
-        return state.uid;
+    const ready = Promise.resolve(state.auth?.currentUser || null)
+      .then(currentUser => {
+        if (currentUser?.uid) return { user: currentUser };
+        return signInAnonymously(state.auth);
       })
+      .then(credential => applyUser(credential?.user || state.auth.currentUser || null))
       .catch(error => {
         state.error = error;
         state.status = 'fallback';
@@ -116,8 +132,12 @@ export function startAnonymousAuth({
 
     return {
       ready,
+      getAuth: () => state.auth,
+      getUser: () => state.user,
       getUid: () => state.uid,
       getStatus: () => state.status,
+      getIsAnonymous: () => isAnonymousAuthUser(state.user),
+      refreshUser: () => applyUser(state.auth?.currentUser || state.user),
       getError: () => state.error,
       stop: () => {
         if (state.unsubscribe) state.unsubscribe();

@@ -6,6 +6,8 @@ import {
   getAuthenticatedUid,
   getOrCreateLocalGuestId,
   resolvePlayerId,
+  getAuthSessionStatus,
+  isAnonymousAuthUser,
   startAnonymousAuth,
 } from '../src/firebase/auth.js';
 
@@ -75,4 +77,28 @@ test('startAnonymousAuth falls back without throwing when Firebase sign-in fails
   assert.equal(session.getUid(), null);
   assert.equal(session.getStatus(), 'fallback');
   assert.equal(session.getError(), error);
+});
+
+
+test('auth helpers identify linked Firebase accounts', () => {
+  assert.equal(isAnonymousAuthUser({ uid: 'anon', isAnonymous: true }), true);
+  assert.equal(isAnonymousAuthUser({ uid: 'linked', isAnonymous: false }), false);
+  assert.equal(getAuthSessionStatus({ uid: 'anon', isAnonymous: true }), 'authenticated');
+  assert.equal(getAuthSessionStatus({ uid: 'linked', isAnonymous: false }), 'linked');
+});
+
+test('startAnonymousAuth reuses an existing linked Firebase user instead of replacing it', async () => {
+  let signInCalls = 0;
+  const linkedUser = { uid: 'linked_uid', isAnonymous: false };
+  const session = startAnonymousAuth({
+    firebaseApp: {},
+    getAuth: () => ({ currentUser: linkedUser }),
+    signInAnonymously: async () => { signInCalls += 1; return { user: { uid: 'new_anon' } }; },
+  });
+
+  assert.equal(await session.ready, 'linked_uid');
+  assert.equal(session.getUid(), 'linked_uid');
+  assert.equal(session.getStatus(), 'linked');
+  assert.equal(session.getIsAnonymous(), false);
+  assert.equal(signInCalls, 0);
 });
