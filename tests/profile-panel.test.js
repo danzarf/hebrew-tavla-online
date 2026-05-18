@@ -3,21 +3,57 @@ import assert from 'node:assert/strict';
 
 import {
   PROFILE_PANEL_PROGRESS_PLACEHOLDERS,
+  PROFILE_PANEL_SAFE_EDIT_FIELDS,
   buildProfilePanelViewModel,
+  buildSafeProfileEditView,
   getProfilePanelAuthLabel,
 } from '../src/ui/profilePanel.js';
+
+const ECONOMY_AND_PROGRESSION_FIELDS = ['coins', 'xp', 'wins', 'losses', 'stats', 'rewards', 'level'];
 
 test('buildProfilePanelViewModel shows sanitized display name and anonymous connection copy', () => {
   const view = buildProfilePanelViewModel({
     typedName: '  דנה\nהאלופה  ',
     authStatus: 'authenticated',
     hasAuthenticatedUid: true,
+    avatarPreference: 'star',
   });
 
   assert.equal(view.displayName, 'דנה האלופה');
   assert.equal(view.statusText, 'אורח מחובר');
   assert.equal(view.authLabel, 'מחובר כאורח');
+  assert.equal(view.avatarPreference, 'star');
+  assert.equal(view.avatarText, '⭐');
   assert.match(view.note, /התחברות מלאה/);
+});
+
+test('profile panel exposes only safe editable profile fields', () => {
+  assert.deepEqual(PROFILE_PANEL_SAFE_EDIT_FIELDS, ['displayName', 'avatarPreference']);
+
+  for (const field of ECONOMY_AND_PROGRESSION_FIELDS) {
+    assert.equal(PROFILE_PANEL_SAFE_EDIT_FIELDS.includes(field), false, `${field} must not be editable from the panel`);
+  }
+});
+
+test('buildSafeProfileEditView sanitizes display name and normalizes unsafe avatars', () => {
+  const view = buildSafeProfileEditView({
+    displayName: '  רוני\tהזריז  ',
+    avatarPreference: 'https://example.com/avatar.png',
+  });
+
+  assert.deepEqual(view, {
+    displayName: 'רוני הזריז',
+    avatarPreference: 'default',
+    avatarText: '👤',
+  });
+});
+
+test('profile panel avatar choices are built-in values only', () => {
+  const view = buildProfilePanelViewModel({ avatarPreference: 'wolf' });
+
+  assert.ok(view.avatarOptions.length >= 6);
+  assert.deepEqual(view.avatarOptions.map(option => option.label), ['👤', '🎲', '🏆', '⭐', '🧿', '🐺']);
+  assert.ok(view.avatarOptions.every(option => !String(option.value).includes('://')));
 });
 
 test('profile panel progression fields are coming-soon placeholders only', () => {
@@ -35,8 +71,10 @@ test('profile panel uses safe guest fallback labels when auth is unavailable', (
   assert.equal(getProfilePanelAuthLabel({ authStatus: 'fallback' }), 'אורח מקומי');
   assert.equal(getProfilePanelAuthLabel({ authStatus: 'initializing' }), 'מתחבר כאורח');
 
-  const view = buildProfilePanelViewModel({ stateName: 'אתה', authStatus: 'fallback' });
+  const view = buildProfilePanelViewModel({ stateName: 'אתה', authStatus: 'fallback', avatarPreference: '<img>' });
   assert.equal(view.displayName, 'אורח');
   assert.equal(view.statusText, 'אורח מקומי');
   assert.equal(view.authLabel, 'אורח מקומי');
+  assert.equal(view.avatarPreference, 'default');
+  assert.match(view.saveHint, /מקומית/);
 });
