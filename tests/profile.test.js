@@ -2,10 +2,14 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import {
+  AVATAR_PREFERENCE_OPTIONS,
+  DEFAULT_AVATAR_PREFERENCE,
   buildProfilePayload,
   createGuestDisplayName,
+  getAvatarPreferenceLabel,
   profilePath,
   SAFE_PROFILE_FIELDS,
+  sanitizeAvatarPreference,
   sanitizeDisplayName,
   syncPlayerProfile,
 } from '../src/firebase/profile.js';
@@ -30,6 +34,17 @@ test('sanitizeDisplayName preserves guest fallback when name is empty', () => {
   assert.equal(createGuestDisplayName(0.999), 'אורח 999');
 });
 
+
+test('sanitizeAvatarPreference accepts only built-in safe avatar choices', () => {
+  assert.equal(sanitizeAvatarPreference('dice'), 'dice');
+  assert.equal(sanitizeAvatarPreference(' evil-eye '), 'evil-eye');
+  assert.equal(sanitizeAvatarPreference('https://example.com/avatar.png'), DEFAULT_AVATAR_PREFERENCE);
+  assert.equal(sanitizeAvatarPreference('<img>'), DEFAULT_AVATAR_PREFERENCE);
+  assert.equal(getAvatarPreferenceLabel('wolf'), '🐺');
+  assert.equal(getAvatarPreferenceLabel('not-allowed'), '👤');
+  assert.ok(AVATAR_PREFERENCE_OPTIONS.every(option => typeof option.value === 'string' && typeof option.label === 'string'));
+});
+
 test('profilePath stores profiles under profiles/{uid}', () => {
   assert.equal(profilePath('anon_uid_123'), 'profiles/anon_uid_123');
 });
@@ -39,7 +54,7 @@ test('buildProfilePayload creates only safe profile fields', () => {
     uid: 'uid_1',
     displayName: 'שחקן',
     isAnonymous: true,
-    avatarPreference: 'blue-checker',
+    avatarPreference: 'dice',
     now: () => 12345,
   });
 
@@ -48,7 +63,7 @@ test('buildProfilePayload creates only safe profile fields', () => {
     uid: 'uid_1',
     displayName: 'שחקן',
     isAnonymous: true,
-    avatarPreference: 'blue-checker',
+    avatarPreference: 'dice',
     createdAt: 12345,
     updatedAt: 12345,
     lastSeenAt: 12345,

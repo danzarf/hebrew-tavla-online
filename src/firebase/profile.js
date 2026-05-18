@@ -1,5 +1,13 @@
 export const PROFILE_COLLECTION_PATH = 'profiles';
 export const DEFAULT_AVATAR_PREFERENCE = 'default';
+export const AVATAR_PREFERENCE_OPTIONS = Object.freeze([
+  Object.freeze({ value: 'default', label: '👤' }),
+  Object.freeze({ value: 'dice', label: '🎲' }),
+  Object.freeze({ value: 'trophy', label: '🏆' }),
+  Object.freeze({ value: 'star', label: '⭐' }),
+  Object.freeze({ value: 'evil-eye', label: '🧿' }),
+  Object.freeze({ value: 'wolf', label: '🐺' }),
+]);
 export const SAFE_PROFILE_FIELDS = Object.freeze([
   'uid',
   'displayName',
@@ -12,6 +20,7 @@ export const SAFE_PROFILE_FIELDS = Object.freeze([
 
 const MAX_DISPLAY_NAME_LENGTH = 18;
 const FALLBACK_DISPLAY_NAME_PREFIX = 'אורח';
+const ALLOWED_AVATAR_PREFERENCES = new Set(AVATAR_PREFERENCE_OPTIONS.map(option => option.value));
 
 export function createGuestDisplayName(randomValue = Math.random()) {
   const guestNumber = Math.floor(100 + randomValue * 900);
@@ -27,6 +36,18 @@ export function sanitizeDisplayName(displayName, { fallbackName = createGuestDis
     .trim();
 
   return normalizedName || fallbackName;
+}
+
+export function sanitizeAvatarPreference(avatarPreference) {
+  const normalizedAvatarPreference = String(avatarPreference || DEFAULT_AVATAR_PREFERENCE).trim();
+  return ALLOWED_AVATAR_PREFERENCES.has(normalizedAvatarPreference)
+    ? normalizedAvatarPreference
+    : DEFAULT_AVATAR_PREFERENCE;
+}
+
+export function getAvatarPreferenceLabel(avatarPreference) {
+  const safeAvatarPreference = sanitizeAvatarPreference(avatarPreference);
+  return AVATAR_PREFERENCE_OPTIONS.find(option => option.value === safeAvatarPreference)?.label || '👤';
 }
 
 export function profilePath(uid) {
@@ -53,7 +74,7 @@ export function buildProfilePayload({
     uid,
     displayName: sanitizeDisplayName(displayName),
     isAnonymous: Boolean(isAnonymous),
-    avatarPreference: String(avatarPreference || DEFAULT_AVATAR_PREFERENCE),
+    avatarPreference: sanitizeAvatarPreference(avatarPreference),
     updatedAt: timestamp,
     lastSeenAt: timestamp,
   };

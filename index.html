@@ -57,6 +57,17 @@ button,select,input{font-family:inherit}
 .profilePanelBody{display:grid;gap:10px}
 .profilePanelNameLabel{font-size:12px;color:rgba(255,231,176,.72);font-weight:800}
 .profilePanelName{padding:9px 11px;border-radius:14px;background:rgba(255,255,255,.075);border:1px solid rgba(255,255,255,.12);font-size:16px;font-weight:900;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.profilePanelForm{display:grid;gap:8px;padding:9px;border-radius:16px;background:rgba(255,255,255,.045);border:1px solid rgba(255,231,176,.13)}
+.profilePanelInput{width:100%;border-radius:12px;border:1px solid rgba(255,231,176,.22);background:rgba(0,0,0,.16);color:#fff;padding:9px 10px;font-size:15px;font-weight:800;outline:none}
+.profilePanelInput:focus{border-color:rgba(246,199,108,.7);box-shadow:0 0 0 3px rgba(246,199,108,.13)}
+.profilePanelAvatarChoices{display:flex;flex-wrap:wrap;gap:7px}
+.profilePanelAvatarChoice{width:36px;height:36px;border-radius:999px;border:1px solid rgba(255,231,176,.22);background:rgba(255,255,255,.07);color:#fff;font-size:18px;cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.08)}
+.profilePanelAvatarChoice:hover{filter:brightness(1.1)}
+.profilePanelAvatarChoice.active{border-color:rgba(94,227,154,.75);background:linear-gradient(180deg,rgba(94,227,154,.24),rgba(255,255,255,.07));box-shadow:0 0 0 2px rgba(94,227,154,.14),inset 0 1px 0 rgba(255,255,255,.12)}
+.profilePanelActions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.profilePanelSaveMessage{min-height:18px;margin:0;font-size:12px;color:rgba(255,231,176,.78);line-height:1.35}
+.profilePanelSaveMessage.success{color:#9ff0bf}
+.profilePanelSaveMessage.warning{color:#ffd58b}
 .profilePanelNote,.profilePanelPlaceholderNote{margin:0;line-height:1.45;font-size:13px;color:#ffe7b0}
 .profilePanelPlaceholderNote{color:rgba(255,231,176,.72)}
 .profilePanelStats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
@@ -513,7 +524,7 @@ body{
     <div class="title">🎲 ששבש טורקי אונליין</div>
     <div class="statusLine">
       <button id="profileChip" class="profileChip loading" type="button" aria-live="polite" aria-expanded="false" aria-controls="profilePanel" title="פתיחת הפרופיל שלי">
-        <span class="profileChipAvatar" aria-hidden="true">👤</span>
+        <span id="profileChipAvatar" class="profileChipAvatar" aria-hidden="true">👤</span>
         <span id="profileChipName" class="profileChipName">אורח</span>
         <span id="profileChipStatus" class="profileChipStatus">מתחבר כאורח</span>
       </button>
@@ -529,7 +540,7 @@ body{
 
   <section id="profilePanel" class="profilePanel" aria-label="הפרופיל שלי" hidden>
     <div class="profilePanelHeader">
-      <div class="profilePanelAvatar" aria-hidden="true">👤</div>
+      <div id="profilePanelAvatar" class="profilePanelAvatar" aria-hidden="true">👤</div>
       <div class="profilePanelTitleBlock">
         <h2>הפרופיל שלי</h2>
         <div id="profilePanelStatus" class="profilePanelStatus">מחובר כאורח</div>
@@ -537,8 +548,18 @@ body{
       <button id="profilePanelCloseBtn" class="profilePanelClose" type="button" aria-label="סגור פרופיל">×</button>
     </div>
     <div class="profilePanelBody">
-      <div class="profilePanelNameLabel">שם תצוגה</div>
+      <div class="profilePanelNameLabel">שם תצוגה נוכחי</div>
       <div id="profilePanelName" class="profilePanelName">אורח</div>
+      <form id="profilePanelForm" class="profilePanelForm">
+        <label class="profilePanelNameLabel" for="profileDisplayNameInput">עריכת שם תצוגה</label>
+        <input id="profileDisplayNameInput" class="profilePanelInput" type="text" maxlength="18" autocomplete="nickname" inputmode="text">
+        <div class="profilePanelNameLabel">בחירת אווטאר</div>
+        <div id="profileAvatarChoices" class="profilePanelAvatarChoices" role="radiogroup" aria-label="בחירת אווטאר לפרופיל"></div>
+        <div class="profilePanelActions">
+          <button id="profilePanelSaveBtn" class="btn" type="submit">שמור</button>
+          <p id="profilePanelSaveMessage" class="profilePanelSaveMessage" aria-live="polite"></p>
+        </div>
+      </form>
       <p id="profilePanelNote" class="profilePanelNote">כדי לשמור התקדמות מכל מכשיר, התחברות מלאה תתווסף בהמשך.</p>
       <div id="profilePanelStats" class="profilePanelStats" aria-label="נתוני התקדמות עתידיים"></div>
       <p id="profilePanelPlaceholderNote" class="profilePanelPlaceholderNote">נתוני התקדמות הם מצייני מקום בלבד ולא נשמרים עדיין.</p>
@@ -736,10 +757,10 @@ import { createAnimationHelpers } from "./src/ui/animations.js";
 import { createRenderHelpers } from "./src/ui/render.js";
 import { createLobbyHelpers } from "./src/ui/lobby.js";
 import { getProfileChipTone } from "./src/ui/profileStatus.js";
-import { buildProfilePanelViewModel } from "./src/ui/profilePanel.js";
+import { buildProfilePanelViewModel, buildSafeProfileEditView } from "./src/ui/profilePanel.js";
 import { getMatchResultSummaryRows } from "./src/ui/matchResultSummary.js";
 import { startAnonymousAuth } from "./src/firebase/auth.js";
-import { syncPlayerProfile } from "./src/firebase/profile.js";
+import { DEFAULT_AVATAR_PREFERENCE, syncPlayerProfile } from "./src/firebase/profile.js";
 import { getLastMatchResult, recordGameEndMatchResult } from "./src/product/matchResultSession.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
 import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
@@ -769,8 +790,8 @@ const $=sel=>document.querySelector(sel);
 const els={
   board:$('#board'),inner:$('#boardInner'),bar:$('#barArea'),diceDock:$('#diceDock'),die1:$('#die1'),die2:$('#die2'),msg:$('#boardMessage'),
   rollBtn:$('#rollBtn'),undoBtn:$('#undoBtn'),endBtn:$('#endBtn'),newBtn:$('#newBtn'),newBtn2:$('#newBtn2'),soundToggleBtn:$('#soundToggleBtn'),
-  turnPill:$('#turnPill'),colorPill:$('#colorPill'),dicePill:$('#dicePill'),specialPill:$('#specialPill'),profileChip:$('#profileChip'),profileChipName:$('#profileChipName'),profileChipStatus:$('#profileChipStatus'),
-  profilePanel:$('#profilePanel'),profilePanelName:$('#profilePanelName'),profilePanelStatus:$('#profilePanelStatus'),profilePanelNote:$('#profilePanelNote'),profilePanelStats:$('#profilePanelStats'),profilePanelPlaceholderNote:$('#profilePanelPlaceholderNote'),profilePanelCloseBtn:$('#profilePanelCloseBtn'),profilePanelCloseAction:$('#profilePanelCloseAction'),
+  turnPill:$('#turnPill'),colorPill:$('#colorPill'),dicePill:$('#dicePill'),specialPill:$('#specialPill'),profileChip:$('#profileChip'),profileChipAvatar:$('#profileChipAvatar'),profileChipName:$('#profileChipName'),profileChipStatus:$('#profileChipStatus'),
+  profilePanel:$('#profilePanel'),profilePanelAvatar:$('#profilePanelAvatar'),profilePanelName:$('#profilePanelName'),profilePanelStatus:$('#profilePanelStatus'),profilePanelNote:$('#profilePanelNote'),profilePanelStats:$('#profilePanelStats'),profilePanelPlaceholderNote:$('#profilePanelPlaceholderNote'),profilePanelForm:$('#profilePanelForm'),profileDisplayNameInput:$('#profileDisplayNameInput'),profileAvatarChoices:$('#profileAvatarChoices'),profilePanelSaveBtn:$('#profilePanelSaveBtn'),profilePanelSaveMessage:$('#profilePanelSaveMessage'),profilePanelCloseBtn:$('#profilePanelCloseBtn'),profilePanelCloseAction:$('#profilePanelCloseAction'),
   difficultyInfo:$('#difficultyInfo'),modeInfo:$('#modeInfo'),barInfo:$('#barInfo'),offInfo:$('#offInfo'),remainingMoves:$('#remainingMoves'),
   countdownInfo:$('#countdownInfo'),countdownText:$('#countdownText'),log:$('#log'),barWhite:$('#barWhite'),barBlack:$('#barBlack'),
   offWhite:$('#offWhite'),offBlack:$('#offBlack'),pipWhite:$('#pipWhite'),pipBlack:$('#pipBlack'),startModal:$('#startModal'),startBtn:$('#startBtn'),difficultySelect:$('#difficultySelect'),diceModeSelect:$('#diceModeSelect'),
@@ -778,6 +799,7 @@ const els={
   modeComputerBtn:$('#modeComputerBtn'),modeFriendBtn:$('#modeFriendBtn'),modeRulesBtn:$('#modeRulesBtn'),computerPanel:$('#computerPanel'),onlinePanel:$('#onlinePanel'),rulesPanel:$('#rulesPanel'),playerNameInput:$('#playerNameInput'),onlineDiceModeSelect:$('#onlineDiceModeSelect'),createRoomBtn:$('#createRoomBtn'),joinRoomBtn:$('#joinRoomBtn'),joinCodeInput:$('#joinCodeInput'),roomLobby:$('#roomLobby'),roomCodeDisplay:$('#roomCodeDisplay'),roomPlayers:$('#roomPlayers'),readyBtn:$('#readyBtn'),roomStatusText:$('#roomStatusText'),reactionToast:$('#reactionToast'),reactionWhite:$('#reactionWhite'),reactionBlack:$('#reactionBlack'),victoryBanner:$('#victoryBanner'),reactionCard:$('#reactionCard')
 };
 const state=createInitialState();
+const profilePreferences={displayName:'',avatarPreference:DEFAULT_AVATAR_PREFERENCE,saveMessage:'',saveTone:''};
 function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
 function rnd(min,max){return Math.floor(Math.random()*(max-min+1))+min;}
 function actorName(actor){
@@ -788,24 +810,95 @@ function isOnline(){return state.gameMode==='online';}
 function localActor(){return isOnline()?state.localActor:'human';}
 function roomRef(code){return ref(db,'rooms/'+code);}
 function roomGameRef(code){return ref(db,'rooms/'+code+'/game');}
-function syncCurrentPlayerProfile(displayName){
-  void syncPlayerProfile({database:db,ref,get,set,update,uid:authSession.getUid(),displayName,isAnonymous:true});
+function syncCurrentPlayerProfile(displayName,avatarPreference=profilePreferences.avatarPreference){
+  void syncPlayerProfile({database:db,ref,get,set,update,uid:authSession.getUid(),displayName,avatarPreference,isAnonymous:true});
 }
 function getCurrentProfilePanelViewModel(){
-  const typedName=els.playerNameInput?.value||'';
+  const typedName=profilePreferences.displayName||els.playerNameInput?.value||'';
   const actor=localActor();
   const stateName=state.playerNames?.[actor]||state.playerNames?.human||'';
   const authStatus=authSession.getStatus?.()||'fallback';
   const hasAuthenticatedUid=!!authSession.getUid?.();
-  return buildProfilePanelViewModel({typedName,stateName,authStatus,hasAuthenticatedUid});
+  return buildProfilePanelViewModel({typedName,stateName,authStatus,hasAuthenticatedUid,avatarPreference:profilePreferences.avatarPreference});
+}
+function applyProfileEditView(editView){
+  profilePreferences.displayName=editView.displayName;
+  profilePreferences.avatarPreference=editView.avatarPreference;
+  if(els.playerNameInput)els.playerNameInput.value=editView.displayName;
+  const actor=localActor();
+  state.playerNames={...(state.playerNames||{}),[actor]:editView.displayName};
+  if(!isOnline())state.playerNames.human=editView.displayName;
+}
+function renderProfileSaveMessage(fallbackMessage=''){
+  if(!els.profilePanelSaveMessage)return;
+  els.profilePanelSaveMessage.textContent=profilePreferences.saveMessage||fallbackMessage;
+  els.profilePanelSaveMessage.classList.remove('success','warning');
+  if(profilePreferences.saveTone)els.profilePanelSaveMessage.classList.add(profilePreferences.saveTone);
+}
+function renderProfileAvatarChoices(view){
+  if(!els.profileAvatarChoices)return;
+  els.profileAvatarChoices.innerHTML='';
+  view.avatarOptions.forEach(option=>{
+    const button=document.createElement('button');
+    button.type='button';
+    button.className='profilePanelAvatarChoice';
+    button.textContent=option.label;
+    button.setAttribute('role','radio');
+    button.setAttribute('aria-label',`אווטאר ${option.label}`);
+    button.setAttribute('aria-checked',option.value===view.avatarPreference?'true':'false');
+    if(option.value===view.avatarPreference)button.classList.add('active');
+    button.addEventListener('click',()=>{
+      profilePreferences.avatarPreference=option.value;
+      profilePreferences.saveMessage='';
+      profilePreferences.saveTone='';
+      renderProfileStatus();
+    });
+    els.profileAvatarChoices.append(button);
+  });
+}
+async function saveProfilePanelEdits(event){
+  event?.preventDefault?.();
+  const editView=buildSafeProfileEditView({
+    displayName:els.profileDisplayNameInput?.value||'',
+    avatarPreference:profilePreferences.avatarPreference,
+  });
+  applyProfileEditView(editView);
+  profilePreferences.saveMessage='שומר...';
+  profilePreferences.saveTone='';
+  renderProfileStatus();
+
+  const result=await syncPlayerProfile({
+    database:db,
+    ref,
+    get,
+    set,
+    update,
+    uid:authSession.getUid(),
+    displayName:editView.displayName,
+    avatarPreference:editView.avatarPreference,
+    isAnonymous:true,
+  });
+
+  if(result.skipped){
+    profilePreferences.saveMessage='השם והאווטאר עודכנו כאן. שמירה מלאה תנסה שוב כשהחיבור יהיה זמין.';
+    profilePreferences.saveTone='warning';
+  }else{
+    profilePreferences.saveMessage='נשמר בפרופיל האורח.';
+    profilePreferences.saveTone='success';
+  }
+  renderProfileStatus();
 }
 function renderProfilePanel(){
   if(!els.profilePanel)return;
   const view=getCurrentProfilePanelViewModel();
+  if(els.profilePanelAvatar)els.profilePanelAvatar.textContent=view.avatarText;
   if(els.profilePanelName)els.profilePanelName.textContent=view.displayName;
+  if(els.profileDisplayNameInput&&document.activeElement!==els.profileDisplayNameInput)els.profileDisplayNameInput.value=view.displayName;
   if(els.profilePanelStatus)els.profilePanelStatus.textContent=view.authLabel;
   if(els.profilePanelNote)els.profilePanelNote.textContent=view.note;
   if(els.profilePanelPlaceholderNote)els.profilePanelPlaceholderNote.textContent=view.placeholderNote;
+  renderProfileAvatarChoices(view);
+  renderProfileSaveMessage(view.saveHint);
   if(els.profilePanelStats){
     els.profilePanelStats.innerHTML='';
     view.progressPlaceholders.forEach(item=>{
@@ -838,6 +931,7 @@ function renderProfileStatus(){
   const authStatus=authSession.getStatus();
   const hasAuthenticatedUid=!!authSession.getUid();
   const tone=getProfileChipTone({authStatus,hasAuthenticatedUid});
+  if(els.profileChipAvatar)els.profileChipAvatar.textContent=view.avatarText;
   if(els.profileChipName)els.profileChipName.textContent=view.displayName;
   if(els.profileChipStatus)els.profileChipStatus.textContent=view.statusText;
   els.profileChip.classList.remove('connected','fallback','loading');
@@ -1454,7 +1548,8 @@ function setupEvents(){
   els.modeFriendBtn.addEventListener('click',()=>{els.modeFriendBtn.classList.add('active');els.modeComputerBtn.classList.remove('active');els.modeRulesBtn.classList.remove('active');els.onlinePanel.classList.add('show');els.computerPanel.classList.remove('show');els.rulesPanel.classList.remove('show')});
   els.modeRulesBtn.addEventListener('click',()=>{els.modeRulesBtn.classList.add('active');els.modeComputerBtn.classList.remove('active');els.modeFriendBtn.classList.remove('active');els.rulesPanel.classList.add('show');els.computerPanel.classList.remove('show');els.onlinePanel.classList.remove('show')});
   els.createRoomBtn.addEventListener('click',createRoom);els.joinRoomBtn.addEventListener('click',joinRoom);els.readyBtn.addEventListener('click',toggleReady);
-  els.playerNameInput?.addEventListener('input',renderProfileStatus);
+  els.playerNameInput?.addEventListener('input',()=>{profilePreferences.displayName='';renderProfileStatus();});
+  els.profilePanelForm?.addEventListener('submit',saveProfilePanelEdits);
   document.querySelectorAll('.reactBtn').forEach(b=>b.addEventListener('click',()=>sendReaction(b.dataset.text)));
 }
 
