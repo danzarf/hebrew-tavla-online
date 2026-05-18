@@ -58,11 +58,11 @@ export function buildProfilePanelViewModel({
     avatarPreference: safeAvatarPreference,
     avatarText: getAvatarPreferenceLabel(safeAvatarPreference),
     avatarOptions: AVATAR_PREFERENCE_OPTIONS.map(option => ({ ...option })),
-    note: 'כדי לשמור התקדמות מכל מכשיר, התחברות מלאה תתווסף בהמשך.',
-    placeholderNote: 'נתוני התקדמות הם מצייני מקום בלבד ולא נשמרים עדיין.',
+    note: 'התחברות מלאה ושמירת התקדמות יתווספו בהמשך.',
+    placeholderNote: 'הנתונים כאן הם מצייני מקום ולא נשמרים עדיין.',
     saveHint: hasAuthenticatedUid
-      ? 'אפשר לעדכן כרגע רק שם תצוגה ואווטאר בטוחים.'
-      : 'אם החיבור לא זמין, השינוי יישמר רק מקומית למשחק הזה.',
+      ? 'נשמרים רק שם ואווטאר בטוחים.'
+      : 'בלי חיבור, השינוי נשמר מקומית.',
     progressPlaceholders: PROFILE_PANEL_PROGRESS_PLACEHOLDERS.map(item => ({ ...item })),
   };
 }
