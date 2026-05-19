@@ -1,0 +1,28 @@
+# Dependencies
+node_modules/
+functions/node_modules/
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Firebase local/debug artifacts
+.firebase/
+firebase-debug.log*
+firestore-debug.log*
+database-debug.log*
+ui-debug.log*
+
+# Emulator exports/local state
+emulator-data/
+firebase-emulator-export/
+
+# Local credentials (never commit)
+serviceAccountKey.json
+service-account*.json
+*-service-account*.json
+
+# OS/editor noise
+.DS_Store
+.vscode/

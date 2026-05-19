@@ -121,3 +121,18 @@ npm run functions:emulator
    - `trustedStatsApplications/{matchId}`
    - `playerStats/{uid}`
 4. האם התקלה קרתה ב-emulator או אחרי deploy.
+
+## fixtures בקוד (לשימוש חוזר בבדיקות)
+
+נוספו fixtures תחת:
+
+- `functions/tests/fixtures/submissions.js`
+
+הם כוללים תרחישים ל:
+
+- valid online
+- duplicate match submission
+- invalid local submission
+- malicious coins/xp/rewards
+- mismatched submitter uid
+- missing players

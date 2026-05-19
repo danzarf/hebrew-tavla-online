@@ -301,3 +301,18 @@
 - [ ] וידאתי ש-`mode=local` נדחה עם `serverReview.status = rejected`.
 - [ ] וידאתי ש-submitter לא תואם נדחה.
 - [ ] אם אחת מהבדיקות נכשלה — לא לפרוס לפרודקשן.
+
+## Pre-deploy מהיר לפונקציות Trusted Stats בלבד
+
+- [ ] אני ב-repo הנכון (`pwd`).
+- [ ] אני על `main` (`git branch --show-current`).
+- [ ] משכתי את העדכונים האחרונים (`git pull --ff-only`).
+- [ ] הרצתי `npm test` בהצלחה.
+- [ ] הרצתי `npm run functions:check` בהצלחה.
+- [ ] הרצתי `npm run functions:test` בהצלחה.
+- [ ] אם יש Firebase CLI, הרצתי `npm run functions:integration:test`.
+- [ ] אימתתי project פעיל נכון (`firebase use`).
+- [ ] אימתתי תנאי בילינג/Blaze לפי Firebase Console.
+- [ ] הפריסה היא רק: `firebase deploy --only functions:onMatchResultSubmissionCreated`.
+- [ ] בדקתי לוגים לאחר פריסה.
+- [ ] ביצעתי משחק אונליין בדיקה אחד ואימתתי `playerStats`.

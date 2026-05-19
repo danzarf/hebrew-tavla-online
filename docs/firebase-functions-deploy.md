@@ -217,3 +217,72 @@ npm run functions:integration:test
 - `docs/firebase-functions-emulator-integration.md`
 
 > אם אחת מהבדיקות נכשלת: לא לבצע deploy, אלא לתקן ולבדוק שוב.
+
+## 18) צ'קליסט פריסה מהיר (copy-paste)
+
+> להריץ מה-root של הריפו ורק אחרי שאישרת שאתה על `main` המעודכן.
+
+```bash
+pwd
+git remote -v
+git branch --show-current
+git pull --ff-only
+npm install
+npm install --prefix functions
+npm test
+npm run functions:check
+npm run functions:test
+# אופציונלי - דורש Firebase CLI זמין מקומית
+npm run functions:integration:test
+firebase use
+firebase deploy --only functions:onMatchResultSubmissionCreated
+firebase functions:log --only onMatchResultSubmissionCreated --limit 100
+```
+
+## 19) בטיחות בחירת פרויקט Firebase (מניעת deploy לפרויקט לא נכון)
+
+אפשר לשמור מיפוי מקומי עם קובץ לדוגמה:
+
+- `.firebaserc.example`
+
+שכפל אותו לקובץ מקומי אמיתי (לא לפרסם סודות):
+
+```bash
+cp .firebaserc.example .firebaserc
+```
+
+עדכן `YOUR_FIREBASE_PROJECT_ID` ואז אמת שוב:
+
+```bash
+firebase use
+firebase projects:list
+```
+
+## 20) חירום / Rollback מהיר
+
+עצירה/מחיקה של הפונקציה בלבד (לא נוגע בשאר המשחק):
+
+```bash
+firebase functions:delete onMatchResultSubmissionCreated --force
+```
+
+בדיקת לוגים מהירה:
+
+```bash
+firebase functions:log --only onMatchResultSubmissionCreated --limit 200
+```
+
+איך לשמור על המשחק playable אם ה-Function נכשל:
+
+- משחקיות מקומית ואונליין נשארות זמינות, כי פונקציית trusted stats היא שכבת אימות/סטטיסטיקות בלבד.
+- במקרה תקלה, לעצור את הפונקציה, להשאיר משחק פעיל, ולאבחן לפני deploy חוזר.
+
+מה לשלוח ל-ChatGPT אם משהו נשבר:
+
+1. הפקודה המדויקת שנכשלה.
+2. פלט טרמינל מלא.
+3. צילום/JSON של:
+   - `matchResultSubmissions/{uid}/{matchId}`
+   - `trustedStatsApplications/{matchId}`
+   - `playerStats/{uid}`
+4. זמן התקלה ו-Project ID פעיל (`firebase use`).
