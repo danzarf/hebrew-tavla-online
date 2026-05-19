@@ -86,7 +86,7 @@ export function formatPlayerStatsForProfile(rawStats, { showComingSoon = true } 
       { label: 'רצף נוכחי', value: showComingSoon ? 'בקרוב' : String(stats.currentStreak) },
     ],
     note: showComingSoon
-      ? 'סטטיסטיקות יישמרו אחרי שנוסיף שמירה מאובטחת.'
+      ? 'סטטיסטיקות יופיעו אחרי משחקים מאומתים.'
       : 'סטטיסטיקות להצגה בלבד. עדכון אמין יתבצע ממקור מאומת בלבד.',
   };
 }
