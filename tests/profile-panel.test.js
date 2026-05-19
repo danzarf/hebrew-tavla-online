@@ -89,7 +89,7 @@ test('profile panel enables Google button only when the feature is configured', 
 });
 
 test('profile panel shows linked Google account copy without exposing technical details', () => {
-  assert.equal(getProfilePanelAuthLabel({ authStatus: 'linked', hasAuthenticatedUid: true, isAnonymous: false }), 'חשבון שמור');
+  assert.equal(getProfilePanelAuthLabel({ authStatus: 'linked', hasAuthenticatedUid: true, isAnonymous: false }), 'חשבון Google מחובר');
 
   const view = buildProfilePanelViewModel({
     typedName: 'דנה',
@@ -99,7 +99,7 @@ test('profile panel shows linked Google account copy without exposing technical 
   });
 
   assert.equal(view.statusText, 'חשבון שמור');
-  assert.equal(view.authLabel, 'חשבון שמור');
+  assert.equal(view.authLabel, 'חשבון Google מחובר');
   assert.equal(view.googleButtonText, 'חשבון Google מחובר');
   assert.equal(view.googleButtonDisabled, true);
   assert.match(view.accountUpgradeBody, /פרופיל האורח נשמר/);
@@ -145,6 +145,15 @@ test('profile panel exposes compact stats refresh state for manual refresh UX', 
   assert.equal(view.statsRefreshMessage, 'בודק עדכון סטטיסטיקות...');
   assert.equal(view.statsRefreshTone, 'success');
   assert.match(view.statsLastCheckedText, /12:45/);
+});
+
+test('profile panel exposes clear trusted-stats guidance copy', () => {
+  const view = buildProfilePanelViewModel({ hasTrustedStats: false });
+  assert.deepEqual(view.statsEmptyGuidance, [
+    'סטטיסטיקות יופיעו אחרי משחקי אונליין מאומתים.',
+    'אם סיימת משחק אונליין עכשיו, לחץ רענן בעוד כמה שניות.',
+    'משחקים מול מחשב לא נספרים לסטטיסטיקות מאומתות כרגע.',
+  ]);
 });
 
 test('profile panel keeps safe fallback tone for failed refresh state', () => {

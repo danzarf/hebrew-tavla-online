@@ -18,6 +18,7 @@ export async function getTrustedPlayerStats({
   ref,
   get,
   uid,
+  timeoutMs = 8000,
   logger = console,
 } = {}) {
   if (!uid) {
@@ -30,7 +31,13 @@ export async function getTrustedPlayerStats({
       return { skipped: true, reason: 'missing-database-dependency', stats: createEmptyPlayerStats(), hasTrustedStats: false };
     }
 
-    const snapshot = await get(currentRef);
+    const readPromise = Promise.resolve(get(currentRef));
+    const timeoutPromise = new Promise((_, reject) => {
+      const timeoutError = new Error('trusted-stats-read-timeout');
+      timeoutError.code = 'trusted-stats/read-timeout';
+      setTimeout(() => reject(timeoutError), timeoutMs);
+    });
+    const snapshot = await Promise.race([readPromise, timeoutPromise]);
     if (!snapshot?.exists?.()) {
       return { skipped: false, stats: createEmptyPlayerStats(), hasTrustedStats: false };
     }
