@@ -78,7 +78,7 @@ export function sanitizePlayerStats(rawStats = {}) {
   };
 }
 
-export function formatPlayerStatsForProfile(rawStats, { showComingSoon = true } = {}) {
+export function formatPlayerStatsForProfile(rawStats, { showComingSoon = true, captureStatsTracked = true } = {}) {
   const stats = sanitizePlayerStats(rawStats);
 
   return {
@@ -91,8 +91,8 @@ export function formatPlayerStatsForProfile(rawStats, { showComingSoon = true } 
       { label: 'אחוז ניצחון', value: showComingSoon ? 'בקרוב' : `${stats.winRate}%` },
       { label: 'רצף נוכחי', value: showComingSoon ? 'בקרוב' : String(stats.currentStreak) },
       { label: 'שיא רצף', value: showComingSoon ? 'בקרוב' : String(stats.bestStreak) },
-      { label: 'אכלתי', value: showComingSoon ? 'בקרוב' : String(stats.capturesMade) },
-      { label: 'אכלו אותי', value: showComingSoon ? 'בקרוב' : String(stats.capturesTaken) },
+      { label: 'אכלתי', value: showComingSoon || !captureStatsTracked ? 'בקרוב' : String(stats.capturesMade) },
+      { label: 'אכלו אותי', value: showComingSoon || !captureStatsTracked ? 'בקרוב' : String(stats.capturesTaken) },
     ],
     note: showComingSoon
       ? 'סטטיסטיקות יופיעו אחרי משחקים מאומתים.'

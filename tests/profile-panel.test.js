@@ -25,7 +25,7 @@ test('buildProfilePanelViewModel shows sanitized display name and anonymous conn
   assert.equal(view.avatarPreference, 'star');
   assert.equal(view.avatarText, '⭐');
   assert.match(view.note, /כאורח/);
-  assert.equal(view.accountUpgradeTitle, 'שמור התקדמות');
+  assert.equal(view.accountUpgradeTitle, 'שמור עם Google');
   assert.match(view.accountUpgradeBody, /בין מכשירים/);
   assert.equal(view.googleButtonText, 'Google יופעל בקרוב');
   assert.equal(view.googleButtonDisabled, true);
@@ -102,7 +102,7 @@ test('profile panel shows linked Google account copy without exposing technical 
   assert.equal(view.authLabel, 'חשבון Google מחובר');
   assert.equal(view.googleButtonText, 'חשבון Google מחובר');
   assert.equal(view.googleButtonDisabled, true);
-  assert.match(view.accountUpgradeBody, /פרופיל האורח נשמר/);
+  assert.equal(view.showAccountUpgradeSection, false);
 });
 
 test('profile panel uses safe guest fallback labels when auth is unavailable', () => {
@@ -172,4 +172,13 @@ test('profile panel can show temporary guest stats distinctly', () => {
   const view = buildProfilePanelViewModel({ guestStats: { gamesPlayed: 2, wins: 1, losses: 1 } });
   assert.equal(view.progressPlaceholders[0].value, '2');
   assert.match(view.placeholderNote, /זמניות/);
+  assert.equal(view.progressPlaceholders.find(item => item.label === 'אכלתי')?.value, 'בקרוב');
+  assert.equal(view.progressPlaceholders.find(item => item.label === 'אכלו אותי')?.value, 'בקרוב');
+});
+
+test('profile panel shows google save section only for guest accounts', () => {
+  const guestView = buildProfilePanelViewModel({ authStatus: 'authenticated', hasAuthenticatedUid: true, isAnonymous: true, googleLinkingEnabled: true });
+  const linkedView = buildProfilePanelViewModel({ authStatus: 'linked', hasAuthenticatedUid: true, isAnonymous: false, googleLinkingEnabled: true });
+  assert.equal(guestView.showAccountUpgradeSection, true);
+  assert.equal(linkedView.showAccountUpgradeSection, false);
 });

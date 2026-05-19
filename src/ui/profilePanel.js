@@ -65,7 +65,7 @@ export function buildProfilePanelViewModel({
   });
   const hasGuestStats = Boolean(guestStats);
   const formattedGuestStats = hasGuestStats
-    ? formatPlayerStatsForProfile(guestStats, { showComingSoon: false })
+    ? formatPlayerStatsForProfile(guestStats, { showComingSoon: false, captureStatsTracked: false })
     : null;
 
   return {
@@ -81,20 +81,21 @@ export function buildProfilePanelViewModel({
     note: isLinkedAccount
       ? 'החשבון מחובר. בהמשך התקדמות תוכל להישמר בין מכשירים.'
       : 'כרגע אתה משחק כאורח. ההתקדמות קשורה לדפדפן או למכשיר הזה.',
-    accountUpgradeTitle: 'שמור התקדמות',
+    showAccountUpgradeSection: !isLinkedAccount,
+    accountUpgradeTitle: 'שמור עם Google',
     accountUpgradeBody: isLinkedAccount
-      ? 'החשבון מחובר ל-Google. פרופיל האורח נשמר תחת אותו משתמש.'
+      ? 'החשבון מחובר ל-Google.'
       : 'חיבור מלא יאפשר בהמשך לשמור התקדמות בין מכשירים בלי לאבד את פרופיל האורח.',
     googleButtonText: isLinkedAccount
       ? 'חשבון Google מחובר'
       : googleLinkingEnabled ? 'שמור אורח עם Google' : 'Google יופעל בקרוב',
     googleButtonDisabled: !canTryGoogleLink,
-    googleSetupNote: isLinkedAccount
-      ? 'אין צורך בפעולה נוספת כרגע.'
-      : googleLinkingEnabled
+    googleSetupNote: googleLinkingEnabled
         ? 'אם החיבור נכשל, אפשר להמשיך כאורח והמשחק לא ייחסם.'
         : 'התחברות Google תופעל אחרי הגדרת Firebase והדומיין המורשה.',
-    placeholderNote: hasGuestStats ? 'סטטיסטיקות אורח זמניות (נשמר זמנית במכשיר הזה).' : formattedTrustedStats.note,
+    placeholderNote: hasGuestStats
+      ? 'סטטיסטיקות אורח זמניות בלבד (נשמר זמנית במכשיר הזה ולא נספר כסטטיסטיקה מאומתת).'
+      : formattedTrustedStats.note,
     statsEmptyGuidance: [
       'סטטיסטיקות יופיעו אחרי משחקי אונליין מאומתים.',
       'אם סיימת משחק אונליין עכשיו, לחץ רענן בעוד כמה שניות.',

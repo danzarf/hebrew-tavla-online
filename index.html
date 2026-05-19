@@ -611,21 +611,22 @@ body{
             <p id="profilePanelSaveMessage" class="profilePanelSaveMessage" aria-live="polite"></p>
           </div>
         </form>
-        <p id="profilePanelNote" class="profilePanelNote">כדי לשמור התקדמות מכל מכשיר, התחברות מלאה תתווסף בהמשך.</p>
+        <p id="profilePanelNote" class="profilePanelNote">כדי לשמור עם Google מכל מכשיר, התחברות מלאה תתווסף בהמשך.</p>
       </section>
-      <section class="profilePanelUpgrade profilePanelSection" aria-labelledby="profilePanelUpgradeTitle">
-        <div id="profilePanelUpgradeTitle" class="profilePanelUpgradeTitle">שמור התקדמות</div>
-        <p id="profilePanelUpgradeBody" class="profilePanelUpgradeBody">כרגע אתה משחק כאורח. ההתקדמות קשורה לדפדפן או למכשיר הזה.</p>
-        <button id="profilePanelGoogleBtn" class="btn profilePanelGoogleBtn" type="button">שמור אורח עם Google</button>
-        <p id="profilePanelLinkMessage" class="profilePanelLinkMessage" aria-live="polite"></p>
-        <p id="profilePanelUpgradeNote" class="profilePanelUpgradeNote">חיבור מלא יאפשר בהמשך לשמור התקדמות בין מכשירים.</p>
-      </section>
+
       <section class="profilePanelSection" aria-label="סטטיסטיקות">
         <h3 class="profilePanelSectionTitle">סטטיסטיקות מאומתות</h3>
         <div id="profilePanelStats" class="profilePanelStats" aria-label="סטטיסטיקות שחקן מאומתות"></div>
         <p id="profilePanelPlaceholderNote" class="profilePanelPlaceholderNote">סטטיסטיקות יופיעו אחרי משחקים מאומתים.</p>
         <ul id="profilePanelStatsGuidance" class="profilePanelGuidanceList"></ul>
         <p id="profilePanelStatsStatus" class="profilePanelPlaceholderNote"></p>
+      </section>
+      <section class="profilePanelUpgrade profilePanelSection" aria-labelledby="profilePanelUpgradeTitle">
+        <div id="profilePanelUpgradeTitle" class="profilePanelUpgradeTitle">שמור התקדמות</div>
+        <p id="profilePanelUpgradeBody" class="profilePanelUpgradeBody">כרגע אתה משחק כאורח. ההתקדמות קשורה לדפדפן או למכשיר הזה.</p>
+        <button id="profilePanelGoogleBtn" class="btn profilePanelGoogleBtn" type="button">שמור אורח עם Google</button>
+        <p id="profilePanelLinkMessage" class="profilePanelLinkMessage" aria-live="polite"></p>
+        <p id="profilePanelUpgradeNote" class="profilePanelUpgradeNote">כדי לשמור את הפרופיל גם אחרי סגירת המשחק.</p>
       </section>
       <section class="profilePanelSection" aria-label="התקדמות עתידית">
         <h3 class="profilePanelSectionTitle">התקדמות עתידית</h3>
@@ -919,7 +920,7 @@ const els={
   board:$('#board'),inner:$('#boardInner'),bar:$('#barArea'),diceDock:$('#diceDock'),die1:$('#die1'),die2:$('#die2'),msg:$('#boardMessage'),
   rollBtn:$('#rollBtn'),undoBtn:$('#undoBtn'),endBtn:$('#endBtn'),newBtn:$('#newBtn'),newBtn2:$('#newBtn2'),soundToggleBtn:$('#soundToggleBtn'),rollModeToggleBtn:$('#rollModeToggleBtn'),welcomeStep:$('#welcomeStep'),guestNameStep:$('#guestNameStep'),gameSetupStep:$('#gameSetupStep'),welcomeGuestBtn:$('#welcomeGuestBtn'),welcomeGoogleBtn:$('#welcomeGoogleBtn'),welcomeMessage:$('#welcomeMessage'),welcomeSetupNote:$('#welcomeSetupNote'),homeTitle:$('#homeTitle'),homeAccountAvatar:$('#homeAccountAvatar'),homeAccountName:$('#homeAccountName'),homeAccountBadge:$('#homeAccountBadge'),homeAccountStatus:$('#homeAccountStatus'),homeSaveSummary:$('#homeSaveSummary'),homeProfileBtn:$('#homeProfileBtn'),homeProgressNote:$('#homeProgressNote'),guestNameInput:$('#guestNameInput'),guestNameContinueBtn:$('#guestNameContinueBtn'),guestNameBackBtn:$('#guestNameBackBtn'),
   turnPill:$('#turnPill'),colorPill:$('#colorPill'),dicePill:$('#dicePill'),specialPill:$('#specialPill'),profileChip:$('#profileChip'),profileChipAvatar:$('#profileChipAvatar'),profileChipName:$('#profileChipName'),profileChipStatus:$('#profileChipStatus'),
-  profilePanel:$('#profilePanel'),profilePanelAvatar:$('#profilePanelAvatar'),profilePanelName:$('#profilePanelName'),profilePanelStatus:$('#profilePanelStatus'),profilePanelNote:$('#profilePanelNote'),profilePanelUpgradeTitle:$('#profilePanelUpgradeTitle'),profilePanelUpgradeBody:$('#profilePanelUpgradeBody'),profilePanelGoogleBtn:$('#profilePanelGoogleBtn'),profilePanelLinkMessage:$('#profilePanelLinkMessage'),profilePanelUpgradeNote:$('#profilePanelUpgradeNote'),profilePanelStats:$('#profilePanelStats'),profilePanelPlaceholderNote:$('#profilePanelPlaceholderNote'),profilePanelStatsGuidance:$('#profilePanelStatsGuidance'),profilePanelRefreshStatsBtn:$('#profilePanelRefreshStatsBtn'),profilePanelStatsStatus:$('#profilePanelStatsStatus'),profilePanelForm:$('#profilePanelForm'),profileDisplayNameInput:$('#profileDisplayNameInput'),profileAvatarChoices:$('#profileAvatarChoices'),profilePanelSaveBtn:$('#profilePanelSaveBtn'),profilePanelSaveMessage:$('#profilePanelSaveMessage'),profilePanelCloseBtn:$('#profilePanelCloseBtn'),profilePanelCloseAction:$('#profilePanelCloseAction'),
+  profilePanel:$('#profilePanel'),profilePanelUpgrade:$('.profilePanelUpgrade'),profilePanelAvatar:$('#profilePanelAvatar'),profilePanelName:$('#profilePanelName'),profilePanelStatus:$('#profilePanelStatus'),profilePanelNote:$('#profilePanelNote'),profilePanelUpgradeTitle:$('#profilePanelUpgradeTitle'),profilePanelUpgradeBody:$('#profilePanelUpgradeBody'),profilePanelGoogleBtn:$('#profilePanelGoogleBtn'),profilePanelLinkMessage:$('#profilePanelLinkMessage'),profilePanelUpgradeNote:$('#profilePanelUpgradeNote'),profilePanelStats:$('#profilePanelStats'),profilePanelPlaceholderNote:$('#profilePanelPlaceholderNote'),profilePanelStatsGuidance:$('#profilePanelStatsGuidance'),profilePanelRefreshStatsBtn:$('#profilePanelRefreshStatsBtn'),profilePanelStatsStatus:$('#profilePanelStatsStatus'),profilePanelForm:$('#profilePanelForm'),profileDisplayNameInput:$('#profileDisplayNameInput'),profileAvatarChoices:$('#profileAvatarChoices'),profilePanelSaveBtn:$('#profilePanelSaveBtn'),profilePanelSaveMessage:$('#profilePanelSaveMessage'),profilePanelCloseBtn:$('#profilePanelCloseBtn'),profilePanelCloseAction:$('#profilePanelCloseAction'),
   difficultyInfo:$('#difficultyInfo'),modeInfo:$('#modeInfo'),barInfo:$('#barInfo'),offInfo:$('#offInfo'),remainingMoves:$('#remainingMoves'),
   countdownInfo:$('#countdownInfo'),countdownText:$('#countdownText'),log:$('#log'),barWhite:$('#barWhite'),barBlack:$('#barBlack'),
   offWhite:$('#offWhite'),offBlack:$('#offBlack'),pipWhite:$('#pipWhite'),pipBlack:$('#pipBlack'),startModal:$('#startModal'),startBtn:$('#startBtn'),difficultySelect:$('#difficultySelect'),
@@ -1298,6 +1299,7 @@ function renderProfilePanel(){
   if(els.profilePanelStatus)els.profilePanelStatus.textContent=view.authLabel;
   if(els.profilePanelNote)els.profilePanelNote.textContent=view.note;
   if(els.profilePanelUpgradeTitle)els.profilePanelUpgradeTitle.textContent=view.accountUpgradeTitle;
+  if(els.profilePanelUpgrade)els.profilePanelUpgrade.hidden=!view.showAccountUpgradeSection;
   if(els.profilePanelUpgradeBody)els.profilePanelUpgradeBody.textContent=view.accountUpgradeBody;
   if(els.profilePanelGoogleBtn){
     els.profilePanelGoogleBtn.textContent=view.googleButtonText;

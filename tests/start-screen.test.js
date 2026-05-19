@@ -66,5 +66,9 @@ test('index start rules panel keeps the complete Hebrew rules structure', async 
   assert.match(html, /id="joinRoomFields" style="display:none"/);
   assert.match(html, /פתח חדר/);
   assert.match(html, /הצטרף לחדר/);
+  assert.match(
+    html,
+    /profilePanelAccountSectionTitle[\s\S]*aria-label="סטטיסטיקות"[\s\S]*profilePanelUpgradeTitle[\s\S]*aria-label="התקדמות עתידית"/,
+  );
 
 });
