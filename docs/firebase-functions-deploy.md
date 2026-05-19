@@ -150,3 +150,47 @@ firebase functions:delete onMatchResultSubmissionCreated --force
 - `rejected` (עם `reason`)
 
 כך אפשר להבין למה תוצאה נדחתה/הוחלה בלי לאפשר זיוף צד לקוח.
+
+## 16) בדיקות Emulator/בדיקות יחידה לפני פריסה אמיתית
+
+### הרצת בדיקות פונקציות בלבד
+
+מה-root:
+
+```bash
+npm run functions:test
+```
+
+או ישירות:
+
+```bash
+npm test --prefix functions
+```
+
+### בדיקת תקינות קוד Function
+
+```bash
+npm run functions:check
+```
+
+### עבודה עם Firebase Emulator Suite (אופציונלי אך מומלץ)
+
+1. הפעל אמולטור Realtime Database + Functions.
+2. שחק משחק אונליין בדיקה (לא local/AI).
+3. בדוק ב-Emulator UI/Realtime Database את הנתיבים:
+   - `matchResultSubmissions/{uid}/{matchId}`
+   - `trustedStatsApplications/{matchId}`
+   - `playerStats/{uid}`
+
+### איך יודעים שה-Function באמת רצה
+
+- נכתב `serverReview` תחת ה-submission.
+- בסטטוס תקין: `serverReview.status = "applied"`.
+- במקרה דופליקט: `serverReview.status = "duplicate"`.
+- במקרה דחייה: `serverReview.status = "rejected"` + `reason`.
+
+### מה לא לערוך ידנית
+
+- לא לערוך ידנית `playerStats/{uid}`.
+- לא לערוך ידנית `trustedStatsApplications/{matchId}`.
+- לא להזריק ידנית `serverVerified:true` או `trustedStatsApplied:true` מהלקוח.

@@ -38,6 +38,7 @@ export function sanitizeSubmission(raw = {}) {
     submittedAt: Number(raw.submittedAt),
     winnerColor,
     loserColor,
+    players: safePlayers,
     winnerUid: toSafeString(raw.winnerUid) || winner?.uid || null,
     loserUid: toSafeString(raw.loserUid) || loser?.uid || null,
     clientSubmittedBy: toSafeString(raw.clientSubmittedBy),
@@ -46,7 +47,7 @@ export function sanitizeSubmission(raw = {}) {
   };
 }
 
-export function validateSubmissionForTrustedStats(safe) {
+export function validateSubmissionForTrustedStats(safe, { pathUid } = {}) {
   const errors = [];
   if (!safe.matchId) errors.push('missing-matchId');
   if (!ALLOWED_MODES.has(safe.mode)) errors.push('unsupported-mode');
@@ -54,9 +55,18 @@ export function validateSubmissionForTrustedStats(safe) {
   if (safe.ruleset !== 'hebrew-tavla') errors.push('unsupported-ruleset');
   if (!ALLOWED_COLORS.has(safe.winnerColor)) errors.push('invalid-winnerColor');
   if (!ALLOWED_COLORS.has(safe.loserColor)) errors.push('invalid-loserColor');
+  if (safe.winnerColor === safe.loserColor) errors.push('same-outcome-color');
   if (!isFiniteTimestamp(safe.endedAt)) errors.push('invalid-endedAt');
   if (!safe.winnerUid || !safe.loserUid) errors.push('missing-player-uids');
+  if (!Array.isArray(safe.players) || safe.players.length < 2) errors.push('missing-players');
   if (safe.winnerUid && safe.loserUid && safe.winnerUid === safe.loserUid) errors.push('same-player');
+
+  const knownPlayerUids = new Set((safe.players || []).map((p) => p.uid).filter(Boolean));
+  if (safe.winnerUid && !knownPlayerUids.has(safe.winnerUid)) errors.push('winner-not-in-players');
+  if (safe.loserUid && !knownPlayerUids.has(safe.loserUid)) errors.push('loser-not-in-players');
+
+  if (pathUid && safe.clientSubmittedBy && safe.clientSubmittedBy !== pathUid) errors.push('submitter-path-mismatch');
+  if (pathUid && safe.clientSubmittedBy !== pathUid) errors.push('unrelated-submitter');
   if (safe.serverVerified) errors.push('client-cannot-server-verify');
   if (safe.trustedStatsApplied) errors.push('client-cannot-mark-stats-applied');
   return { valid: errors.length === 0, errors };
