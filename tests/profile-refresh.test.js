@@ -8,7 +8,7 @@ test('guest/no uid refresh returns friendly warning state', () => {
   assert.equal(missingUid.tone, 'warning');
 
   const guest = getTrustedStatsRefreshFeedback({ hasUid: true, isAnonymous: true });
-  assert.equal(guest.message, 'אין סטטיסטיקות במצב אורח.');
+  assert.equal(guest.message, 'סטטיסטיקות במצב אורח יתווספו בקרוב.');
   assert.equal(guest.tone, '');
 });
 
