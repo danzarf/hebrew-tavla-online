@@ -62,7 +62,7 @@
             ".validate": "!newData.exists() || (newData.isString() && newData.val().length > 0 && newData.val().length <= 80)"
           },
           "mode": {
-            ".validate": "newData.isString() && (newData.val() == 'local' || newData.val() == 'online' || newData.val() == 'ai')"
+            ".validate": "newData.isString() && (newData.val() == 'online')"
           },
           "players": {
             ".validate": "newData.isList() && newData.children().hasChildren(['0','1'])"

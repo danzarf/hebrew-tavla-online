@@ -19,7 +19,7 @@ export const onMatchResultSubmissionCreated = onValueCreated(
     const { uid, matchId } = event.params;
     const submissionRef = db.ref(`matchResultSubmissions/${uid}/${matchId}`);
     const safe = sanitizeSubmission(raw);
-    const validation = validateSubmissionForTrustedStats(safe);
+    const validation = validateSubmissionForTrustedStats(safe, { pathUid: uid });
     const now = Date.now();
 
     if (!validation.valid) {
