@@ -863,6 +863,7 @@ import { getMatchResultSummaryRows } from "./src/ui/matchResultSummary.js";
 import { startAnonymousAuth } from "./src/firebase/auth.js";
 import { linkGuestToGoogle, signInExistingGoogleAccount } from "./src/firebase/accountLinking.js";
 import { DEFAULT_AVATAR_PREFERENCE, getPlayerProfile, syncPlayerProfile } from "./src/firebase/profile.js";
+import { submitUnverifiedMatchResult } from "./src/firebase/matchResults.js";
 import { getLastMatchResult, recordGameEndMatchResult } from "./src/product/matchResultSession.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
 import { getAuth, signInAnonymously, onAuthStateChanged, GoogleAuthProvider, linkWithPopup, signInWithPopup } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
@@ -1737,8 +1738,15 @@ function finishGame(winnerColor,stolen){
   syncShared('finishGame');
 }
 
+function submitMatchResultInBackground(matchResult){
+  const currentUid=authSession.getUid();
+  if(!currentUid||!matchResult)return;
+  Promise.resolve(submitUnverifiedMatchResult({database:db,ref,set,uid:currentUid,matchResult,logger:console}))
+    .catch(error=>console.warn('Non-blocking unverified match result submit failed.',error));
+}
+
 function recordMatchResultForGameEnd(winnerColor){
-  recordGameEndMatchResult({
+  const matchResult=recordGameEndMatchResult({
     state,
     winnerColor,
     matchId: state.victoryId,
@@ -1748,6 +1756,7 @@ function recordMatchResultForGameEnd(winnerColor){
     currentUid: authSession.getUid(),
     resultSource: isOnline() ? 'online-game-end' : 'client-game-end',
   });
+  submitMatchResultInBackground(matchResult);
 }
 
 function initChanceSelectors(){
