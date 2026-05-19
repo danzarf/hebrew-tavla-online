@@ -17,14 +17,13 @@ export function buildStartHomeViewModel({
     authLabel: String(authLabel || statusText || 'מתחבר כאורח'),
     statusText: String(statusText || authLabel || 'מתחבר כאורח'),
     accountSummary: isLinkedAccount
-      ? `חשבון Google מחובר · ${safeDisplayName}`
-      : 'אפשר לשמור אורח עם Google או להתחבר לחשבון קיים.',
+      ? `חשבון שמור · ${safeDisplayName}`
+      : 'אפשר להמשיך כאורח או להתחבר עם Google.',
     guestButtonText: 'המשך כאורח',
     googleButtonText: isLinkedAccount
-      ? 'חשבון Google מחובר'
-      : googleLinkingEnabled ? 'שמור אורח עם Google' : 'Google יופעל בקרוב',
-    googleSignInButtonText: 'התחבר עם Google',
-    googleButtonDisabled: isLinkedAccount || !canTryGoogleLink,
+      ? 'מחובר עם Google'
+      : googleLinkingEnabled ? 'התחבר עם Google' : 'Google יופעל בקרוב',
+    googleButtonDisabled: isLinkedAccount || !googleLinkingEnabled,
     googleStatusClass: isLinkedAccount ? 'connected' : canTryGoogleLink ? 'ready' : 'muted',
     showConnectedBadge: isLinkedAccount,
     shouldSkipAccountChoice: isLinkedAccount,

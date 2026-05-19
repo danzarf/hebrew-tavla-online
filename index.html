@@ -712,7 +712,7 @@ body{
       <section id="welcomeStep" class="welcomeStep" aria-label="בחירת חשבון">
         <div class="homeHero">
           <h2 id="homeTitle">ששבש טורקי</h2>
-          <p>המשך כאורח, שמור אורח עם Google, או התחבר לחשבון קיים.</p>
+          <p>המשך כאורח או התחבר עם Google.</p>
         </div>
         <div class="homeAccountMini" aria-live="polite">
           <span id="homeAccountAvatar" class="homeAccountMiniAvatar" aria-hidden="true">👤</span>
@@ -722,8 +722,7 @@ body{
         <p id="homeAccountStatus" class="welcomeSetupNote">מכינים פרופיל אורח</p>
         <div class="welcomeActions">
           <button id="welcomeGuestBtn" class="btn welcomeGuestBtn" type="button">המשך כאורח</button>
-          <button id="welcomeGoogleBtn" class="btn dark welcomeGoogleBtn" type="button">שמור אורח עם Google</button>
-          <button id="welcomeGoogleSignInBtn" class="btn dark welcomeGoogleBtn" type="button">התחבר עם Google</button>
+          <button id="welcomeGoogleBtn" class="btn dark welcomeGoogleBtn" type="button">התחבר עם Google</button>
         </div>
         <p id="welcomeMessage" class="welcomeMessage" aria-live="polite"></p>
         <p id="welcomeSetupNote" class="welcomeSetupNote">אם החיבור נכשל, אפשר להמשיך כאורח.</p>
@@ -894,7 +893,7 @@ const authSession = startAnonymousAuth({
 const $=sel=>document.querySelector(sel);
 const els={
   board:$('#board'),inner:$('#boardInner'),bar:$('#barArea'),diceDock:$('#diceDock'),die1:$('#die1'),die2:$('#die2'),msg:$('#boardMessage'),
-  rollBtn:$('#rollBtn'),undoBtn:$('#undoBtn'),endBtn:$('#endBtn'),newBtn:$('#newBtn'),newBtn2:$('#newBtn2'),soundToggleBtn:$('#soundToggleBtn'),rollModeToggleBtn:$('#rollModeToggleBtn'),welcomeStep:$('#welcomeStep'),guestNameStep:$('#guestNameStep'),gameSetupStep:$('#gameSetupStep'),welcomeGuestBtn:$('#welcomeGuestBtn'),welcomeGoogleBtn:$('#welcomeGoogleBtn'),welcomeGoogleSignInBtn:$('#welcomeGoogleSignInBtn'),welcomeMessage:$('#welcomeMessage'),welcomeSetupNote:$('#welcomeSetupNote'),homeTitle:$('#homeTitle'),homeAccountAvatar:$('#homeAccountAvatar'),homeAccountName:$('#homeAccountName'),homeAccountBadge:$('#homeAccountBadge'),homeAccountStatus:$('#homeAccountStatus'),homeSaveSummary:$('#homeSaveSummary'),homeProfileBtn:$('#homeProfileBtn'),homeProgressNote:$('#homeProgressNote'),guestNameInput:$('#guestNameInput'),guestNameContinueBtn:$('#guestNameContinueBtn'),guestNameBackBtn:$('#guestNameBackBtn'),
+  rollBtn:$('#rollBtn'),undoBtn:$('#undoBtn'),endBtn:$('#endBtn'),newBtn:$('#newBtn'),newBtn2:$('#newBtn2'),soundToggleBtn:$('#soundToggleBtn'),rollModeToggleBtn:$('#rollModeToggleBtn'),welcomeStep:$('#welcomeStep'),guestNameStep:$('#guestNameStep'),gameSetupStep:$('#gameSetupStep'),welcomeGuestBtn:$('#welcomeGuestBtn'),welcomeGoogleBtn:$('#welcomeGoogleBtn'),welcomeMessage:$('#welcomeMessage'),welcomeSetupNote:$('#welcomeSetupNote'),homeTitle:$('#homeTitle'),homeAccountAvatar:$('#homeAccountAvatar'),homeAccountName:$('#homeAccountName'),homeAccountBadge:$('#homeAccountBadge'),homeAccountStatus:$('#homeAccountStatus'),homeSaveSummary:$('#homeSaveSummary'),homeProfileBtn:$('#homeProfileBtn'),homeProgressNote:$('#homeProgressNote'),guestNameInput:$('#guestNameInput'),guestNameContinueBtn:$('#guestNameContinueBtn'),guestNameBackBtn:$('#guestNameBackBtn'),
   turnPill:$('#turnPill'),colorPill:$('#colorPill'),dicePill:$('#dicePill'),specialPill:$('#specialPill'),profileChip:$('#profileChip'),profileChipAvatar:$('#profileChipAvatar'),profileChipName:$('#profileChipName'),profileChipStatus:$('#profileChipStatus'),
   profilePanel:$('#profilePanel'),profilePanelAvatar:$('#profilePanelAvatar'),profilePanelName:$('#profilePanelName'),profilePanelStatus:$('#profilePanelStatus'),profilePanelNote:$('#profilePanelNote'),profilePanelUpgradeTitle:$('#profilePanelUpgradeTitle'),profilePanelUpgradeBody:$('#profilePanelUpgradeBody'),profilePanelGoogleBtn:$('#profilePanelGoogleBtn'),profilePanelLinkMessage:$('#profilePanelLinkMessage'),profilePanelUpgradeNote:$('#profilePanelUpgradeNote'),profilePanelStats:$('#profilePanelStats'),profilePanelPlaceholderNote:$('#profilePanelPlaceholderNote'),profilePanelForm:$('#profilePanelForm'),profileDisplayNameInput:$('#profileDisplayNameInput'),profileAvatarChoices:$('#profileAvatarChoices'),profilePanelSaveBtn:$('#profilePanelSaveBtn'),profilePanelSaveMessage:$('#profilePanelSaveMessage'),profilePanelCloseBtn:$('#profilePanelCloseBtn'),profilePanelCloseAction:$('#profilePanelCloseAction'),
   difficultyInfo:$('#difficultyInfo'),modeInfo:$('#modeInfo'),barInfo:$('#barInfo'),offInfo:$('#offInfo'),remainingMoves:$('#remainingMoves'),
@@ -955,11 +954,6 @@ function renderWelcomeAccountEntry(){
     els.welcomeGoogleBtn.textContent=homeView.googleButtonText;
     els.welcomeGoogleBtn.disabled=!!homeView.googleButtonDisabled;
     els.welcomeGoogleBtn.classList.toggle('connected',homeView.googleStatusClass==='connected');
-  }
-  if(els.welcomeGoogleSignInBtn){
-    els.welcomeGoogleSignInBtn.textContent=homeView.googleSignInButtonText||'התחבר עם Google';
-    els.welcomeGoogleSignInBtn.disabled=!GOOGLE_ACCOUNT_LINKING_ENABLED;
-    els.welcomeGoogleSignInBtn.classList.toggle('connected',googleLinkReadiness.isLinkedAccount);
   }
   if(els.welcomeSetupNote)els.welcomeSetupNote.textContent=!GOOGLE_ACCOUNT_LINKING_ENABLED
     ? 'התחברות Google תופעל אחרי הגדרת Firebase והדומיין המורשה.'
@@ -1179,25 +1173,6 @@ async function signInWithGoogleExistingAccount(){
     renderProfileStatus();
   }
   return result;
-}
-async function connectGoogleAccountFromWelcome(){
-  if(!GOOGLE_ACCOUNT_LINKING_ENABLED){
-    showGoogleSetupRequiredInWelcome();
-    return;
-  }
-
-  welcomeState.message='פותחים חיבור Google...';
-  welcomeState.tone='';
-  renderWelcomeAccountEntry();
-
-  const result=await connectGoogleAccount();
-  welcomeState.message=result?.message||'לא הצלחנו להתחבר כרגע, אפשר להמשיך כאורח.';
-  welcomeState.tone=result?.ok?'success':'warning';
-  renderWelcomeAccountEntry();
-  if(result?.ok){
-    welcomeState.completed=true;
-    setStartFlowStep('game');
-  }
 }
 async function signInWithGoogleFromWelcome(){
   if(!GOOGLE_ACCOUNT_LINKING_ENABLED){
@@ -1930,8 +1905,7 @@ function setupEvents(){
   els.rulesPanelToggle?.addEventListener('click',toggleRulesQuickPanel);
   els.logPanelToggle?.addEventListener('click',toggleLogPanel);
   els.welcomeGuestBtn?.addEventListener('click',continueAsGuest);
-  els.welcomeGoogleBtn?.addEventListener('click',connectGoogleAccountFromWelcome);
-  els.welcomeGoogleSignInBtn?.addEventListener('click',signInWithGoogleFromWelcome);
+  els.welcomeGoogleBtn?.addEventListener('click',signInWithGoogleFromWelcome);
   els.guestNameContinueBtn?.addEventListener('click',finishGuestNameStep);
   els.guestNameBackBtn?.addEventListener('click',()=>setStartFlowStep('welcome'));
   els.guestNameInput?.addEventListener('keydown',event=>{if(event.key==='Enter')finishGuestNameStep();});
