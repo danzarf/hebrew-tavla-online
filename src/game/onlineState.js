@@ -36,3 +36,37 @@ export function normalizeBoard(b) {
   }
   return arr;
 }
+
+function isDicePairWithValues(dice) {
+  return Array.isArray(dice) && dice.length === 2 && Number.isInteger(dice[0]) && Number.isInteger(dice[1]) && dice[0] > 0 && dice[1] > 0;
+}
+
+function latestRollLogEntry(log = []) {
+  if (!Array.isArray(log) || log.length === 0) return null;
+  for (let i = log.length - 1; i >= 0; i -= 1) {
+    const entry = log[i];
+    if (typeof entry?.text !== 'string') continue;
+    if (/גלגל: \d+–\d+/.test(entry.text)) return entry;
+  }
+  return null;
+}
+
+export function getRemoteRollFeedbackId(shared = {}) {
+  const dice = shared?.dice;
+  if (!isDicePairWithValues(dice)) return null;
+  const rollEntry = latestRollLogEntry(shared?.log);
+  if (!rollEntry) return null;
+  return `${shared.currentActor || ''}|${rollEntry.time || ''}|${rollEntry.text}|${dice[0]}-${dice[1]}`;
+}
+
+export function shouldTriggerRemoteRollFeedback({
+  shared,
+  localActor,
+  lastSeenFeedbackId,
+}) {
+  if (!shared || !localActor) return { shouldTrigger: false, feedbackId: null };
+  if (shared.currentActor === localActor) return { shouldTrigger: false, feedbackId: null };
+  const feedbackId = getRemoteRollFeedbackId(shared);
+  if (!feedbackId || feedbackId === lastSeenFeedbackId) return { shouldTrigger: false, feedbackId };
+  return { shouldTrigger: true, feedbackId };
+}

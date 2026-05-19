@@ -871,7 +871,7 @@ import { die, rollDicePair, isFiveSix, isFourFive, isOneTwo } from "./src/game/d
 import { BLACK, WHITE, countColorAt, otherColor } from "./src/game/rules.js";
 import { applyMove, getAllLegalMoves, getLegalMovesForSource, sameMove } from "./src/game/moves.js";
 import { createInitialBoard, createInitialState, createNewGameStateValues } from "./src/game/state.js";
-import { createSharedGameState, normalizeBoard } from "./src/game/onlineState.js";
+import { createSharedGameState, normalizeBoard, shouldTriggerRemoteRollFeedback } from "./src/game/onlineState.js";
 import { chooseAiSequence, chooseBestDoubleFor, pipCount } from "./src/game/ai.js";
 import { HEB_COLOR, HEB_DIFF, HEB_MODE } from "./src/ui/text.js";
 import { addLog as addLogMessage, computerMoveText, escapeHtml, isImportantComputerMove, logMove as logMoveMessage, renderLog as renderLogMessage, showMessage as showMessageMessage } from "./src/ui/messages.js";
@@ -1904,6 +1904,13 @@ function applyShared(g){
   renderLog();
   renderLastChanceUI();
   notifyRemoteDoubleChoice(g);
+  const remoteRollFeedback=shouldTriggerRemoteRollFeedback({
+    shared:g,
+    localActor:localActor(),
+    lastSeenFeedbackId:state.lastRemoteRollFeedbackId||null
+  });
+  if(remoteRollFeedback.feedbackId)state.lastRemoteRollFeedbackId=remoteRollFeedback.feedbackId;
+  if(remoteRollFeedback.shouldTrigger)rollDiceVisual(state.dice,rnd(900,1200));
   if(remoteMove)animateRemoteMove(lm,remoteStart);
   if(state.lastChance&&state.lastChance.phase==='rolling'&&state.lastChance.rollingId)showRemoteLastChanceRolling(state.lastChance);
   if(state.lastChance&&state.lastChance.resultId)showLastChanceResult(state.lastChance);
