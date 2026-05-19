@@ -1,6 +1,7 @@
 const FRIENDLY_GOOGLE_LINK_ERROR = 'לא הצלחנו להתחבר כרגע, אפשר להמשיך כאורח.';
 const LINKED_GOOGLE_MESSAGE = 'החשבון נשמר.';
 const ALREADY_LINKED_MESSAGE = 'החשבון כבר שמור.';
+const GOOGLE_SIGN_IN_SUCCESS_MESSAGE = 'התחברת בהצלחה עם Google.';
 
 export function isLinkedAuthUser(user) {
   return Boolean(user?.uid && user?.isAnonymous === false);
@@ -23,7 +24,7 @@ export function getGoogleLinkFriendlyMessage(error) {
   }
 
   if (code === 'auth/credential-already-in-use' || code === 'auth/email-already-in-use') {
-    return 'חשבון Google הזה כבר מחובר לשחקן אחר. נשארים כאורח כדי לא לאבד את הפרופיל הנוכחי.';
+    return 'החשבון הזה כבר קיים. אפשר להתחבר אליו עם Google.';
   }
 
   if (code === 'auth/operation-not-allowed') {
@@ -43,6 +44,17 @@ export function getGoogleLinkFriendlyMessage(error) {
   }
 
   return FRIENDLY_GOOGLE_LINK_ERROR;
+}
+
+export function getGoogleSignInFriendlyMessage(error) {
+  const code = String(error?.code || '');
+  if (code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request') return 'ההתחברות בוטלה.';
+  if (code === 'auth/popup-blocked') return 'הדפדפן חסם את חלון Google. אפשר לנסות שוב.';
+  if (code === 'auth/operation-not-allowed') return 'ספק Google עדיין לא מופעל ב-Firebase.';
+  if (code === 'auth/configuration-not-found') return 'הגדרת Firebase לחיבור Google לא זמינה כרגע.';
+  if (code === 'auth/unauthorized-domain') return 'הדומיין הזה עדיין לא מורשה להתחברות Google ב-Firebase.';
+  if (code === 'auth/network-request-failed') return 'יש בעיית רשת בחיבור ל-Google. אפשר לנסות שוב.';
+  return 'לא הצלחנו להתחבר עם Google כרגע.';
 }
 
 export async function linkGuestToGoogle({
@@ -87,5 +99,30 @@ export async function linkGuestToGoogle({
       error,
       message: getGoogleLinkFriendlyMessage(error),
     };
+  }
+}
+
+export async function signInExistingGoogleAccount({
+  auth,
+  GoogleAuthProvider,
+  signInWithPopup,
+  logger = console,
+} = {}) {
+  if (!auth || !GoogleAuthProvider || !signInWithPopup) {
+    return { ok: false, reason: 'unavailable', message: 'התחברות Google לא זמינה כרגע.' };
+  }
+
+  try {
+    const provider = new GoogleAuthProvider();
+    provider.setCustomParameters?.({ prompt: 'select_account' });
+    const credential = await signInWithPopup(auth, provider);
+    return {
+      ok: true,
+      user: credential?.user || auth.currentUser || null,
+      message: GOOGLE_SIGN_IN_SUCCESS_MESSAGE,
+    };
+  } catch (error) {
+    logger?.warn?.('Google sign-in failed.', error);
+    return { ok: false, reason: 'sign-in-failed', error, message: getGoogleSignInFriendlyMessage(error) };
   }
 }

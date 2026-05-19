@@ -4,8 +4,10 @@ import assert from 'node:assert/strict';
 import {
   canLinkGuestToGoogle,
   getGoogleLinkFriendlyMessage,
+  getGoogleSignInFriendlyMessage,
   isLinkedAuthUser,
   linkGuestToGoogle,
+  signInExistingGoogleAccount,
 } from '../src/firebase/accountLinking.js';
 
 class FakeGoogleProvider {
@@ -66,7 +68,7 @@ test('linkGuestToGoogle does not sign into an existing Google account over the g
 
   assert.equal(result.ok, false);
   assert.equal(result.reason, 'link-failed');
-  assert.match(result.message, /כדי לא לאבד את הפרופיל/);
+  assert.match(result.message, /אפשר להתחבר אליו עם Google/);
 });
 
 test('linkGuestToGoogle reports auth readiness instead of coming-soon when the anonymous user is missing', async () => {
@@ -88,4 +90,24 @@ test('Google linking errors are mapped to friendly player messages', () => {
   assert.match(getGoogleLinkFriendlyMessage({ code: 'auth/unauthorized-domain' }), /לא מורשה/);
   assert.match(getGoogleLinkFriendlyMessage({ code: 'auth/popup-blocked' }), /חסם/);
   assert.match(getGoogleLinkFriendlyMessage({ code: 'auth/network-request-failed' }), /אפשר להמשיך כאורח/);
+});
+
+test('signInExistingGoogleAccount signs in with popup for existing account flow', async () => {
+  const auth = { currentUser: null };
+  const result = await signInExistingGoogleAccount({
+    auth,
+    GoogleAuthProvider: FakeGoogleProvider,
+    signInWithPopup: async (currentAuth, provider) => {
+      assert.equal(currentAuth, auth);
+      assert.deepEqual(provider.parameters, { prompt: 'select_account' });
+      return { user: { uid: 'google_uid', isAnonymous: false } };
+    },
+  });
+  assert.equal(result.ok, true);
+  assert.equal(result.user.uid, 'google_uid');
+});
+
+test('Google sign-in errors are mapped to friendly player messages', () => {
+  assert.match(getGoogleSignInFriendlyMessage({ code: 'auth/popup-closed-by-user' }), /בוטלה/);
+  assert.match(getGoogleSignInFriendlyMessage({ code: 'auth/unauthorized-domain' }), /לא מורשה/);
 });
