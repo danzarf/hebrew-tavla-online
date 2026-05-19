@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { createSharedGameState, normalizeBoard } from '../src/game/onlineState.js';
+import { createSharedGameState, normalizeBoard, getRemoteRollFeedbackId, shouldTriggerRemoteRollFeedback } from '../src/game/onlineState.js';
 
 test('normalizeBoard returns a 25-length array for missing input', () => {
   const board = normalizeBoard();
@@ -135,4 +135,45 @@ test('createSharedGameState preserves last move and winner metadata when provide
   assert.equal(shared.winnerColor, 'white');
   assert.equal(shared.stolen, true);
   assert.equal(shared.victoryId, 'victory-1');
+});
+
+test('getRemoteRollFeedbackId returns id for synchronized roll log + dice', () => {
+  const shared = {
+    currentActor: 'computer',
+    dice: [5, 2],
+    log: [
+      { text: 'משה הזיז אבן', time: '10:00:00' },
+      { text: 'חבר גלגל: 5–2', time: '10:00:05' },
+    ],
+  };
+
+  assert.equal(
+    getRemoteRollFeedbackId(shared),
+    'computer|10:00:05|חבר גלגל: 5–2|5-2',
+  );
+});
+
+test('shouldTriggerRemoteRollFeedback does not trigger twice for same feedback id', () => {
+  const shared = {
+    currentActor: 'computer',
+    dice: [3, 6],
+    log: [{ text: 'חבר גלגל: 3–6', time: '11:12:13' }],
+  };
+
+  const first = shouldTriggerRemoteRollFeedback({ shared, localActor: 'human', lastSeenFeedbackId: null });
+  assert.equal(first.shouldTrigger, true);
+
+  const second = shouldTriggerRemoteRollFeedback({ shared, localActor: 'human', lastSeenFeedbackId: first.feedbackId });
+  assert.equal(second.shouldTrigger, false);
+});
+
+test('shouldTriggerRemoteRollFeedback does not trigger for local actor', () => {
+  const shared = {
+    currentActor: 'human',
+    dice: [1, 4],
+    log: [{ text: 'אתה גלגל: 1–4', time: '09:00:00' }],
+  };
+
+  const res = shouldTriggerRemoteRollFeedback({ shared, localActor: 'human', lastSeenFeedbackId: null });
+  assert.equal(res.shouldTrigger, false);
 });
