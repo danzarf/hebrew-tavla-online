@@ -33,6 +33,8 @@ test('getTrustedPlayerStats sanitizes trusted stats from RTDB', async () => {
     winRate: 100,
     currentStreak: 0,
     bestStreak: 0,
+    capturesMade: 0,
+    capturesTaken: 0,
     lastPlayedAt: null,
     updatedAt: null,
   });

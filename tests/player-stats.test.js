@@ -17,6 +17,8 @@ test('createEmptyPlayerStats returns the safe empty contract', () => {
     winRate: 0,
     currentStreak: 0,
     bestStreak: 0,
+    capturesMade: 0,
+    capturesTaken: 0,
     lastPlayedAt: null,
     updatedAt: null,
   });
@@ -28,6 +30,8 @@ test('createEmptyPlayerStats returns the safe empty contract', () => {
     'winRate',
     'currentStreak',
     'bestStreak',
+    'capturesMade',
+    'capturesTaken',
     'lastPlayedAt',
     'updatedAt',
   ]);
@@ -47,6 +51,8 @@ test('sanitizePlayerStats normalizes invalid and inconsistent values', () => {
     losses: 20,
     currentStreak: 'abc',
     bestStreak: 2,
+    capturesMade: 0,
+    capturesTaken: 0,
     lastPlayedAt: 'not-a-date',
     updatedAt: '2026-05-19T10:00:00Z',
     coins: 999,
@@ -61,6 +67,8 @@ test('sanitizePlayerStats normalizes invalid and inconsistent values', () => {
     winRate: 0,
     currentStreak: 0,
     bestStreak: 2,
+    capturesMade: 0,
+    capturesTaken: 0,
     lastPlayedAt: null,
     updatedAt: '2026-05-19T10:00:00.000Z',
   });
@@ -74,7 +82,7 @@ test('formatPlayerStatsForProfile keeps UI as coming soon by default', () => {
   const formatted = formatPlayerStatsForProfile({ gamesPlayed: 22, wins: 11 });
 
   assert.equal(formatted.isPlaceholder, true);
-  assert.deepEqual(formatted.items.map(item => item.label), ['משחקים', 'ניצחונות', 'הפסדים', 'אחוז ניצחון', 'רצף נוכחי']);
+  assert.deepEqual(formatted.items.map(item => item.label), ['משחקים', 'ניצחונות', 'הפסדים', 'אחוז ניצחון', 'רצף נוכחי', 'שיא רצף', 'אכלתי', 'אכלו אותי']);
   assert.ok(formatted.items.every(item => item.value === 'בקרוב'));
   assert.match(formatted.note, /משחקים מאומתים/);
 });

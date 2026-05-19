@@ -63,7 +63,7 @@ button,select,input{font-family:inherit}
 .profilePanelInput{width:100%;border-radius:11px;border:1px solid rgba(255,231,176,.22);background:rgba(0,0,0,.16);color:#fff;padding:7px 9px;font-size:14px;font-weight:800;outline:none}
 .profilePanelInput:focus{border-color:rgba(246,199,108,.7);box-shadow:0 0 0 3px rgba(246,199,108,.13)}
 .profilePanelAvatarChoices{display:flex;flex-wrap:wrap;gap:5px}
-.profilePanelAvatarChoice{width:32px;height:32px;border-radius:999px;border:1px solid rgba(255,231,176,.22);background:rgba(255,255,255,.07);color:#fff;font-size:17px;cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.08)}
+.profilePanelAvatarChoice{width:32px;height:32px;border-radius:999px;border:1px solid rgba(255,231,176,.22);background:rgba(255,255,255,.07);color:#fff;font-size:17px;cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.08);display:grid;place-items:center;line-height:1;padding:0;text-align:center}
 .profilePanelAvatarChoice:hover{filter:brightness(1.1)}
 .profilePanelAvatarChoice.active{border-color:rgba(94,227,154,.75);background:linear-gradient(180deg,rgba(94,227,154,.24),rgba(255,255,255,.07));box-shadow:0 0 0 2px rgba(94,227,154,.14),inset 0 1px 0 rgba(255,255,255,.12)}
 .profilePanelActions{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
@@ -79,19 +79,19 @@ button,select,input{font-family:inherit}
 .profilePanelUpgradeBody,.profilePanelUpgradeNote{margin:0;font-size:11.5px;line-height:1.35;color:rgba(255,231,176,.82)}
 .profilePanelUpgradeNote{font-size:11px;color:rgba(255,231,176,.68)}
 .profilePanelGoogleBtn{justify-self:start;display:inline-flex;align-items:center;gap:7px;padding:7px 10px;border-radius:12px}
-.profilePanelGoogleBtn[disabled]{opacity:.62;cursor:not-allowed;filter:saturate(.75)}
+.profilePanelGoogleBtn[disabled]{opacity:.62;cursor:default;filter:saturate(.75)}
 .profilePanelLinkMessage{min-height:16px;margin:0;font-size:11px;line-height:1.25;color:rgba(255,231,176,.78)}
 .profilePanelLinkMessage.success{color:#9ff0bf}
 .profilePanelLinkMessage.warning{color:#ffd58b}
-.profilePanelStats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px}
+.profilePanelStats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
 .profilePanelStat{min-width:0;padding:6px 5px;border-radius:12px;background:linear-gradient(180deg,rgba(255,255,255,.075),rgba(255,255,255,.045));border:1px solid rgba(255,231,176,.14)}
-.profilePanelStatLabel{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10.5px;color:rgba(255,231,176,.75);font-weight:800;margin-bottom:3px}
-.profilePanelStatValue{display:inline-flex;align-items:center;gap:4px;padding:2px 5px;border-radius:999px;background:rgba(125,198,255,.12);border:1px solid rgba(125,198,255,.24);color:#cfeaff;font-size:10.5px;font-weight:900}
+.profilePanelStatLabel{display:block;font-size:12px;color:rgba(255,231,176,.88);font-weight:800;margin-bottom:4px;line-height:1.2}
+.profilePanelStatValue{display:inline-flex;align-items:center;gap:4px;padding:3px 7px;border-radius:999px;background:rgba(125,198,255,.14);border:1px solid rgba(125,198,255,.28);color:#d9eeff;font-size:11.5px;font-weight:900}
 .profilePanelCloseAction{justify-self:start;margin-top:0;padding:7px 10px;border-radius:12px}
 .btn{border:0;border-radius:14px;padding:9px 13px;color:#24130b;background:linear-gradient(180deg,#ffe7a8,#c98534);font-weight:800;cursor:pointer;box-shadow:0 5px 0 #6b3a18,0 10px 18px rgba(0,0,0,.32);transition:.15s transform,.15s filter,.15s opacity;white-space:nowrap}
 .btn:hover:not(:disabled){filter:brightness(1.08);transform:translateY(-1px)}
 .btn:active:not(:disabled){transform:translateY(3px);box-shadow:0 2px 0 #6b3a18,0 6px 12px rgba(0,0,0,.32)}
-.btn:disabled{opacity:.42;cursor:not-allowed;filter:grayscale(.4)}
+.btn:disabled{opacity:.42;cursor:default;filter:grayscale(.4)}
 .btn.dark{background:linear-gradient(180deg,#6d3b24,#35190f);color:#ffe7b0;box-shadow:0 5px 0 #160906,0 10px 18px rgba(0,0,0,.32);border:1px solid rgba(255,218,143,.15)}
 .main{flex:1;min-height:0;display:grid;grid-template-columns:minmax(320px,1fr) minmax(250px,320px);gap:12px;align-items:start;overflow:visible}
 .boardPanel{min-width:0;display:flex;justify-content:center;align-items:flex-start;overflow:visible;padding:2px 0}
@@ -146,7 +146,7 @@ button,select,input{font-family:inherit}
 .homeHero p,.gameSetupStep>p{margin:0;color:#ffe7b0;line-height:1.35;font-size:13px}.homeAccountMini{display:flex;align-items:center;justify-content:center;gap:8px;min-height:32px;font-size:12px;color:rgba(255,231,176,.80)}
 .homeAccountMiniAvatar{width:28px;height:28px;border-radius:999px;display:grid;place-items:center;background:linear-gradient(180deg,#ffe7a8,#b9792c);box-shadow:inset 0 1px 0 rgba(255,255,255,.28)}.homeStatusBadge{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:4px 8px;background:rgba(0,0,0,.18);border:1px solid rgba(255,231,176,.15);font-weight:900;color:#ffeec5}.homeStatusBadge.connected{color:#9ff0bf;border-color:rgba(94,227,154,.35);background:rgba(94,227,154,.11)}
 .welcomeActions{grid-template-columns:1fr 1fr;align-items:stretch;margin-top:2px}.welcomeGuestBtn,.welcomeGoogleBtn{min-height:42px}.welcomeGoogleBtn.connected{border-color:rgba(94,227,154,.42);color:#9ff0bf}.welcomeMessage,.welcomeSetupNote{min-height:14px}.guestNameStep{display:grid;gap:10px}.guestNameStep[hidden],.welcomeStep[hidden],.gameSetupStep[hidden]{display:none !important}.guestNameActions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.guestNameActions .btn{min-height:40px}
-.gameSetupStep{gap:10px}.gameSetupStep .modeGrid{grid-template-columns:1fr 1fr;gap:8px;margin:4px 0}.choiceBtn{min-height:46px;padding:11px}.startRulesBtn{justify-self:center;min-height:32px;padding:7px 12px;border-radius:999px;font-size:12px}.startRulesBtn.active{background:rgba(255,255,255,.10);border-color:rgba(255,231,176,.25);color:#ffe7b0}.startProfileAction{width:100%;min-height:40px}.homeProgressNote{margin:0;text-align:center;font-size:12px;color:rgba(255,231,176,.68);line-height:1.3}.profilePanel{z-index:260}.profileAvatarMoreBtn{width:auto;min-width:56px}.profileAvatarChoices.expanded{max-height:118px;overflow:auto;padding-inline-end:2px}.rollModeToggleBtn{font-size:12px}.collapsibleCard.collapsed{flex:0 0 auto !important;min-height:0 !important;padding:0 !important;border:0;background:transparent;box-shadow:none}.collapsibleCard.collapsed .collapsibleBody{display:none !important}.collapsibleHeader{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:7px}.collapsibleHeader h3{margin:0 !important}.collapsibleCard.collapsed .collapsibleHeader{margin:0}.collapsibleCard.collapsed .collapsibleHeader h3{display:none}.panelToggleBtn{min-height:32px;padding:6px 10px !important;border-radius:999px;font-size:12px !important;white-space:nowrap}
+.gameSetupStep{gap:18px}.gameSetupStep .modeGrid{grid-template-columns:1fr 1fr;gap:14px;margin:12px 0 2px;padding-bottom:10px;border-bottom:1px solid rgba(255,231,176,.14)}.choiceBtn{min-height:46px;padding:11px}.startRulesBtn{min-height:30px;padding:5px 10px;border-radius:999px;font-size:11px}.startRulesBtn.active{background:rgba(255,255,255,.10);border-color:rgba(255,231,176,.25);color:#ffe7b0}.startProfileAction{min-height:30px;padding:5px 10px;border-radius:999px;font-size:11px}.friendLobbyPrimaryActions{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-top:14px}.friendLobbyPrimaryBtn{min-height:64px;font-size:21px;font-weight:900}.modeGrid .friendLobbyPrimaryBtn.active{filter:brightness(1.08)}.modeGrid:has(.friendLobbyPrimaryBtn.active) .friendLobbyPrimaryBtn:not(.active){opacity:.78;filter:saturate(.82)}.gameSetupStep.friendModeActive .modeGrid .friendLobbyPrimaryBtn{min-height:54px;font-size:18px}.gameSetupStep.friendModeActive .friendLobbyPrimaryActions .friendLobbyPrimaryBtn{min-height:88px;font-size:24px;border-radius:20px;background:linear-gradient(180deg,#f4f6fa 0%,#b7bec9 52%,#6e7684 100%);border-color:rgba(230,236,247,.62);color:#181f29;box-shadow:0 7px 0 #444d5f,0 16px 26px rgba(0,0,0,.36),inset 0 1px 0 rgba(255,255,255,.82)}.gameSetupStep.friendModeActive .friendLobbyPrimaryActions .friendLobbyPrimaryBtn.active{filter:brightness(1.03)}.gameSetupStep.friendModeActive .friendLobbyPrimaryActions.friendActionSelected .friendLobbyPrimaryBtn:not(.active){opacity:.62;filter:saturate(.65) brightness(.92)}.friendLobbyPanel{margin-top:10px;padding:6px 7px;border-radius:12px;background:rgba(18,10,6,.74);border:1px solid rgba(255,231,176,.18);max-width:400px;margin-inline:auto;box-shadow:0 10px 20px rgba(0,0,0,.24)}.friendLobbyPanelTitle{margin:0 0 4px;font-size:11.5px;color:#ffe7b0;line-height:1.2}.friendLobbySecondaryActions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;padding-top:8px;border-top:1px solid rgba(255,231,176,.12)}.roomBox{padding:7px 8px;margin-top:10px;max-width:400px;margin-inline:auto;border-radius:14px;box-shadow:0 12px 22px rgba(0,0,0,.28)}.roomCode{font-size:21px;letter-spacing:2.5px;line-height:1.1}.roomBox .onlineHint{font-size:11.5px;line-height:1.28}.roomBox #roomPlayers .playerLine{margin:4px 0;padding:5px 8px;min-height:28px}.roomBox #readyBtn{min-height:34px;padding:6px 8px;margin-top:6px}.roomBox #roomStatusText{margin-top:6px;font-size:11.5px;line-height:1.25}#computerPanel .formRow{grid-template-columns:minmax(220px,320px);justify-content:center}#computerPanel .field{text-align:center}#computerPanel .field label{text-align:center}.homeProgressNote{margin:0;text-align:center;font-size:12px;color:rgba(255,231,176,.68);line-height:1.3}.profilePanel{z-index:260}.profileAvatarMoreBtn{width:auto;min-width:56px}.profileAvatarChoices.expanded{max-height:118px;overflow:auto;padding-inline-end:2px}.rollModeToggleBtn{font-size:12px}.collapsibleCard.collapsed{flex:0 0 auto !important;min-height:0 !important;padding:0 !important;border:0;background:transparent;box-shadow:none}.collapsibleCard.collapsed .collapsibleBody{display:none !important}.collapsibleHeader{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:7px}.collapsibleHeader h3{margin:0 !important}.collapsibleCard.collapsed .collapsibleHeader{margin:0}.collapsibleCard.collapsed .collapsibleHeader h3{display:none}.panelToggleBtn{min-height:32px;padding:6px 10px !important;border-radius:999px;font-size:12px !important;white-space:nowrap}
 @media (max-width:540px){.modal.homeModal{max-height:calc(100dvh - 24px);overflow:auto}.welcomeActions,.guestNameActions,.gameSetupStep .modeGrid{grid-template-columns:1fr}.formRow{grid-template-columns:1fr}.startProfileAction{width:100%}.startRulesBtn{justify-self:stretch}}
 /* Premium visual package: board, checkers, dice and roll feedback only. */
 .boardWrap{filter:drop-shadow(0 22px 34px rgba(0,0,0,.54)) drop-shadow(0 0 22px rgba(246,199,108,.08))}
@@ -170,7 +170,7 @@ button,select,input{font-family:inherit}
 .diceDock.rollFxFreeBurst .die{animation:freeRollPop 1.15s ease both}.diceDock.rollFxChoiceBurst .die{animation:choiceRollPop 1.05s ease both}.diceDock.rollFxBadBurst .die{animation:badRollPop .95s ease both}.diceDock.rollFxDoubleBurst .die{animation:doubleRollPop 1s ease both}.board.rollFxFreeBurst{animation:boardFreeAura 1.15s ease both}.board.rollFxChoiceBurst{animation:boardChoiceAura 1.05s ease both}.board.rollFxBadBurst{animation:boardBadAura .95s ease both}.board.rollFxDoubleBurst{animation:boardDoubleAura 1s ease both}
 @keyframes freeRollPop{0%,100%{transform:scale(1);filter:brightness(1)}35%{transform:scale(1.12) rotateZ(-4deg);filter:brightness(1.35) drop-shadow(0 0 12px rgba(132,96,255,.75))}65%{transform:scale(1.05) rotateZ(3deg);filter:brightness(1.18)}}@keyframes choiceRollPop{0%,100%{transform:scale(1)}42%{transform:scale(1.10);filter:brightness(1.32) drop-shadow(0 0 12px rgba(246,199,108,.78))}}@keyframes badRollPop{0%,100%{transform:scale(1)}18%,48%{transform:translateX(-3px) scale(1.04);filter:brightness(1.05) drop-shadow(0 0 10px rgba(255,72,64,.72))}32%,62%{transform:translateX(3px) scale(1.04)}}@keyframes doubleRollPop{0%,100%{transform:scale(1)}45%{transform:scale(1.12);filter:brightness(1.28) drop-shadow(0 0 11px rgba(255,236,181,.70))}}
 @keyframes boardFreeAura{0%,100%{box-shadow:inset 0 0 0 2px rgba(255,236,181,.30),inset 0 0 0 10px rgba(40,17,8,.82),0 24px 54px rgba(0,0,0,.62)}42%{box-shadow:inset 0 0 0 2px rgba(199,185,255,.50),inset 0 0 0 10px rgba(40,17,8,.82),0 0 36px rgba(132,96,255,.42),0 24px 54px rgba(0,0,0,.62)}}@keyframes boardChoiceAura{0%,100%{filter:none}45%{filter:drop-shadow(0 0 16px rgba(246,199,108,.42)) brightness(1.04)}}@keyframes boardBadAura{0%,100%{filter:none}42%{filter:drop-shadow(0 0 16px rgba(255,72,64,.34)) saturate(1.12)}}@keyframes boardDoubleAura{0%,100%{filter:none}45%{filter:drop-shadow(0 0 14px rgba(255,236,181,.34)) brightness(1.03)}}
-.board.swapPulse{animation:premiumSwapPulse 1.65s ease both}@keyframes premiumSwapPulse{0%{filter:none}20%{filter:drop-shadow(0 0 16px rgba(125,198,255,.45)) hue-rotate(16deg)}48%{filter:drop-shadow(0 0 26px rgba(246,199,108,.45)) hue-rotate(-12deg)}100%{filter:none}}
+.board.swapPulse{animation:premiumSwapPulse 1.65s ease both}@keyframes premiumSwapPulse{0%{filter:none}20%{filter:drop-shadow(0 0 16px rgba(255,106,106,.46)) hue-rotate(16deg)}48%{filter:drop-shadow(0 0 26px rgba(246,199,108,.45)) hue-rotate(-12deg)}100%{filter:none}}
 .victoryBanner{background:radial-gradient(circle at 50% 0%,rgba(255,243,189,.46),transparent 58%),linear-gradient(180deg,rgba(91,48,22,.98),rgba(21,9,5,.97));border-color:rgba(255,231,176,.45);box-shadow:0 30px 95px rgba(0,0,0,.72),inset 0 1px 0 rgba(255,255,255,.15),0 0 42px rgba(246,199,108,.34)}
 @media (prefers-reduced-motion:reduce){.diceDock.rolling .die,.diceDock.rollFxFreeBurst .die,.diceDock.rollFxChoiceBurst .die,.diceDock.rollFxBadBurst .die,.diceDock.rollFxDoubleBurst .die,.board.rollFxFreeBurst,.board.rollFxChoiceBurst,.board.rollFxBadBurst,.board.rollFxDoubleBurst,.board.swapPulse{animation:none !important}}
 
@@ -263,7 +263,7 @@ body:before{content:"";position:fixed;inset:0;pointer-events:none;background:rad
 .countBadge,.barCount{background:linear-gradient(180deg,#fff4c9,#dda54d 72%,#a6652b);border:1px solid rgba(255,255,255,.28);box-shadow:0 6px 14px rgba(0,0,0,.42),inset 0 1px 0 rgba(255,255,255,.50)}
 .barArea{background:linear-gradient(180deg,rgba(10,5,3,.92),rgba(99,57,28,.62) 48%,rgba(11,5,3,.94));border:1px solid rgba(255,231,176,.16);box-shadow:inset 0 0 24px rgba(0,0,0,.74),inset 0 1px 0 rgba(255,255,255,.06),0 0 0 1px rgba(0,0,0,.22)}.barArea:before{color:rgba(255,231,176,.16);letter-spacing:7px}
 .offTray,.pipCounter{background:radial-gradient(circle at 50% 0%,rgba(255,241,198,.20),transparent 58%),linear-gradient(180deg,rgba(55,30,18,.84),rgba(11,6,4,.58));border-color:rgba(255,231,176,.26);box-shadow:inset 0 1px 0 rgba(255,255,255,.13),inset 0 -16px 24px rgba(0,0,0,.30),0 12px 22px rgba(0,0,0,.38)}
-.diceDock{background:radial-gradient(circle at 50% 0%,rgba(255,236,181,.18),transparent 62%),rgba(12,6,4,.70);border-color:rgba(255,231,176,.24);backdrop-filter:blur(5px);box-shadow:0 14px 32px rgba(0,0,0,.50),inset 0 1px 0 rgba(255,255,255,.10)}.diceDock.clickable{box-shadow:0 0 0 2px rgba(106,236,162,.42),0 0 24px rgba(94,227,154,.25),0 14px 32px rgba(0,0,0,.50)}
+.diceDock{background:radial-gradient(circle at 50% 0%,rgba(255,236,181,.18),transparent 62%),rgba(12,6,4,.70);border-color:rgba(255,231,176,.24);backdrop-filter:blur(5px);box-shadow:0 14px 32px rgba(0,0,0,.50),inset 0 1px 0 rgba(255,255,255,.10)}.diceDock.clickable{box-shadow:0 0 0 2px rgba(106,236,162,.42),0 0 24px rgba(94,227,154,.25),0 14px 32px rgba(0,0,0,.50)}.diceDock.endTurnReady{cursor:pointer;box-shadow:0 0 0 3px rgba(255,106,106,.46),0 0 30px rgba(255,106,106,.36),0 14px 32px rgba(0,0,0,.50);background:radial-gradient(circle at 50% 0%,rgba(255,120,120,.30),transparent 62%),rgba(12,6,4,.74);animation:endTurnDicePulse 1.15s ease-in-out infinite}.diceDock.endTurnReady:hover{filter:brightness(1.1)}@keyframes endTurnDicePulse{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.02)}}
 .die{border-radius:14px;background:radial-gradient(circle at 28% 20%,#fff 0%,#fff8e8 22%,#ead5b9 56%,#b28a5e 100%);border-color:rgba(255,255,255,.76);box-shadow:inset 2px 2px 4px rgba(255,255,255,.88),inset -6px -8px 12px rgba(75,42,18,.34),0 10px 16px rgba(0,0,0,.50),0 0 0 1px rgba(60,31,14,.20)}.die:after{border-radius:14px;background:linear-gradient(135deg,rgba(255,255,255,.54),transparent 34%,rgba(74,37,16,.18));box-shadow:inset 0 0 0 1px rgba(255,255,255,.13)}.pip{background:radial-gradient(circle at 38% 34%,#5a3725,#17100c 70%);box-shadow:inset 0 1px 1px rgba(255,255,255,.20),0 1px 1px rgba(255,255,255,.15)}.diceDock.rolling .die{animation:premiumRollDie2 .16s cubic-bezier(.34,.72,.34,1) infinite alternate}.diceDock.rolling .die:nth-child(2){animation-delay:.055s}@keyframes premiumRollDie2{from{transform:translateY(-3px) rotateX(20deg) rotateY(-7deg) rotateZ(-9deg);filter:brightness(1.10)}to{transform:translateY(3px) rotateX(48deg) rotateY(6deg) rotateZ(13deg);filter:brightness(.97)}}
 .diceDock.rollFxFreeBurst .die{animation:freeRollPop2 1.05s var(--ease-premium) both}.diceDock.rollFxChoiceBurst .die{animation:choiceRollPop2 .98s var(--ease-premium) both}.diceDock.rollFxBadBurst .die{animation:badRollPop2 .86s ease both}.diceDock.rollFxDoubleBurst .die{animation:doubleRollPop2 .96s var(--ease-premium) both}.board.rollFxFreeBurst{animation:boardFreeAura2 1.05s ease both}.board.rollFxChoiceBurst{animation:boardChoiceAura2 .98s ease both}.board.rollFxBadBurst{animation:boardBadAura2 .86s ease both}.board.rollFxDoubleBurst{animation:boardDoubleAura2 .96s ease both}@keyframes freeRollPop2{0%,100%{transform:scale(1);filter:brightness(1)}38%{transform:scale(1.105) rotateZ(-3deg);filter:brightness(1.26) drop-shadow(0 0 10px rgba(132,96,255,.62))}64%{transform:scale(1.035) rotateZ(2deg);filter:brightness(1.12)}}@keyframes choiceRollPop2{0%,100%{transform:scale(1)}42%{transform:scale(1.085);filter:brightness(1.22) drop-shadow(0 0 10px rgba(242,201,121,.62))}}@keyframes badRollPop2{0%,100%{transform:scale(1)}22%,54%{transform:translateX(-2px) scale(1.025);filter:brightness(1.04) drop-shadow(0 0 8px rgba(255,92,84,.56))}38%{transform:translateX(2px) scale(1.025)}}@keyframes doubleRollPop2{0%,100%{transform:scale(1)}45%{transform:scale(1.095);filter:brightness(1.22) drop-shadow(0 0 10px rgba(255,236,181,.58))}}@keyframes boardFreeAura2{0%,100%{filter:none}44%{filter:drop-shadow(0 0 18px rgba(132,96,255,.26)) drop-shadow(0 0 12px rgba(127,198,255,.22)) brightness(1.025)}}@keyframes boardChoiceAura2{0%,100%{filter:none}45%{filter:drop-shadow(0 0 16px rgba(242,201,121,.30)) brightness(1.025)}}@keyframes boardBadAura2{0%,100%{filter:none}42%{filter:drop-shadow(0 0 12px rgba(255,92,84,.24)) saturate(1.08)}}@keyframes boardDoubleAura2{0%,100%{filter:none}45%{filter:drop-shadow(0 0 14px rgba(255,236,181,.26)) brightness(1.02)}}
 .floatingPiece{overflow:hidden;will-change:transform,opacity;transition:opacity .16s ease;box-shadow:inset 0 2px 3px rgba(255,255,255,.58),inset 0 -8px 12px rgba(0,0,0,.40),0 18px 28px rgba(0,0,0,.54),0 0 18px rgba(255,231,176,.08)}.floatingPiece.inFlight{animation:premiumPieceFlight var(--flight-ms,420ms) var(--ease-premium) forwards}@keyframes premiumPieceFlight{0%{transform:translate(-50%,-50%) scale(.98);filter:brightness(1)}42%{transform:translate(var(--mid-x),var(--mid-y)) translate(-50%,-50%) scale(1.075);filter:brightness(1.10);box-shadow:inset 0 2px 3px rgba(255,255,255,.62),inset 0 -8px 12px rgba(0,0,0,.40),0 24px 34px rgba(0,0,0,.48),0 0 18px rgba(255,231,176,.12)}100%{transform:translate(var(--dx),var(--dy)) translate(-50%,-50%) scale(1.015);filter:brightness(1)}}.hitFlash{animation:hitPremium .42s ease}@keyframes hitPremium{0%,100%{filter:brightness(1)}34%{filter:brightness(1.55) drop-shadow(0 0 12px rgba(255,105,95,.58))}58%{filter:brightness(1.12)}}
@@ -572,7 +572,7 @@ body{
   <header class="topbar">
     <div class="title">🎲 ששבש טורקי אונליין</div>
     <div class="statusLine">
-      <button id="profileChip" class="profileChip loading" type="button" aria-live="polite" aria-expanded="false" aria-controls="profilePanel" title="פתיחת הפרופיל שלי">
+      <button id="profileChip" class="profileChip loading" type="button" aria-live="polite" aria-expanded="false" aria-controls="profilePanel" >
         <span id="profileChipAvatar" class="profileChipAvatar" aria-hidden="true">👤</span>
         <span id="profileChipName" class="profileChipName">אורח</span>
         <span id="profileChipStatus" class="profileChipStatus">מתחבר כאורח</span>
@@ -611,21 +611,22 @@ body{
             <p id="profilePanelSaveMessage" class="profilePanelSaveMessage" aria-live="polite"></p>
           </div>
         </form>
-        <p id="profilePanelNote" class="profilePanelNote">כדי לשמור התקדמות מכל מכשיר, התחברות מלאה תתווסף בהמשך.</p>
+        <p id="profilePanelNote" class="profilePanelNote">כדי לשמור עם Google מכל מכשיר, התחברות מלאה תתווסף בהמשך.</p>
       </section>
-      <section class="profilePanelUpgrade profilePanelSection" aria-labelledby="profilePanelUpgradeTitle">
-        <div id="profilePanelUpgradeTitle" class="profilePanelUpgradeTitle">שמור התקדמות</div>
-        <p id="profilePanelUpgradeBody" class="profilePanelUpgradeBody">כרגע אתה משחק כאורח. ההתקדמות קשורה לדפדפן או למכשיר הזה.</p>
-        <button id="profilePanelGoogleBtn" class="btn profilePanelGoogleBtn" type="button">שמור אורח עם Google</button>
-        <p id="profilePanelLinkMessage" class="profilePanelLinkMessage" aria-live="polite"></p>
-        <p id="profilePanelUpgradeNote" class="profilePanelUpgradeNote">חיבור מלא יאפשר בהמשך לשמור התקדמות בין מכשירים.</p>
-      </section>
+
       <section class="profilePanelSection" aria-label="סטטיסטיקות">
         <h3 class="profilePanelSectionTitle">סטטיסטיקות מאומתות</h3>
         <div id="profilePanelStats" class="profilePanelStats" aria-label="סטטיסטיקות שחקן מאומתות"></div>
         <p id="profilePanelPlaceholderNote" class="profilePanelPlaceholderNote">סטטיסטיקות יופיעו אחרי משחקים מאומתים.</p>
         <ul id="profilePanelStatsGuidance" class="profilePanelGuidanceList"></ul>
         <p id="profilePanelStatsStatus" class="profilePanelPlaceholderNote"></p>
+      </section>
+      <section class="profilePanelUpgrade profilePanelSection" aria-labelledby="profilePanelUpgradeTitle">
+        <div id="profilePanelUpgradeTitle" class="profilePanelUpgradeTitle">שמור התקדמות</div>
+        <p id="profilePanelUpgradeBody" class="profilePanelUpgradeBody">כרגע אתה משחק כאורח. ההתקדמות קשורה לדפדפן או למכשיר הזה.</p>
+        <button id="profilePanelGoogleBtn" class="btn profilePanelGoogleBtn" type="button">שמור אורח עם Google</button>
+        <p id="profilePanelLinkMessage" class="profilePanelLinkMessage" aria-live="polite"></p>
+        <p id="profilePanelUpgradeNote" class="profilePanelUpgradeNote">כדי לשמור את הפרופיל גם אחרי סגירת המשחק.</p>
       </section>
       <section class="profilePanelSection" aria-label="התקדמות עתידית">
         <h3 class="profilePanelSectionTitle">התקדמות עתידית</h3>
@@ -640,7 +641,7 @@ body{
       <div class="boardWrap">
         <div id="board" class="board">
           <div id="boardInner" class="boardInner">
-            <div id="barArea" class="barArea" title="בר">
+            <div id="barArea" class="barArea" aria-label="בר">
               <div class="barStacks">
                 <div id="barBlack" class="barStack black"></div>
                 <div id="barWhite" class="barStack white"></div>
@@ -762,12 +763,10 @@ body{
         <h2>בחר משחק</h2>
         <p id="homeSaveSummary">אפשר להתחיל מיד.</p>
         <div class="modeGrid">
-          <button id="modeComputerBtn" class="choiceBtn active">🤖 שחק מול מחשב</button>
-          <button id="modeFriendBtn" class="choiceBtn">👥 שחק מול חבר</button>
+          <button id="modeComputerBtn" class="btn friendLobbyPrimaryBtn">🤖 שחק מול מחשב</button>
+          <button id="modeFriendBtn" class="btn friendLobbyPrimaryBtn">👥 שחק מול חבר</button>
         </div>
-        <button id="modeRulesBtn" class="choiceBtn startRulesBtn">📜 חוקים</button>
-        <button id="homeProfileBtn" class="btn dark startProfileAction" type="button">הפרופיל שלי</button>
-        <div id="computerPanel" class="subPanel show">
+        <div id="computerPanel" class="subPanel">
           <div class="formRow">
             <div class="field">
               <label for="difficultySelect">רמת קושי</label>
@@ -778,24 +777,28 @@ body{
               </select>
             </div>
           </div>
-          <button id="startBtn" class="btn" style="font-size:18px;padding:12px 24px">שחק מול מחשב</button>
+          <button id="startBtn" class="btn" style="font-size:18px;padding:12px 24px">התחל משחק מול מחשב</button>
         </div>
         <div id="onlinePanel" class="subPanel">
-          <div class="formRow">
-            <button id="createRoomBtn" class="btn">פתח חדר</button>
+          <div id="friendLobbyPrimaryActions" class="friendLobbyPrimaryActions">
+            <button id="openRoomModeBtn" class="btn friendLobbyPrimaryBtn">פתח חדר</button>
+            <button id="joinRoomModeBtn" class="btn friendLobbyPrimaryBtn">הצטרף לחדר</button>
+          </div>
+          <div id="joinRoomPanel" class="friendLobbyPanel" style="display:none">
+            <p class="friendLobbyPanelTitle">הכנס קוד חדר</p>
             <div class="field">
               <label for="joinCodeInput">קוד חדר</label>
               <input id="joinCodeInput" inputmode="numeric" maxlength="4" placeholder="1234" dir="ltr">
             </div>
+            <button id="joinRoomBtn" class="btn dark" style="width:100%">אישור הצטרפות</button>
           </div>
-          <button id="joinRoomBtn" class="btn dark" style="width:100%">הצטרף לחדר</button>
           <input id="playerNameInput" type="hidden">
           <div id="roomLobby" class="roomBox" style="display:none">
             <div class="onlineHint">שלח לחבר את קוד החדר:</div>
             <div id="roomCodeDisplay" class="roomCode">----</div>
             <div id="roomPlayers"></div>
             <button id="readyBtn" class="btn" style="width:100%;margin-top:8px">✅ אני מוכן</button>
-            <div id="roomStatusText" class="onlineHint" style="margin-top:8px">מחכים לשחקן נוסף...</div>
+            <div id="roomStatusText" class="onlineHint" style="margin-top:8px">ממתינים לשחקן נוסף...</div>
           </div>
         </div>
         <div id="rulesPanel" class="subPanel startRulesPanel" dir="rtl">
@@ -828,6 +831,10 @@ body{
             <h3>חשוב לדעת</h3>
             <p>סטטיסטיקות, רמות ומטבעות יתווספו בהמשך. כרגע אלו רק מצייני מקום — אין כאן כלכלה או התקדמות אמיתית.</p>
           </section>
+        </div>
+        <div class="friendLobbySecondaryActions">
+          <button id="modeRulesBtn" class="choiceBtn startRulesBtn">📜 חוקים</button>
+          <button id="homeProfileBtn" class="choiceBtn startProfileAction" type="button">הפרופיל שלי</button>
         </div>
         <p id="homeProgressNote" class="homeProgressNote">סטטיסטיקות, רמות ומטבעות יתווספו בהמשך.</p>
       </section>
@@ -913,19 +920,20 @@ const els={
   board:$('#board'),inner:$('#boardInner'),bar:$('#barArea'),diceDock:$('#diceDock'),die1:$('#die1'),die2:$('#die2'),msg:$('#boardMessage'),
   rollBtn:$('#rollBtn'),undoBtn:$('#undoBtn'),endBtn:$('#endBtn'),newBtn:$('#newBtn'),newBtn2:$('#newBtn2'),soundToggleBtn:$('#soundToggleBtn'),rollModeToggleBtn:$('#rollModeToggleBtn'),welcomeStep:$('#welcomeStep'),guestNameStep:$('#guestNameStep'),gameSetupStep:$('#gameSetupStep'),welcomeGuestBtn:$('#welcomeGuestBtn'),welcomeGoogleBtn:$('#welcomeGoogleBtn'),welcomeMessage:$('#welcomeMessage'),welcomeSetupNote:$('#welcomeSetupNote'),homeTitle:$('#homeTitle'),homeAccountAvatar:$('#homeAccountAvatar'),homeAccountName:$('#homeAccountName'),homeAccountBadge:$('#homeAccountBadge'),homeAccountStatus:$('#homeAccountStatus'),homeSaveSummary:$('#homeSaveSummary'),homeProfileBtn:$('#homeProfileBtn'),homeProgressNote:$('#homeProgressNote'),guestNameInput:$('#guestNameInput'),guestNameContinueBtn:$('#guestNameContinueBtn'),guestNameBackBtn:$('#guestNameBackBtn'),
   turnPill:$('#turnPill'),colorPill:$('#colorPill'),dicePill:$('#dicePill'),specialPill:$('#specialPill'),profileChip:$('#profileChip'),profileChipAvatar:$('#profileChipAvatar'),profileChipName:$('#profileChipName'),profileChipStatus:$('#profileChipStatus'),
-  profilePanel:$('#profilePanel'),profilePanelAvatar:$('#profilePanelAvatar'),profilePanelName:$('#profilePanelName'),profilePanelStatus:$('#profilePanelStatus'),profilePanelNote:$('#profilePanelNote'),profilePanelUpgradeTitle:$('#profilePanelUpgradeTitle'),profilePanelUpgradeBody:$('#profilePanelUpgradeBody'),profilePanelGoogleBtn:$('#profilePanelGoogleBtn'),profilePanelLinkMessage:$('#profilePanelLinkMessage'),profilePanelUpgradeNote:$('#profilePanelUpgradeNote'),profilePanelStats:$('#profilePanelStats'),profilePanelPlaceholderNote:$('#profilePanelPlaceholderNote'),profilePanelStatsGuidance:$('#profilePanelStatsGuidance'),profilePanelRefreshStatsBtn:$('#profilePanelRefreshStatsBtn'),profilePanelStatsStatus:$('#profilePanelStatsStatus'),profilePanelForm:$('#profilePanelForm'),profileDisplayNameInput:$('#profileDisplayNameInput'),profileAvatarChoices:$('#profileAvatarChoices'),profilePanelSaveBtn:$('#profilePanelSaveBtn'),profilePanelSaveMessage:$('#profilePanelSaveMessage'),profilePanelCloseBtn:$('#profilePanelCloseBtn'),profilePanelCloseAction:$('#profilePanelCloseAction'),
+  profilePanel:$('#profilePanel'),profilePanelUpgrade:$('.profilePanelUpgrade'),profilePanelAvatar:$('#profilePanelAvatar'),profilePanelName:$('#profilePanelName'),profilePanelStatus:$('#profilePanelStatus'),profilePanelNote:$('#profilePanelNote'),profilePanelUpgradeTitle:$('#profilePanelUpgradeTitle'),profilePanelUpgradeBody:$('#profilePanelUpgradeBody'),profilePanelGoogleBtn:$('#profilePanelGoogleBtn'),profilePanelLinkMessage:$('#profilePanelLinkMessage'),profilePanelUpgradeNote:$('#profilePanelUpgradeNote'),profilePanelStats:$('#profilePanelStats'),profilePanelPlaceholderNote:$('#profilePanelPlaceholderNote'),profilePanelStatsGuidance:$('#profilePanelStatsGuidance'),profilePanelRefreshStatsBtn:$('#profilePanelRefreshStatsBtn'),profilePanelStatsStatus:$('#profilePanelStatsStatus'),profilePanelForm:$('#profilePanelForm'),profileDisplayNameInput:$('#profileDisplayNameInput'),profileAvatarChoices:$('#profileAvatarChoices'),profilePanelSaveBtn:$('#profilePanelSaveBtn'),profilePanelSaveMessage:$('#profilePanelSaveMessage'),profilePanelCloseBtn:$('#profilePanelCloseBtn'),profilePanelCloseAction:$('#profilePanelCloseAction'),
   difficultyInfo:$('#difficultyInfo'),modeInfo:$('#modeInfo'),barInfo:$('#barInfo'),offInfo:$('#offInfo'),remainingMoves:$('#remainingMoves'),
   countdownInfo:$('#countdownInfo'),countdownText:$('#countdownText'),log:$('#log'),barWhite:$('#barWhite'),barBlack:$('#barBlack'),
   offWhite:$('#offWhite'),offBlack:$('#offBlack'),pipWhite:$('#pipWhite'),pipBlack:$('#pipBlack'),startModal:$('#startModal'),startBtn:$('#startBtn'),difficultySelect:$('#difficultySelect'),
   doubleModal:$('#doubleModal'),doubleButtons:$('#doubleButtons'),lastChanceModal:$('#lastChanceModal'),lastChanceText:$('#lastChanceText'),chanceA:$('#chanceA'),chanceB:$('#chanceB'),chanceBtn:$('#chanceBtn'),
-  modeComputerBtn:$('#modeComputerBtn'),modeFriendBtn:$('#modeFriendBtn'),modeRulesBtn:$('#modeRulesBtn'),computerPanel:$('#computerPanel'),onlinePanel:$('#onlinePanel'),rulesPanel:$('#rulesPanel'),playerNameInput:$('#playerNameInput'),createRoomBtn:$('#createRoomBtn'),joinRoomBtn:$('#joinRoomBtn'),joinCodeInput:$('#joinCodeInput'),roomLobby:$('#roomLobby'),roomCodeDisplay:$('#roomCodeDisplay'),roomPlayers:$('#roomPlayers'),readyBtn:$('#readyBtn'),roomStatusText:$('#roomStatusText'),reactionToast:$('#reactionToast'),reactionWhite:$('#reactionWhite'),reactionBlack:$('#reactionBlack'),victoryBanner:$('#victoryBanner'),reactionCard:$('#reactionCard'),rulesQuickCard:$('#rulesQuickCard'),rulesPanelToggle:$('#rulesPanelToggle'),logCard:$('#logCard'),logPanelToggle:$('#logPanelToggle')
+  modeComputerBtn:$('#modeComputerBtn'),modeFriendBtn:$('#modeFriendBtn'),modeRulesBtn:$('#modeRulesBtn'),computerPanel:$('#computerPanel'),onlinePanel:$('#onlinePanel'),rulesPanel:$('#rulesPanel'),playerNameInput:$('#playerNameInput'),createRoomBtn:$('#createRoomBtn'),joinRoomBtn:$('#joinRoomBtn'),joinCodeInput:$('#joinCodeInput'),openRoomModeBtn:$('#openRoomModeBtn'),joinRoomModeBtn:$('#joinRoomModeBtn'),friendLobbyPrimaryActions:$('#friendLobbyPrimaryActions'),joinRoomPanel:$('#joinRoomPanel'),roomLobby:$('#roomLobby'),roomCodeDisplay:$('#roomCodeDisplay'),roomPlayers:$('#roomPlayers'),readyBtn:$('#readyBtn'),roomStatusText:$('#roomStatusText'),reactionToast:$('#reactionToast'),reactionWhite:$('#reactionWhite'),reactionBlack:$('#reactionBlack'),victoryBanner:$('#victoryBanner'),reactionCard:$('#reactionCard'),rulesQuickCard:$('#rulesQuickCard'),rulesPanelToggle:$('#rulesPanelToggle'),logCard:$('#logCard'),logPanelToggle:$('#logPanelToggle')
 };
 const state=createInitialState();
 const profilePreferences={displayName:'',displayNameDraft:null,avatarPreference:DEFAULT_AVATAR_PREFERENCE,avatarPickerExpanded:false,saveMessage:'',saveTone:'',linkMessage:'',linkTone:''};
 const welcomeState={completed:false,message:'',tone:''};
 const trustedStatsState={trustedStats:null,hasTrustedStats:false,refreshMessage:'',refreshTone:'',lastCheckedLabel:'',isRefreshing:false,verificationStatusMessage:'',lastAutoRefreshAt:0};
 
-const lobbySelection={lastMode:'computer'};
+const lobbySelection={lastMode:''};
+const guestSessionStats={gamesPlayed:0,wins:0,losses:0,winRate:0,currentStreak:0,bestStreak:0,capturesMade:0,capturesTaken:0};
 function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
 function rnd(min,max){return Math.floor(Math.random()*(max-min+1))+min;}
 function actorName(actor){
@@ -1291,6 +1299,7 @@ function renderProfilePanel(){
   if(els.profilePanelStatus)els.profilePanelStatus.textContent=view.authLabel;
   if(els.profilePanelNote)els.profilePanelNote.textContent=view.note;
   if(els.profilePanelUpgradeTitle)els.profilePanelUpgradeTitle.textContent=view.accountUpgradeTitle;
+  if(els.profilePanelUpgrade)els.profilePanelUpgrade.hidden=!view.showAccountUpgradeSection;
   if(els.profilePanelUpgradeBody)els.profilePanelUpgradeBody.textContent=view.accountUpgradeBody;
   if(els.profilePanelGoogleBtn){
     els.profilePanelGoogleBtn.textContent=view.googleButtonText;
@@ -1517,13 +1526,14 @@ function undo(){
 
 function afterHumanMove(){
   const color=actorColor(localActor());
-  if(state.remaining.length===0){syncShared('usedAllMoves');startAutoEnd(3,'התור יסתיים בעוד');return;}
-  if(!getAllLegalMoves(state,color,state.remaining,state.freeMode).length){addLog('אין מהלכים חוקיים','danger');showMessage('אין מהלכים חוקיים',1300);syncShared('noMovesAfterMove');startAutoEnd(3,'אין מהלכים חוקיים — התור יסתיים בעוד');}
+  if(state.remaining.length===0){syncShared('usedAllMoves');startAutoEnd(state.currentActor==='computer'?0:3,'התור יסתיים בעוד');return;}
+  if(!getAllLegalMoves(state,color,state.remaining,state.freeMode).length){addLog('אין מהלכים חוקיים','danger');showMessage('אין מהלכים חוקיים',1300);syncShared('noMovesAfterMove');startAutoEnd(state.currentActor==='computer'?0:3,'אין מהלכים חוקיים — התור יסתיים בעוד');}
 }
 
 function startAutoEnd(sec,prefix){
+  if(sec<=0){cancelAutoEnd();endTurn();return;}
   cancelAutoEnd();state.countdown=sec;renderUI();showMessage(`${prefix} ${sec}...`,1000);
-  state.countdownTimer=setInterval(()=>{state.countdown--;renderUI();if(state.countdown>0)showMessage(`${prefix} ${state.countdown}...`,900);if(state.countdown<=0){cancelAutoEnd();endTurn();}},1000);
+  state.countdownTimer=setInterval(()=>{state.countdown--;renderUI();if(state.countdown>0)showMessage(`${prefix} ${state.countdown}...`,900);if(state.countdown<=0){cancelAutoEnd();endTurn();}},850);
 }
 function cancelAutoEnd(){clearInterval(state.countdownTimer);state.countdownTimer=null;state.countdown=0;renderUI();}
 function clearTimers(){clearTimeout(state.autoTimer);clearInterval(state.countdownTimer);state.autoTimer=null;state.countdownTimer=null;state.countdown=0;}
@@ -1793,6 +1803,7 @@ function finishGame(winnerColor,stolen){
   state.stolen=!!stolen;
   state.victoryId=Date.now()+'_'+Math.random().toString(36).slice(2,6);
   recordMatchResultForGameEnd(winnerColor);
+  recordGuestSessionResult(winnerColor);
   const actor=actorForColor(winnerColor);
   addLog(`${actorName(actor)} ניצח${stolen?' בזכות הירושלמי!':'!'}`,'special');
   renderAll();
@@ -1814,6 +1825,14 @@ function submitMatchResultInBackground(matchResult){
       scheduleTrustedStatsRefresh();
     })
     .catch(error=>{console.warn('Non-blocking unverified match result submit failed.',error);setVerificationStatusMessage('לא הצלחנו לשלוח לאימות כרגע, המשחק נשמר מקומית.');});
+}
+
+function recordGuestSessionResult(winnerColor){
+  guestSessionStats.gamesPlayed+=1;
+  const localWon=actorForColor(winnerColor)===localActor();
+  if(localWon){guestSessionStats.wins+=1;guestSessionStats.currentStreak+=1;guestSessionStats.bestStreak=Math.max(guestSessionStats.bestStreak,guestSessionStats.currentStreak);}
+  else{guestSessionStats.losses+=1;guestSessionStats.currentStreak=0;}
+  guestSessionStats.winRate=guestSessionStats.gamesPlayed?Math.round((guestSessionStats.wins/guestSessionStats.gamesPlayed)*1000)/10:0;
 }
 
 function recordMatchResultForGameEnd(winnerColor){
@@ -1958,7 +1977,7 @@ function newGameFromModal(){
 }
 
 function openNewGame(){clearTimers();resetStartFlowForNewGame();els.startModal.classList.add('show');}
-function buttonRoll(){if(canHumanRoll())rollForCurrent();}
+function buttonRoll(){if(canHumanRoll())return rollForCurrent(); if(state.countdown>0&&state.status==='humanMoving'&&state.remaining.length===0)return manualEndTurn();}
 function setCollapsiblePanel(card,toggle,expanded,openText,closeText){
   if(!card||!toggle)return;
   card.classList.toggle('collapsed',!expanded);
@@ -1972,6 +1991,15 @@ function toggleRulesQuickPanel(){
 function toggleLogPanel(){
   const expanded=els.logCard?.classList.contains('collapsed');
   setCollapsiblePanel(els.logCard,els.logPanelToggle,expanded,'מהלכים','סגור');
+}
+function setFriendActionState(activeAction=''){
+  const isCreate=activeAction==='create';
+  const isJoin=activeAction==='join';
+  els.openRoomModeBtn?.classList.toggle('active',isCreate);
+  els.joinRoomModeBtn?.classList.toggle('active',isJoin);
+  els.friendLobbyPrimaryActions?.classList.toggle('friendActionSelected',isCreate||isJoin);
+  if(els.roomLobby)els.roomLobby.style.display=isCreate?'block':'none';
+  if(els.joinRoomPanel)els.joinRoomPanel.style.display=isJoin?'block':'none';
 }
 function setupEvents(){
   const warmRollSounds=()=>preloadRollSounds();
@@ -1995,10 +2023,12 @@ function setupEvents(){
   els.profilePanelCloseAction?.addEventListener('click',()=>setProfilePanelOpen(false));
   document.addEventListener('keydown',event=>{if(event.key==='Escape')setProfilePanelOpen(false);});
   document.addEventListener('pointerdown',event=>{if(els.profilePanel?.hidden)return;if(els.profilePanel.contains(event.target)||els.profileChip?.contains(event.target))return;setProfilePanelOpen(false);});
-  els.modeComputerBtn.addEventListener('click',()=>{lobbySelection.lastMode='computer';els.modeComputerBtn.classList.add('active');els.modeFriendBtn.classList.remove('active');els.modeRulesBtn.classList.remove('active');els.computerPanel.classList.add('show');els.onlinePanel.classList.remove('show');els.rulesPanel.classList.remove('show')});
-  els.modeFriendBtn.addEventListener('click',()=>{lobbySelection.lastMode='friend';els.modeFriendBtn.classList.add('active');els.modeComputerBtn.classList.remove('active');els.modeRulesBtn.classList.remove('active');els.onlinePanel.classList.add('show');els.computerPanel.classList.remove('show');els.rulesPanel.classList.remove('show')});
+  els.modeComputerBtn.addEventListener('click',()=>{lobbySelection.lastMode='computer';els.modeComputerBtn.classList.add('active');els.modeFriendBtn.classList.remove('active');els.modeRulesBtn.classList.remove('active');els.computerPanel.classList.add('show');els.onlinePanel.classList.remove('show');els.rulesPanel.classList.remove('show');els.gameSetupStep?.classList.remove('friendModeActive')});
+  els.modeFriendBtn.addEventListener('click',()=>{lobbySelection.lastMode='friend';els.modeFriendBtn.classList.add('active');els.modeComputerBtn.classList.remove('active');els.modeRulesBtn.classList.remove('active');els.onlinePanel.classList.add('show');els.computerPanel.classList.remove('show');els.rulesPanel.classList.remove('show');setFriendActionState('');els.gameSetupStep?.classList.add('friendModeActive')});
   els.modeRulesBtn.addEventListener('click',()=>{const isOpen=els.rulesPanel.classList.contains('show');els.modeRulesBtn.classList.toggle('active',!isOpen);els.modeComputerBtn.classList.toggle('active',isOpen&&lobbySelection.lastMode==='computer');els.modeFriendBtn.classList.toggle('active',isOpen&&lobbySelection.lastMode==='friend');els.rulesPanel.classList.toggle('show',!isOpen);els.computerPanel.classList.toggle('show',isOpen&&lobbySelection.lastMode==='computer');els.onlinePanel.classList.toggle('show',isOpen&&lobbySelection.lastMode==='friend')});
-  els.createRoomBtn.addEventListener('click',createRoom);els.joinRoomBtn.addEventListener('click',joinRoom);els.readyBtn.addEventListener('click',toggleReady);
+  els.createRoomBtn?.addEventListener('click',createRoom);els.joinRoomBtn?.addEventListener('click',joinRoom);
+  els.openRoomModeBtn?.addEventListener('click',()=>{const isActive=els.openRoomModeBtn.classList.contains('active');if(isActive)return setFriendActionState('');setFriendActionState('create');createRoom();});
+  els.joinRoomModeBtn?.addEventListener('click',()=>{const isActive=els.joinRoomModeBtn.classList.contains('active');if(isActive)return setFriendActionState('');setFriendActionState('join');els.joinCodeInput?.focus();});els.readyBtn.addEventListener('click',toggleReady);
   els.playerNameInput?.addEventListener('input',()=>{profilePreferences.displayName='';renderProfileStatus();});
   els.profileDisplayNameInput?.addEventListener('input',()=>{profilePreferences.displayNameDraft=els.profileDisplayNameInput.value;profilePreferences.saveMessage='';profilePreferences.saveTone='';renderProfileStatus();});
   els.profilePanelForm?.addEventListener('submit',saveProfilePanelEdits);
