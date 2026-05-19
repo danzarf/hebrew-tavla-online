@@ -4,14 +4,30 @@
       "$uid": {
         ".read": "auth != null && auth.uid == $uid",
         ".write": "auth != null && auth.uid == $uid && newData.hasChildren(['uid', 'displayName', 'isAnonymous', 'avatarPreference', 'createdAt', 'updatedAt', 'lastSeenAt']) && newData.child('uid').val() == auth.uid",
-        "uid": { ".validate": "newData.isString() && newData.val() == auth.uid" },
-        "displayName": { ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 18" },
-        "isAnonymous": { ".validate": "newData.isBoolean()" },
-        "avatarPreference": { ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 40" },
-        "createdAt": { ".validate": "newData.isNumber()" },
-        "updatedAt": { ".validate": "newData.isNumber()" },
-        "lastSeenAt": { ".validate": "newData.isNumber()" },
-        "$other": { ".validate": false }
+        "uid": {
+          ".validate": "newData.isString() && newData.val() == auth.uid"
+        },
+        "displayName": {
+          ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 18"
+        },
+        "isAnonymous": {
+          ".validate": "newData.isBoolean()"
+        },
+        "avatarPreference": {
+          ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 40"
+        },
+        "createdAt": {
+          ".validate": "newData.isNumber()"
+        },
+        "updatedAt": {
+          ".validate": "newData.isNumber()"
+        },
+        "lastSeenAt": {
+          ".validate": "newData.isNumber()"
+        },
+        "$other": {
+          ".validate": false
+        }
       }
     },
     "rooms": {
@@ -33,6 +49,77 @@
     "stats": {
       ".read": false,
       ".write": false
+    },
+    "matchResultSubmissions": {
+      "$uid": {
+        ".read": "auth != null && auth.uid == $uid",
+        "$matchId": {
+          ".write": "auth != null && auth.uid == $uid && !data.exists() && newData.hasChildren(['matchId','mode','players','winnerColor','endedAt','resultSource','gameType','ruleset','finalStatus','clientSubmittedBy','serverVerified','trustedStatsApplied','submittedAt']) && newData.child('matchId').val() == $matchId && newData.child('clientSubmittedBy').isString() && newData.child('clientSubmittedBy').val() == auth.uid && newData.child('serverVerified').val() == false && newData.child('trustedStatsApplied').val() == false",
+          "matchId": {
+            ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 80"
+          },
+          "roomCode": {
+            ".validate": "!newData.exists() || (newData.isString() && newData.val().length > 0 && newData.val().length <= 80)"
+          },
+          "mode": {
+            ".validate": "newData.isString() && (newData.val() == 'local' || newData.val() == 'online' || newData.val() == 'ai')"
+          },
+          "players": {
+            ".validate": "newData.isList() && newData.children().hasChildren(['0','1'])"
+          },
+          "winnerId": {
+            ".validate": "!newData.exists() || newData.isString()"
+          },
+          "winnerUid": {
+            ".validate": "!newData.exists() || newData.isString()"
+          },
+          "loserId": {
+            ".validate": "!newData.exists() || newData.isString()"
+          },
+          "loserUid": {
+            ".validate": "!newData.exists() || newData.isString()"
+          },
+          "winnerColor": {
+            ".validate": "newData.isString() && (newData.val() == 'white' || newData.val() == 'black')"
+          },
+          "loserColor": {
+            ".validate": "!newData.exists() || (newData.isString() && (newData.val() == 'white' || newData.val() == 'black'))"
+          },
+          "startedAt": {
+            ".validate": "!newData.exists() || newData.isNumber()"
+          },
+          "endedAt": {
+            ".validate": "newData.isNumber()"
+          },
+          "resultSource": {
+            ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 80"
+          },
+          "gameType": {
+            ".validate": "newData.isString() && newData.val() == 'tavla'"
+          },
+          "ruleset": {
+            ".validate": "newData.isString() && newData.val() == 'hebrew-tavla'"
+          },
+          "finalStatus": {
+            ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 80"
+          },
+          "clientSubmittedBy": {
+            ".validate": "newData.isString() && newData.val() == auth.uid"
+          },
+          "serverVerified": {
+            ".validate": "newData.isBoolean() && newData.val() == false"
+          },
+          "trustedStatsApplied": {
+            ".validate": "newData.isBoolean() && newData.val() == false"
+          },
+          "submittedAt": {
+            ".validate": "newData.isNumber()"
+          },
+          "$other": {
+            ".validate": false
+          }
+        }
+      }
     }
   }
 }
