@@ -248,6 +248,18 @@
 - [ ] אין כתיבה ישירה מהקליינט ל-win/loss statistics.
 - [ ] daily wheel מבוסס על זמן שרת ולא על זמן מכשיר.
 
+## בדיקות ידניות אחרי פריסת Firebase Functions (Trusted Stats)
+
+- [ ] האפליקציה עדיין נטענת ללא שגיאות קריטיות.
+- [ ] "הפרופיל שלי" עדיין נפתח ועובד.
+- [ ] חדר אונליין עדיין נפתח, הצטרפות עדיין עובדת, והמשחק מתחיל תקין.
+- [ ] (מומלץ) לסיים משחק בדיקה אונליין ולוודא שנוצר submission חדש.
+- [ ] ב-`matchResultSubmissions/{uid}/{matchId}` נכתב `serverReview` על ידי השרת.
+- [ ] ב-`trustedStatsApplications/{matchId}` נרשמת החלה/דופליקט (idempotency).
+- [ ] ב-`playerStats/{uid}` מתעדכנים נתונים רק אחרי פעולת Function.
+- [ ] אין כתיבה ישירה מהקליינט ל-`playerStats`.
+- [ ] אי אפשר מהקליינט לכתוב `serverVerified=true` או `trustedStatsApplied=true`.
+
 ## תנאי אישור שינוי
 
 שינוי נחשב בטוח רק אם:
