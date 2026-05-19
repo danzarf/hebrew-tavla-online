@@ -71,7 +71,7 @@ test('profile panel progression fields are coming-soon placeholders only', () =>
     PROFILE_PANEL_PROGRESS_PLACEHOLDERS.map(item => ({ ...item })),
   );
   assert.ok(view.progressPlaceholders.every(item => item.value === 'בקרוב'));
-  assert.deepEqual(view.progressPlaceholders.map(item => item.label), ['משחקים', 'ניצחונות', 'הפסדים', 'אחוז ניצחון', 'רצף נוכחי']);
+  assert.deepEqual(view.progressPlaceholders.map(item => item.label), ['משחקים', 'ניצחונות', 'הפסדים', 'אחוז ניצחון', 'רצף נוכחי', 'שיא רצף', 'אכלתי', 'אכלו אותי']);
   assert.match(view.placeholderNote, /משחקים מאומתים/);
 });
 
@@ -165,4 +165,11 @@ test('profile panel keeps safe fallback tone for failed refresh state', () => {
   assert.equal(view.statsRefreshDisabled, false);
   assert.equal(view.statsRefreshTone, 'warning');
   assert.match(view.statsRefreshMessage, /לרענן/);
+});
+
+
+test('profile panel can show temporary guest stats distinctly', () => {
+  const view = buildProfilePanelViewModel({ guestStats: { gamesPlayed: 2, wins: 1, losses: 1 } });
+  assert.equal(view.progressPlaceholders[0].value, '2');
+  assert.match(view.placeholderNote, /זמניות/);
 });

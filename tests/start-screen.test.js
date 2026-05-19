@@ -63,4 +63,8 @@ test('index start rules panel keeps the complete Hebrew rules structure', async 
   }
 
   assert.match(html, /סטטיסטיקות, רמות ומטבעות יתווספו בהמשך/);
+  assert.match(html, /id="joinRoomFields" style="display:none"/);
+  assert.match(html, /פתח חדר/);
+  assert.match(html, /הצטרף לחדר/);
+
 });

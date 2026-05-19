@@ -5,6 +5,8 @@ export const PLAYER_STATS_FIELDS = Object.freeze([
   'winRate',
   'currentStreak',
   'bestStreak',
+  'capturesMade',
+  'capturesTaken',
   'lastPlayedAt',
   'updatedAt',
 ]);
@@ -39,6 +41,8 @@ export function createEmptyPlayerStats() {
     winRate: 0,
     currentStreak: 0,
     bestStreak: 0,
+    capturesMade: 0,
+    capturesTaken: 0,
     lastPlayedAt: null,
     updatedAt: null,
   };
@@ -67,6 +71,8 @@ export function sanitizePlayerStats(rawStats = {}) {
     winRate: calculateWinRate(wins, gamesPlayed),
     currentStreak,
     bestStreak,
+    capturesMade: sanitizeCounter(rawStats.capturesMade),
+    capturesTaken: sanitizeCounter(rawStats.capturesTaken),
     lastPlayedAt: sanitizeTimestamp(rawStats.lastPlayedAt),
     updatedAt: sanitizeTimestamp(rawStats.updatedAt),
   };
@@ -84,6 +90,9 @@ export function formatPlayerStatsForProfile(rawStats, { showComingSoon = true } 
       { label: 'הפסדים', value: showComingSoon ? 'בקרוב' : String(stats.losses) },
       { label: 'אחוז ניצחון', value: showComingSoon ? 'בקרוב' : `${stats.winRate}%` },
       { label: 'רצף נוכחי', value: showComingSoon ? 'בקרוב' : String(stats.currentStreak) },
+      { label: 'שיא רצף', value: showComingSoon ? 'בקרוב' : String(stats.bestStreak) },
+      { label: 'אכלתי', value: showComingSoon ? 'בקרוב' : String(stats.capturesMade) },
+      { label: 'אכלו אותי', value: showComingSoon ? 'בקרוב' : String(stats.capturesTaken) },
     ],
     note: showComingSoon
       ? 'סטטיסטיקות יופיעו אחרי משחקים מאומתים.'

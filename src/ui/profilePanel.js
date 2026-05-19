@@ -52,6 +52,7 @@ export function buildProfilePanelViewModel({
   statsRefreshTone = '',
   statsLastCheckedAt = null,
   statsRefreshBusy = false,
+  guestStats = null,
 } = {}) {
   const displayName = resolveProfileDisplayName({ typedName, stateName });
   const statusText = getProfileStatusText({ authStatus, hasAuthenticatedUid, isAnonymous });
@@ -62,6 +63,10 @@ export function buildProfilePanelViewModel({
   const formattedTrustedStats = formatPlayerStatsForProfile(trustedStats || undefined, {
     showComingSoon: !hasTrustedStats,
   });
+  const hasGuestStats = Boolean(guestStats);
+  const formattedGuestStats = hasGuestStats
+    ? formatPlayerStatsForProfile(guestStats, { showComingSoon: false })
+    : null;
 
   return {
     displayName,
@@ -89,7 +94,7 @@ export function buildProfilePanelViewModel({
       : googleLinkingEnabled
         ? 'אם החיבור נכשל, אפשר להמשיך כאורח והמשחק לא ייחסם.'
         : 'התחברות Google תופעל אחרי הגדרת Firebase והדומיין המורשה.',
-    placeholderNote: formattedTrustedStats.note,
+    placeholderNote: hasGuestStats ? 'סטטיסטיקות אורח זמניות (נשמר זמנית במכשיר הזה).' : formattedTrustedStats.note,
     statsEmptyGuidance: [
       'סטטיסטיקות יופיעו אחרי משחקי אונליין מאומתים.',
       'אם סיימת משחק אונליין עכשיו, לחץ רענן בעוד כמה שניות.',
@@ -103,6 +108,6 @@ export function buildProfilePanelViewModel({
     saveHint: hasAuthenticatedUid
       ? 'נשמרים רק שם ואווטאר בטוחים.'
       : 'בלי חיבור, השינוי נשמר מקומית.',
-    progressPlaceholders: formattedTrustedStats.items.map(item => ({ ...item })),
+    progressPlaceholders: (formattedGuestStats?.items || formattedTrustedStats.items).map(item => ({ ...item })),
   };
 }

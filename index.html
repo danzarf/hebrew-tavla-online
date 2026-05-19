@@ -79,7 +79,7 @@ button,select,input{font-family:inherit}
 .profilePanelUpgradeBody,.profilePanelUpgradeNote{margin:0;font-size:11.5px;line-height:1.35;color:rgba(255,231,176,.82)}
 .profilePanelUpgradeNote{font-size:11px;color:rgba(255,231,176,.68)}
 .profilePanelGoogleBtn{justify-self:start;display:inline-flex;align-items:center;gap:7px;padding:7px 10px;border-radius:12px}
-.profilePanelGoogleBtn[disabled]{opacity:.62;cursor:not-allowed;filter:saturate(.75)}
+.profilePanelGoogleBtn[disabled]{opacity:.62;cursor:default;filter:saturate(.75)}
 .profilePanelLinkMessage{min-height:16px;margin:0;font-size:11px;line-height:1.25;color:rgba(255,231,176,.78)}
 .profilePanelLinkMessage.success{color:#9ff0bf}
 .profilePanelLinkMessage.warning{color:#ffd58b}
@@ -91,7 +91,7 @@ button,select,input{font-family:inherit}
 .btn{border:0;border-radius:14px;padding:9px 13px;color:#24130b;background:linear-gradient(180deg,#ffe7a8,#c98534);font-weight:800;cursor:pointer;box-shadow:0 5px 0 #6b3a18,0 10px 18px rgba(0,0,0,.32);transition:.15s transform,.15s filter,.15s opacity;white-space:nowrap}
 .btn:hover:not(:disabled){filter:brightness(1.08);transform:translateY(-1px)}
 .btn:active:not(:disabled){transform:translateY(3px);box-shadow:0 2px 0 #6b3a18,0 6px 12px rgba(0,0,0,.32)}
-.btn:disabled{opacity:.42;cursor:not-allowed;filter:grayscale(.4)}
+.btn:disabled{opacity:.42;cursor:default;filter:grayscale(.4)}
 .btn.dark{background:linear-gradient(180deg,#6d3b24,#35190f);color:#ffe7b0;box-shadow:0 5px 0 #160906,0 10px 18px rgba(0,0,0,.32);border:1px solid rgba(255,218,143,.15)}
 .main{flex:1;min-height:0;display:grid;grid-template-columns:minmax(320px,1fr) minmax(250px,320px);gap:12px;align-items:start;overflow:visible}
 .boardPanel{min-width:0;display:flex;justify-content:center;align-items:flex-start;overflow:visible;padding:2px 0}
@@ -572,7 +572,7 @@ body{
   <header class="topbar">
     <div class="title">🎲 ששבש טורקי אונליין</div>
     <div class="statusLine">
-      <button id="profileChip" class="profileChip loading" type="button" aria-live="polite" aria-expanded="false" aria-controls="profilePanel" title="פתיחת הפרופיל שלי">
+      <button id="profileChip" class="profileChip loading" type="button" aria-live="polite" aria-expanded="false" aria-controls="profilePanel" >
         <span id="profileChipAvatar" class="profileChipAvatar" aria-hidden="true">👤</span>
         <span id="profileChipName" class="profileChipName">אורח</span>
         <span id="profileChipStatus" class="profileChipStatus">מתחבר כאורח</span>
@@ -640,7 +640,7 @@ body{
       <div class="boardWrap">
         <div id="board" class="board">
           <div id="boardInner" class="boardInner">
-            <div id="barArea" class="barArea" title="בר">
+            <div id="barArea" class="barArea" aria-label="בר">
               <div class="barStacks">
                 <div id="barBlack" class="barStack black"></div>
                 <div id="barWhite" class="barStack white"></div>
@@ -782,13 +782,19 @@ body{
         </div>
         <div id="onlinePanel" class="subPanel">
           <div class="formRow">
+            <button id="openRoomModeBtn" class="btn">פתח חדר</button>
+            <button id="joinRoomModeBtn" class="btn">הצטרף לחדר</button>
+          </div>
+          <div id="joinRoomFields" style="display:none">
+          <div class="formRow">
             <button id="createRoomBtn" class="btn">פתח חדר</button>
             <div class="field">
               <label for="joinCodeInput">קוד חדר</label>
               <input id="joinCodeInput" inputmode="numeric" maxlength="4" placeholder="1234" dir="ltr">
             </div>
           </div>
-          <button id="joinRoomBtn" class="btn dark" style="width:100%">הצטרף לחדר</button>
+          <button id="joinRoomBtn" class="btn dark" style="width:100%">אישור הצטרפות</button>
+          </div>
           <input id="playerNameInput" type="hidden">
           <div id="roomLobby" class="roomBox" style="display:none">
             <div class="onlineHint">שלח לחבר את קוד החדר:</div>
@@ -918,7 +924,7 @@ const els={
   countdownInfo:$('#countdownInfo'),countdownText:$('#countdownText'),log:$('#log'),barWhite:$('#barWhite'),barBlack:$('#barBlack'),
   offWhite:$('#offWhite'),offBlack:$('#offBlack'),pipWhite:$('#pipWhite'),pipBlack:$('#pipBlack'),startModal:$('#startModal'),startBtn:$('#startBtn'),difficultySelect:$('#difficultySelect'),
   doubleModal:$('#doubleModal'),doubleButtons:$('#doubleButtons'),lastChanceModal:$('#lastChanceModal'),lastChanceText:$('#lastChanceText'),chanceA:$('#chanceA'),chanceB:$('#chanceB'),chanceBtn:$('#chanceBtn'),
-  modeComputerBtn:$('#modeComputerBtn'),modeFriendBtn:$('#modeFriendBtn'),modeRulesBtn:$('#modeRulesBtn'),computerPanel:$('#computerPanel'),onlinePanel:$('#onlinePanel'),rulesPanel:$('#rulesPanel'),playerNameInput:$('#playerNameInput'),createRoomBtn:$('#createRoomBtn'),joinRoomBtn:$('#joinRoomBtn'),joinCodeInput:$('#joinCodeInput'),roomLobby:$('#roomLobby'),roomCodeDisplay:$('#roomCodeDisplay'),roomPlayers:$('#roomPlayers'),readyBtn:$('#readyBtn'),roomStatusText:$('#roomStatusText'),reactionToast:$('#reactionToast'),reactionWhite:$('#reactionWhite'),reactionBlack:$('#reactionBlack'),victoryBanner:$('#victoryBanner'),reactionCard:$('#reactionCard'),rulesQuickCard:$('#rulesQuickCard'),rulesPanelToggle:$('#rulesPanelToggle'),logCard:$('#logCard'),logPanelToggle:$('#logPanelToggle')
+  modeComputerBtn:$('#modeComputerBtn'),modeFriendBtn:$('#modeFriendBtn'),modeRulesBtn:$('#modeRulesBtn'),computerPanel:$('#computerPanel'),onlinePanel:$('#onlinePanel'),rulesPanel:$('#rulesPanel'),playerNameInput:$('#playerNameInput'),createRoomBtn:$('#createRoomBtn'),joinRoomBtn:$('#joinRoomBtn'),joinCodeInput:$('#joinCodeInput'),openRoomModeBtn:$('#openRoomModeBtn'),joinRoomModeBtn:$('#joinRoomModeBtn'),joinRoomFields:$('#joinRoomFields'),roomLobby:$('#roomLobby'),roomCodeDisplay:$('#roomCodeDisplay'),roomPlayers:$('#roomPlayers'),readyBtn:$('#readyBtn'),roomStatusText:$('#roomStatusText'),reactionToast:$('#reactionToast'),reactionWhite:$('#reactionWhite'),reactionBlack:$('#reactionBlack'),victoryBanner:$('#victoryBanner'),reactionCard:$('#reactionCard'),rulesQuickCard:$('#rulesQuickCard'),rulesPanelToggle:$('#rulesPanelToggle'),logCard:$('#logCard'),logPanelToggle:$('#logPanelToggle')
 };
 const state=createInitialState();
 const profilePreferences={displayName:'',displayNameDraft:null,avatarPreference:DEFAULT_AVATAR_PREFERENCE,avatarPickerExpanded:false,saveMessage:'',saveTone:'',linkMessage:'',linkTone:''};
@@ -926,6 +932,7 @@ const welcomeState={completed:false,message:'',tone:''};
 const trustedStatsState={trustedStats:null,hasTrustedStats:false,refreshMessage:'',refreshTone:'',lastCheckedLabel:'',isRefreshing:false,verificationStatusMessage:'',lastAutoRefreshAt:0};
 
 const lobbySelection={lastMode:'computer'};
+const guestSessionStats={gamesPlayed:0,wins:0,losses:0,winRate:0,currentStreak:0,bestStreak:0,capturesMade:0,capturesTaken:0};
 function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
 function rnd(min,max){return Math.floor(Math.random()*(max-min+1))+min;}
 function actorName(actor){
@@ -1517,13 +1524,14 @@ function undo(){
 
 function afterHumanMove(){
   const color=actorColor(localActor());
-  if(state.remaining.length===0){syncShared('usedAllMoves');startAutoEnd(3,'התור יסתיים בעוד');return;}
-  if(!getAllLegalMoves(state,color,state.remaining,state.freeMode).length){addLog('אין מהלכים חוקיים','danger');showMessage('אין מהלכים חוקיים',1300);syncShared('noMovesAfterMove');startAutoEnd(3,'אין מהלכים חוקיים — התור יסתיים בעוד');}
+  if(state.remaining.length===0){syncShared('usedAllMoves');startAutoEnd(state.currentActor==='computer'?0:3,'התור יסתיים בעוד');return;}
+  if(!getAllLegalMoves(state,color,state.remaining,state.freeMode).length){addLog('אין מהלכים חוקיים','danger');showMessage('אין מהלכים חוקיים',1300);syncShared('noMovesAfterMove');startAutoEnd(state.currentActor==='computer'?0:3,'אין מהלכים חוקיים — התור יסתיים בעוד');}
 }
 
 function startAutoEnd(sec,prefix){
+  if(sec<=0){cancelAutoEnd();endTurn();return;}
   cancelAutoEnd();state.countdown=sec;renderUI();showMessage(`${prefix} ${sec}...`,1000);
-  state.countdownTimer=setInterval(()=>{state.countdown--;renderUI();if(state.countdown>0)showMessage(`${prefix} ${state.countdown}...`,900);if(state.countdown<=0){cancelAutoEnd();endTurn();}},1000);
+  state.countdownTimer=setInterval(()=>{state.countdown--;renderUI();if(state.countdown>0)showMessage(`${prefix} ${state.countdown}...`,900);if(state.countdown<=0){cancelAutoEnd();endTurn();}},850);
 }
 function cancelAutoEnd(){clearInterval(state.countdownTimer);state.countdownTimer=null;state.countdown=0;renderUI();}
 function clearTimers(){clearTimeout(state.autoTimer);clearInterval(state.countdownTimer);state.autoTimer=null;state.countdownTimer=null;state.countdown=0;}
@@ -1793,6 +1801,7 @@ function finishGame(winnerColor,stolen){
   state.stolen=!!stolen;
   state.victoryId=Date.now()+'_'+Math.random().toString(36).slice(2,6);
   recordMatchResultForGameEnd(winnerColor);
+  recordGuestSessionResult(winnerColor);
   const actor=actorForColor(winnerColor);
   addLog(`${actorName(actor)} ניצח${stolen?' בזכות הירושלמי!':'!'}`,'special');
   renderAll();
@@ -1814,6 +1823,14 @@ function submitMatchResultInBackground(matchResult){
       scheduleTrustedStatsRefresh();
     })
     .catch(error=>{console.warn('Non-blocking unverified match result submit failed.',error);setVerificationStatusMessage('לא הצלחנו לשלוח לאימות כרגע, המשחק נשמר מקומית.');});
+}
+
+function recordGuestSessionResult(winnerColor){
+  guestSessionStats.gamesPlayed+=1;
+  const localWon=actorForColor(winnerColor)===localActor();
+  if(localWon){guestSessionStats.wins+=1;guestSessionStats.currentStreak+=1;guestSessionStats.bestStreak=Math.max(guestSessionStats.bestStreak,guestSessionStats.currentStreak);}
+  else{guestSessionStats.losses+=1;guestSessionStats.currentStreak=0;}
+  guestSessionStats.winRate=guestSessionStats.gamesPlayed?Math.round((guestSessionStats.wins/guestSessionStats.gamesPlayed)*1000)/10:0;
 }
 
 function recordMatchResultForGameEnd(winnerColor){
@@ -1958,7 +1975,7 @@ function newGameFromModal(){
 }
 
 function openNewGame(){clearTimers();resetStartFlowForNewGame();els.startModal.classList.add('show');}
-function buttonRoll(){if(canHumanRoll())rollForCurrent();}
+function buttonRoll(){if(canHumanRoll())return rollForCurrent(); if(state.countdown>0&&state.status==='humanMoving'&&state.remaining.length===0)return manualEndTurn();}
 function setCollapsiblePanel(card,toggle,expanded,openText,closeText){
   if(!card||!toggle)return;
   card.classList.toggle('collapsed',!expanded);
@@ -1998,7 +2015,9 @@ function setupEvents(){
   els.modeComputerBtn.addEventListener('click',()=>{lobbySelection.lastMode='computer';els.modeComputerBtn.classList.add('active');els.modeFriendBtn.classList.remove('active');els.modeRulesBtn.classList.remove('active');els.computerPanel.classList.add('show');els.onlinePanel.classList.remove('show');els.rulesPanel.classList.remove('show')});
   els.modeFriendBtn.addEventListener('click',()=>{lobbySelection.lastMode='friend';els.modeFriendBtn.classList.add('active');els.modeComputerBtn.classList.remove('active');els.modeRulesBtn.classList.remove('active');els.onlinePanel.classList.add('show');els.computerPanel.classList.remove('show');els.rulesPanel.classList.remove('show')});
   els.modeRulesBtn.addEventListener('click',()=>{const isOpen=els.rulesPanel.classList.contains('show');els.modeRulesBtn.classList.toggle('active',!isOpen);els.modeComputerBtn.classList.toggle('active',isOpen&&lobbySelection.lastMode==='computer');els.modeFriendBtn.classList.toggle('active',isOpen&&lobbySelection.lastMode==='friend');els.rulesPanel.classList.toggle('show',!isOpen);els.computerPanel.classList.toggle('show',isOpen&&lobbySelection.lastMode==='computer');els.onlinePanel.classList.toggle('show',isOpen&&lobbySelection.lastMode==='friend')});
-  els.createRoomBtn.addEventListener('click',createRoom);els.joinRoomBtn.addEventListener('click',joinRoom);els.readyBtn.addEventListener('click',toggleReady);
+  els.createRoomBtn.addEventListener('click',createRoom);els.joinRoomBtn.addEventListener('click',joinRoom);
+  els.openRoomModeBtn?.addEventListener('click',()=>{els.joinRoomFields.style.display='none';createRoom();});
+  els.joinRoomModeBtn?.addEventListener('click',()=>{els.joinRoomFields.style.display='block';els.joinCodeInput?.focus();});els.readyBtn.addEventListener('click',toggleReady);
   els.playerNameInput?.addEventListener('input',()=>{profilePreferences.displayName='';renderProfileStatus();});
   els.profileDisplayNameInput?.addEventListener('input',()=>{profilePreferences.displayNameDraft=els.profileDisplayNameInput.value;profilePreferences.saveMessage='';profilePreferences.saveTone='';renderProfileStatus();});
   els.profilePanelForm?.addEventListener('submit',saveProfilePanelEdits);
