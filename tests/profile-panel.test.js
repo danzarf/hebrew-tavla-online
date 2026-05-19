@@ -72,7 +72,7 @@ test('profile panel progression fields are coming-soon placeholders only', () =>
   );
   assert.ok(view.progressPlaceholders.every(item => item.value === 'בקרוב'));
   assert.deepEqual(view.progressPlaceholders.map(item => item.label), ['משחקים', 'ניצחונות', 'הפסדים', 'אחוז ניצחון', 'רצף נוכחי']);
-  assert.match(view.placeholderNote, /שמירה מאובטחת/);
+  assert.match(view.placeholderNote, /משחקים מאומתים/);
 });
 
 test('profile panel enables Google button only when the feature is configured', () => {
@@ -115,4 +115,19 @@ test('profile panel uses safe guest fallback labels when auth is unavailable', (
   assert.equal(view.authLabel, 'אורח מקומי');
   assert.equal(view.avatarPreference, 'default');
   assert.match(view.saveHint, /מקומית/);
+});
+
+
+test('profile panel shows trusted stats values when trusted stats exist', () => {
+  const view = buildProfilePanelViewModel({
+    hasTrustedStats: true,
+    trustedStats: { gamesPlayed: 10, wins: 7, losses: 3, currentStreak: 2 },
+  });
+
+  assert.equal(view.progressPlaceholders[0].value, '10');
+  assert.equal(view.progressPlaceholders[1].value, '7');
+  assert.equal(view.progressPlaceholders[2].value, '3');
+  assert.equal(view.progressPlaceholders[3].value, '70%');
+  assert.equal(view.progressPlaceholders[4].value, '2');
+  assert.match(view.placeholderNote, /ממקור מאומת בלבד/);
 });

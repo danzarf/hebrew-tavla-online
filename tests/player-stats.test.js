@@ -76,5 +76,5 @@ test('formatPlayerStatsForProfile keeps UI as coming soon by default', () => {
   assert.equal(formatted.isPlaceholder, true);
   assert.deepEqual(formatted.items.map(item => item.label), ['משחקים', 'ניצחונות', 'הפסדים', 'אחוז ניצחון', 'רצף נוכחי']);
   assert.ok(formatted.items.every(item => item.value === 'בקרוב'));
-  assert.match(formatted.note, /שמירה מאובטחת/);
+  assert.match(formatted.note, /משחקים מאומתים/);
 });

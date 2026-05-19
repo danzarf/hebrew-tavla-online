@@ -370,3 +370,9 @@ Cloud Functions נדרשות עבור:
 - Undo / End Turn.
 - board visuals.
 - 3D board work.
+
+## Trusted stats pipeline (safe read model)
+1. Client submits unverified match results into `matchResultSubmissions/{uid}/{matchId}`.
+2. A future Cloud Function/server process verifies each submission.
+3. Only the server writes trusted aggregated stats into `playerStats/{uid}`.
+4. The profile UI reads trusted stats only from `playerStats/{uid}` as read-only.

@@ -46,6 +46,8 @@ export function buildProfilePanelViewModel({
   isAnonymous = true,
   googleLinkingEnabled = false,
   avatarPreference = DEFAULT_AVATAR_PREFERENCE,
+  trustedStats = null,
+  hasTrustedStats = false,
 } = {}) {
   const displayName = resolveProfileDisplayName({ typedName, stateName });
   const statusText = getProfileStatusText({ authStatus, hasAuthenticatedUid, isAnonymous });
@@ -53,6 +55,9 @@ export function buildProfilePanelViewModel({
   const isLinkedAccount = Boolean((hasAuthenticatedUid || authStatus === 'linked') && isAnonymous === false);
   const canTryGoogleLink = Boolean(googleLinkingEnabled && hasAuthenticatedUid && authStatus !== 'fallback' && !isLinkedAccount);
   const safeAvatarPreference = sanitizeAvatarPreference(avatarPreference);
+  const formattedTrustedStats = formatPlayerStatsForProfile(trustedStats || undefined, {
+    showComingSoon: !hasTrustedStats,
+  });
 
   return {
     displayName,
@@ -80,10 +85,10 @@ export function buildProfilePanelViewModel({
       : googleLinkingEnabled
         ? 'אם החיבור נכשל, אפשר להמשיך כאורח והמשחק לא ייחסם.'
         : 'התחברות Google תופעל אחרי הגדרת Firebase והדומיין המורשה.',
-    placeholderNote: formatPlayerStatsForProfile(undefined, { showComingSoon: true }).note,
+    placeholderNote: formattedTrustedStats.note,
     saveHint: hasAuthenticatedUid
       ? 'נשמרים רק שם ואווטאר בטוחים.'
       : 'בלי חיבור, השינוי נשמר מקומית.',
-    progressPlaceholders: PROFILE_PANEL_PROGRESS_PLACEHOLDERS.map(item => ({ ...item })),
+    progressPlaceholders: formattedTrustedStats.items.map(item => ({ ...item })),
   };
 }
