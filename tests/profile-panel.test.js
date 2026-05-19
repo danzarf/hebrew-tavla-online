@@ -150,9 +150,7 @@ test('profile panel exposes compact stats refresh state for manual refresh UX', 
 test('profile panel exposes clear trusted-stats guidance copy', () => {
   const view = buildProfilePanelViewModel({ hasTrustedStats: false });
   assert.deepEqual(view.statsEmptyGuidance, [
-    'סטטיסטיקות יופיעו אחרי משחקי אונליין מאומתים.',
-    'אם סיימת משחק אונליין עכשיו, לחץ רענן בעוד כמה שניות.',
-    'משחקים מול מחשב לא נספרים לסטטיסטיקות מאומתות כרגע.',
+    'סטטיסטיקות יתעדכנו אוטומטית אחרי משחקי אונליין מאומתים.',
   ]);
 });
 
@@ -174,6 +172,9 @@ test('profile panel can show temporary guest stats distinctly', () => {
   assert.match(view.placeholderNote, /זמניות/);
   assert.equal(view.progressPlaceholders.find(item => item.label === 'אכלתי')?.value, 'בקרוב');
   assert.equal(view.progressPlaceholders.find(item => item.label === 'אכלו אותי')?.value, 'בקרוב');
+  assert.deepEqual(view.statsEmptyGuidance, [
+    'סטטיסטיקות אורח זמניות. כדי לשמור אותן בהמשך — התחבר עם Google.',
+  ]);
 });
 
 test('profile panel shows google save section only for guest accounts', () => {

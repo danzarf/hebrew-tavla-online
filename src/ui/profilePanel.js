@@ -97,9 +97,9 @@ export function buildProfilePanelViewModel({
       ? 'סטטיסטיקות אורח זמניות בלבד (נשמר זמנית במכשיר הזה ולא נספר כסטטיסטיקה מאומתת).'
       : formattedTrustedStats.note,
     statsEmptyGuidance: [
-      'סטטיסטיקות יופיעו אחרי משחקי אונליין מאומתים.',
-      'אם סיימת משחק אונליין עכשיו, לחץ רענן בעוד כמה שניות.',
-      'משחקים מול מחשב לא נספרים לסטטיסטיקות מאומתות כרגע.',
+      hasGuestStats
+        ? 'סטטיסטיקות אורח זמניות. כדי לשמור אותן בהמשך — התחבר עם Google.'
+        : 'סטטיסטיקות יתעדכנו אוטומטית אחרי משחקי אונליין מאומתים.',
     ],
     statsRefreshActionText: statsRefreshBusy ? 'מרענן...' : 'רענן סטטיסטיקות',
     statsRefreshDisabled: statsRefreshBusy,

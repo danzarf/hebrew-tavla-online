@@ -63,7 +63,11 @@ test('index start rules panel keeps the complete Hebrew rules structure', async 
   }
 
   assert.match(html, /סטטיסטיקות, רמות ומטבעות יתווספו בהמשך/);
-  assert.match(html, /id="joinRoomFields" style="display:none"/);
+  assert.match(html, /id="createRoomPanel" class="friendLobbyPanel" style="display:none"/);
+  assert.match(html, /id="joinRoomPanel" class="friendLobbyPanel" style="display:none"/);
+  assert.match(html, /friendLobbyPrimaryActions/);
+  assert.match(html, /friendLobbySecondaryActions/);
+  assert.match(html, /הכנס קוד חדר/);
   assert.match(html, /פתח חדר/);
   assert.match(html, /הצטרף לחדר/);
   assert.match(
