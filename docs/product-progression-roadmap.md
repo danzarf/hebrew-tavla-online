@@ -376,3 +376,32 @@ Cloud Functions נדרשות עבור:
 2. A future Cloud Function/server process verifies each submission.
 3. Only the server writes trusted aggregated stats into `playerStats/{uid}`.
 4. The profile UI reads trusted stats only from `playerStats/{uid}` as read-only.
+
+## עדכון מאי 2026: בסיס Backend ל-Verified Stats
+
+נוסף בסיס Cloud Functions שמאזין לנתיב `matchResultSubmissions/{uid}/{matchId}` ומבצע אימות שמרני לפני עדכון `playerStats`.
+
+עקרונות במימוש הנוכחי:
+
+- מתבצע אימות שרק `mode=online`, `gameType=tavla`, `ruleset=hebrew-tavla` תקינים לעדכון trusted stats.
+- הלקוח לא יכול לסמן `serverVerified` או `trustedStatsApplied`; אם הוא מנסה, הבקשה נדחית בביקורת שרת.
+- יש שכבת idempotency בנתיב `trustedStatsApplications/{matchId}` למניעת ספירה כפולה.
+- עדכון סטטיסטיקות מתבצע רק בצד שרת באמצעות Admin SDK.
+- לא מתבצעת שום כתיבה של coins / XP / rewards / economy.
+
+שדות trusted stats שמתעדכנים כרגע:
+
+- `gamesPlayed`
+- `wins`
+- `losses`
+- `winRate`
+- `currentStreak`
+- `bestStreak`
+- `lastPlayedAt`
+- `updatedAt`
+
+מה עדיין נדרש לפני התקדמות ל-XP/coins:
+
+- אימות חזק יותר מול נתוני חדר אונליין (ולא רק contract submission).
+- הוספת ניטור/לוגים תפעוליים ודוחות rejection.
+- הרחבת בדיקות אינטגרציה באמולטור Firebase Functions + Realtime Database.
