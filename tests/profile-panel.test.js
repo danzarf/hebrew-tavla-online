@@ -71,7 +71,8 @@ test('profile panel progression fields are coming-soon placeholders only', () =>
     PROFILE_PANEL_PROGRESS_PLACEHOLDERS.map(item => ({ ...item })),
   );
   assert.ok(view.progressPlaceholders.every(item => item.value === 'בקרוב'));
-  assert.match(view.placeholderNote, /לא נשמרים עדיין/);
+  assert.deepEqual(view.progressPlaceholders.map(item => item.label), ['משחקים', 'ניצחונות', 'הפסדים', 'אחוז ניצחון', 'רצף נוכחי']);
+  assert.match(view.placeholderNote, /שמירה מאובטחת/);
 });
 
 test('profile panel enables Google button only when the feature is configured', () => {

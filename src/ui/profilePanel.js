@@ -6,14 +6,11 @@ import {
   sanitizeAvatarPreference,
 } from '../firebase/profile.js';
 import { getProfileStatusText, resolveProfileDisplayName } from './profileStatus.js';
+import { formatPlayerStatsForProfile } from '../product/playerStats.js';
 
-export const PROFILE_PANEL_PROGRESS_PLACEHOLDERS = Object.freeze([
-  Object.freeze({ label: 'משחקים', value: 'בקרוב' }),
-  Object.freeze({ label: 'ניצחונות', value: 'בקרוב' }),
-  Object.freeze({ label: 'הפסדים', value: 'בקרוב' }),
-  Object.freeze({ label: 'רמה', value: 'בקרוב' }),
-  Object.freeze({ label: 'מטבעות', value: 'בקרוב' }),
-]);
+export const PROFILE_PANEL_PROGRESS_PLACEHOLDERS = Object.freeze(
+  formatPlayerStatsForProfile(undefined, { showComingSoon: true }).items.map(item => Object.freeze({ ...item })),
+);
 
 export const PROFILE_PANEL_SAFE_EDIT_FIELDS = Object.freeze([
   'displayName',
@@ -83,7 +80,7 @@ export function buildProfilePanelViewModel({
       : googleLinkingEnabled
         ? 'אם החיבור נכשל, אפשר להמשיך כאורח והמשחק לא ייחסם.'
         : 'התחברות Google תופעל אחרי הגדרת Firebase והדומיין המורשה.',
-    placeholderNote: 'הנתונים כאן הם מצייני מקום ולא נשמרים עדיין.',
+    placeholderNote: formatPlayerStatsForProfile(undefined, { showComingSoon: true }).note,
     saveHint: hasAuthenticatedUid
       ? 'נשמרים רק שם ואווטאר בטוחים.'
       : 'בלי חיבור, השינוי נשמר מקומית.',
