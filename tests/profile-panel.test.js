@@ -131,3 +131,29 @@ test('profile panel shows trusted stats values when trusted stats exist', () => 
   assert.equal(view.progressPlaceholders[4].value, '2');
   assert.match(view.placeholderNote, /ממקור מאומת בלבד/);
 });
+
+test('profile panel exposes compact stats refresh state for manual refresh UX', () => {
+  const view = buildProfilePanelViewModel({
+    statsRefreshBusy: true,
+    statsRefreshMessage: 'בודק עדכון סטטיסטיקות...',
+    statsRefreshTone: 'success',
+    statsLastCheckedAt: '12:45',
+  });
+
+  assert.equal(view.statsRefreshActionText, 'מרענן...');
+  assert.equal(view.statsRefreshDisabled, true);
+  assert.equal(view.statsRefreshMessage, 'בודק עדכון סטטיסטיקות...');
+  assert.equal(view.statsRefreshTone, 'success');
+  assert.match(view.statsLastCheckedText, /12:45/);
+});
+
+test('profile panel keeps safe fallback tone for failed refresh state', () => {
+  const view = buildProfilePanelViewModel({
+    statsRefreshTone: 'warning',
+    statsRefreshMessage: 'לא הצלחנו לרענן כרגע. אפשר לנסות שוב.',
+  });
+
+  assert.equal(view.statsRefreshDisabled, false);
+  assert.equal(view.statsRefreshTone, 'warning');
+  assert.match(view.statsRefreshMessage, /לרענן/);
+});
