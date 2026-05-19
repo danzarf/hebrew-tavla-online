@@ -1,6 +1,8 @@
 {
   "type": "module",
   "scripts": {
-    "test": "node --test"
+    "test": "node --test",
+    "functions:test": "npm test --prefix functions",
+    "functions:check": "npm run check --prefix functions"
   }
 }
