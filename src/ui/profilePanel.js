@@ -18,7 +18,7 @@ export const PROFILE_PANEL_SAFE_EDIT_FIELDS = Object.freeze([
 ]);
 
 export function getProfilePanelAuthLabel({ authStatus = 'initializing', hasAuthenticatedUid = false, isAnonymous = true } = {}) {
-  if ((hasAuthenticatedUid || authStatus === 'linked') && isAnonymous === false) return 'חשבון שמור';
+  if ((hasAuthenticatedUid || authStatus === 'linked') && isAnonymous === false) return 'חשבון Google מחובר';
   if (hasAuthenticatedUid || authStatus === 'authenticated') return 'מחובר כאורח';
   if (authStatus === 'fallback') return 'אורח מקומי';
   if (authStatus === 'signedOut') return 'מתחבר כאורח';
@@ -90,6 +90,11 @@ export function buildProfilePanelViewModel({
         ? 'אם החיבור נכשל, אפשר להמשיך כאורח והמשחק לא ייחסם.'
         : 'התחברות Google תופעל אחרי הגדרת Firebase והדומיין המורשה.',
     placeholderNote: formattedTrustedStats.note,
+    statsEmptyGuidance: [
+      'סטטיסטיקות יופיעו אחרי משחקי אונליין מאומתים.',
+      'אם סיימת משחק אונליין עכשיו, לחץ רענן בעוד כמה שניות.',
+      'משחקים מול מחשב לא נספרים לסטטיסטיקות מאומתות כרגע.',
+    ],
     statsRefreshActionText: statsRefreshBusy ? 'מרענן...' : 'רענן סטטיסטיקות',
     statsRefreshDisabled: statsRefreshBusy,
     statsRefreshMessage,
