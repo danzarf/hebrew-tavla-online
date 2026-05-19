@@ -874,6 +874,7 @@ import { createRenderHelpers } from "./src/ui/render.js";
 import { createLobbyHelpers } from "./src/ui/lobby.js";
 import { getProfileChipTone } from "./src/ui/profileStatus.js";
 import { buildProfilePanelViewModel, buildSafeProfileEditView } from "./src/ui/profilePanel.js";
+import { getTrustedStatsRefreshFeedback } from "./src/ui/profileRefresh.js";
 import { buildStartHomeViewModel } from "./src/ui/startScreen.js";
 import { getMatchResultSummaryRows } from "./src/ui/matchResultSummary.js";
 import { startAnonymousAuth } from "./src/firebase/auth.js";
@@ -1057,15 +1058,24 @@ async function refreshTrustedStats({showLoadingMessage=false}={}){
   trustedStatsState.isRefreshing=true;
   if(showLoadingMessage){trustedStatsState.refreshMessage='בודק עדכון סטטיסטיקות...';trustedStatsState.refreshTone='';}
   renderProfileStatus();
-  const result=await getTrustedPlayerStats({database:db,ref,get,uid:authSession.getUid(),logger:console});
-  trustedStatsState.trustedStats=result.stats||null;
-  trustedStatsState.hasTrustedStats=!!result.hasTrustedStats;
-  trustedStatsState.lastCheckedLabel=buildStatsCheckLabel();
-  if(result.skipped&&result.reason==='read-failed'){trustedStatsState.refreshMessage='לא הצלחנו לרענן כרגע. אפשר לנסות שוב.';trustedStatsState.refreshTone='warning';}
-  else if(result.hasTrustedStats){trustedStatsState.refreshMessage='הסטטיסטיקות עודכנו.';trustedStatsState.refreshTone='success';}
-  else{trustedStatsState.refreshMessage='סטטיסטיקות יופיעו אחרי משחקים מאומתים.';trustedStatsState.refreshTone='';}
-  trustedStatsState.isRefreshing=false;
-  renderProfileStatus();
+  try{
+    const uid=authSession.getUid();
+    const isAnonymous=authSession.getIsAnonymous?.()!==false;
+    const result=await getTrustedPlayerStats({database:db,ref,get,uid,logger:console});
+    trustedStatsState.trustedStats=result.stats||null;
+    trustedStatsState.hasTrustedStats=!!result.hasTrustedStats;
+    trustedStatsState.lastCheckedLabel=buildStatsCheckLabel();
+    const feedback=getTrustedStatsRefreshFeedback({result,isAnonymous,hasUid:!!uid});
+    trustedStatsState.refreshMessage=feedback.message;
+    trustedStatsState.refreshTone=feedback.tone;
+  }catch(error){
+    console.warn('Trusted stats refresh failed unexpectedly.',error);
+    trustedStatsState.refreshMessage='לא הצלחנו לרענן כרגע. אפשר לנסות שוב.';
+    trustedStatsState.refreshTone='warning';
+  }finally{
+    trustedStatsState.isRefreshing=false;
+    renderProfileStatus();
+  }
 }
 function scheduleTrustedStatsRefresh(){setTimeout(()=>{void refreshTrustedStats();},3500);}
 function setVerificationStatusMessage(message=''){trustedStatsState.verificationStatusMessage=message;renderProfileStatus();}

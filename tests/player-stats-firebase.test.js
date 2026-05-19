@@ -50,3 +50,18 @@ test('getTrustedPlayerStats falls back safely when no trusted stats exist', asyn
   assert.equal(result.hasTrustedStats, false);
   assert.equal(result.stats.gamesPlayed, 0);
 });
+
+test('getTrustedPlayerStats times out safely and returns read-failed fallback', async () => {
+  const result = await getTrustedPlayerStats({
+    database: {},
+    ref: (_db, path) => path,
+    get: async () => new Promise(() => {}),
+    uid: 'uid-timeout',
+    timeoutMs: 10,
+    logger: { warn: () => {} },
+  });
+
+  assert.equal(result.skipped, true);
+  assert.equal(result.reason, 'read-failed');
+  assert.equal(result.hasTrustedStats, false);
+});
