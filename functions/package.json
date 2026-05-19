@@ -8,7 +8,8 @@
   },
   "scripts": {
     "test": "node --test",
-    "check": "node --check src/index.js src/verification.js"
+    "check": "node --check src/index.js src/verification.js",
+    "integration:test": "node --test tests/emulator.integration.test.js"
   },
   "dependencies": {
     "firebase-admin": "^12.7.0",

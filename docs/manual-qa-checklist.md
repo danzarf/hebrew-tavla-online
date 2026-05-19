@@ -290,3 +290,14 @@
 - [ ] לוודא שבפרופיל/רענון סטטיסטיקות מתקבל `hasTrustedStats=true` אחרי החלה מוצלחת (או `false` אם עדיין אין נתונים).
 - [ ] לוודא שרענון סטטיסטיקות בפרופיל מציג מספרים מעודכנים רק אחרי שה-Function החיל תוצאה.
 - [ ] לוודא שלא נוסף שום כפתור כתיבה מסוכן ל-UI.
+
+
+## בדיקות Emulator Integration לפני פריסת Functions
+
+- [ ] הרצתי `npm run functions:check`.
+- [ ] הרצתי `npm run functions:test`.
+- [ ] הרצתי `npm run functions:integration:test`.
+- [ ] וידאתי שב-duplicate `matchId` אין increment נוסף ב-`playerStats`.
+- [ ] וידאתי ש-`mode=local` נדחה עם `serverReview.status = rejected`.
+- [ ] וידאתי ש-submitter לא תואם נדחה.
+- [ ] אם אחת מהבדיקות נכשלה — לא לפרוס לפרודקשן.

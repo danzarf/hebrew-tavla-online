@@ -194,3 +194,26 @@ npm run functions:check
 - לא לערוך ידנית `playerStats/{uid}`.
 - לא לערוך ידנית `trustedStatsApplications/{matchId}`.
 - לא להזריק ידנית `serverVerified:true` או `trustedStatsApplied:true` מהלקוח.
+
+
+## 17) בדיקות Emulator/Integration מומלצות לפני deploy
+
+לפני פריסה לפרודקשן, הרץ:
+
+```bash
+npm run functions:emulator:test
+```
+
+או בשלבים:
+
+```bash
+npm run functions:check
+npm run functions:test
+npm run functions:integration:test
+```
+
+מדריך מפורט נמצא כאן:
+
+- `docs/firebase-functions-emulator-integration.md`
+
+> אם אחת מהבדיקות נכשלת: לא לבצע deploy, אלא לתקן ולבדוק שוב.

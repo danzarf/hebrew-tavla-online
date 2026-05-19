@@ -3,6 +3,9 @@
   "scripts": {
     "test": "node --test",
     "functions:test": "npm test --prefix functions",
-    "functions:check": "npm run check --prefix functions"
+    "functions:check": "npm run check --prefix functions",
+    "functions:emulator": "firebase emulators:start --only database,functions",
+    "functions:integration:test": "firebase emulators:exec --only database,functions \"npm run integration:test --prefix functions\"",
+    "functions:emulator:test": "npm run functions:test && npm run functions:integration:test"
   }
 }
