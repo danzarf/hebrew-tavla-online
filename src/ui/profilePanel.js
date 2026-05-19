@@ -76,7 +76,7 @@ export function buildProfilePanelViewModel({
       : 'חיבור מלא יאפשר בהמשך לשמור התקדמות בין מכשירים בלי לאבד את פרופיל האורח.',
     googleButtonText: isLinkedAccount
       ? 'חשבון Google מחובר'
-      : googleLinkingEnabled ? 'חבר חשבון Google' : 'Google יופעל בקרוב',
+      : googleLinkingEnabled ? 'שמור אורח עם Google' : 'Google יופעל בקרוב',
     googleButtonDisabled: !canTryGoogleLink,
     googleSetupNote: isLinkedAccount
       ? 'אין צורך בפעולה נוספת כרגע.'

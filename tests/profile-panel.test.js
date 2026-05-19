@@ -82,7 +82,7 @@ test('profile panel enables Google button only when the feature is configured', 
     googleLinkingEnabled: true,
   });
 
-  assert.equal(view.googleButtonText, 'חבר חשבון Google');
+  assert.equal(view.googleButtonText, 'שמור אורח עם Google');
   assert.equal(view.googleButtonDisabled, false);
   assert.match(view.googleSetupNote, /אפשר להמשיך כאורח/);
 });

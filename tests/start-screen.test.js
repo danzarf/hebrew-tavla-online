@@ -19,10 +19,11 @@ test('start home shows a clear guest account state and enabled Google linking wh
   assert.equal(view.displayName, 'דנה');
   assert.equal(view.avatarText, '⭐');
   assert.equal(view.guestButtonText, 'המשך כאורח');
-  assert.equal(view.googleButtonText, 'חבר חשבון Google');
+  assert.equal(view.googleButtonText, 'שמור אורח עם Google');
+  assert.equal(view.googleSignInButtonText, 'התחבר עם Google');
   assert.equal(view.googleButtonDisabled, false);
   assert.equal(view.shouldSkipAccountChoice, false);
-  assert.match(view.accountSummary, /כאורח/);
+  assert.match(view.accountSummary, /להתחבר לחשבון קיים/);
 });
 
 test('start home shows connected Google state without a confusing connect action', () => {
