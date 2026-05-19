@@ -164,6 +164,8 @@ bestStreak
 - statistics מתעדכנות רק בעקבות match result מאומת או server-authoritative function.
 - בשלב מוקדם אפשר להציג stats read-only בלבד.
 - משחק מול מחשב ומשחק מול שחקן אמיתי צריכים להיות מסומנים בנפרד.
+- עד שלא קיימת כתיבה מאובטחת בצד שרת, כל UI stats חייב להיות placeholder או תצוגת preview לא שמורה.
+- אין להוסיף כתיבות client-only לשדות סטטיסטיקה (wins/losses/winRate/streaks) כמקור אמת.
 
 ## שלב 5: XP and levels
 
