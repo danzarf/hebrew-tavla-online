@@ -48,6 +48,10 @@ export function buildProfilePanelViewModel({
   avatarPreference = DEFAULT_AVATAR_PREFERENCE,
   trustedStats = null,
   hasTrustedStats = false,
+  statsRefreshMessage = '',
+  statsRefreshTone = '',
+  statsLastCheckedAt = null,
+  statsRefreshBusy = false,
 } = {}) {
   const displayName = resolveProfileDisplayName({ typedName, stateName });
   const statusText = getProfileStatusText({ authStatus, hasAuthenticatedUid, isAnonymous });
@@ -86,6 +90,11 @@ export function buildProfilePanelViewModel({
         ? 'אם החיבור נכשל, אפשר להמשיך כאורח והמשחק לא ייחסם.'
         : 'התחברות Google תופעל אחרי הגדרת Firebase והדומיין המורשה.',
     placeholderNote: formattedTrustedStats.note,
+    statsRefreshActionText: statsRefreshBusy ? 'מרענן...' : 'רענן סטטיסטיקות',
+    statsRefreshDisabled: statsRefreshBusy,
+    statsRefreshMessage,
+    statsRefreshTone: statsRefreshTone === 'warning' ? 'warning' : (statsRefreshTone === 'success' ? 'success' : ''),
+    statsLastCheckedText: statsLastCheckedAt ? `בדיקה אחרונה: ${statsLastCheckedAt}` : '',
     saveHint: hasAuthenticatedUid
       ? 'נשמרים רק שם ואווטאר בטוחים.'
       : 'בלי חיבור, השינוי נשמר מקומית.',
