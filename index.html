@@ -924,7 +924,7 @@ const els={
 const state=createInitialState();
 const profilePreferences={displayName:'',displayNameDraft:null,avatarPreference:DEFAULT_AVATAR_PREFERENCE,avatarPickerExpanded:false,saveMessage:'',saveTone:'',linkMessage:'',linkTone:''};
 const welcomeState={completed:false,message:'',tone:''};
-const trustedStatsState={trustedStats:null,hasTrustedStats:false,refreshMessage:'',refreshTone:'',lastCheckedLabel:'',isRefreshing:false,verificationStatusMessage:''};
+const trustedStatsState={trustedStats:null,hasTrustedStats:false,refreshMessage:'',refreshTone:'',lastCheckedLabel:'',isRefreshing:false,verificationStatusMessage:'',lastAutoRefreshAt:0};
 
 const lobbySelection={lastMode:'computer'};
 function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
@@ -1074,8 +1074,15 @@ async function refreshTrustedStats({showLoadingMessage=false}={}){
     trustedStatsState.refreshTone='warning';
   }finally{
     trustedStatsState.isRefreshing=false;
+    trustedStatsState.lastAutoRefreshAt=Date.now();
     renderProfileStatus();
   }
+}
+function refreshTrustedStatsAutomatically({minIntervalMs=5000}={}){
+  const now=Date.now();
+  if(trustedStatsState.isRefreshing)return;
+  if(now-(trustedStatsState.lastAutoRefreshAt||0)<minIntervalMs)return;
+  void refreshTrustedStats();
 }
 function scheduleTrustedStatsRefresh(){setTimeout(()=>{void refreshTrustedStats();},3500);}
 function setVerificationStatusMessage(message=''){trustedStatsState.verificationStatusMessage=message;renderProfileStatus();}
@@ -1321,6 +1328,7 @@ function setProfilePanelOpen(isOpen){
   renderProfilePanel();
   els.profilePanel.hidden=!isOpen;
   els.profileChip?.setAttribute('aria-expanded',isOpen?'true':'false');
+  if(isOpen)refreshTrustedStatsAutomatically();
   if(isOpen)els.profilePanelCloseBtn?.focus();
 }
 function toggleProfilePanel(){
