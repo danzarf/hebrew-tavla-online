@@ -1,38 +1,29 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { buildStatsUpdate, sanitizeSubmission, validateSubmissionForTrustedStats } from '../src/verification.js';
-
-function buildValidRaw(overrides = {}) {
-  return {
-    matchId: 'm1',
-    mode: 'online',
-    winnerColor: 'white',
-    loserColor: 'black',
-    gameType: 'tavla',
-    ruleset: 'hebrew-tavla',
-    endedAt: 123,
-    submittedAt: 124,
-    clientSubmittedBy: 'u1',
-    players: [{ uid: 'u1', color: 'white' }, { uid: 'u2', color: 'black' }],
-    ...overrides,
-  };
-}
+import {
+  buildInvalidLocalSubmission,
+  buildMaliciousRewardSubmission,
+  buildMismatchedSubmitterSubmission,
+  buildMissingPlayersSubmission,
+  buildValidOnlineSubmission,
+} from './fixtures/submissions.js';
 
 test('sanitize ignores reward/economy fields by omission', () => {
-  const safe = sanitizeSubmission(buildValidRaw({ coins: 100, xp: 40, rewards: ['x'] }));
+  const safe = sanitizeSubmission(buildMaliciousRewardSubmission({ rewards: ['x'] }));
   assert.equal(Object.hasOwn(safe, 'coins'), false);
   assert.equal(Object.hasOwn(safe, 'xp'), false);
   assert.equal(Object.hasOwn(safe, 'rewards'), false);
 });
 
 test('valid online submission passes validation', () => {
-  const safe = sanitizeSubmission(buildValidRaw());
+  const safe = sanitizeSubmission(buildValidOnlineSubmission());
   const result = validateSubmissionForTrustedStats(safe, { pathUid: 'u1' });
   assert.equal(result.valid, true);
 });
 
 test('validation rejects client server flags', () => {
-  const safe = sanitizeSubmission(buildValidRaw({ serverVerified: true, trustedStatsApplied: true }));
+  const safe = sanitizeSubmission(buildValidOnlineSubmission({ serverVerified: true, trustedStatsApplied: true }));
   const result = validateSubmissionForTrustedStats(safe, { pathUid: 'u1' });
   assert.equal(result.valid, false);
   assert.ok(result.errors.includes('client-cannot-server-verify'));
@@ -41,7 +32,7 @@ test('validation rejects client server flags', () => {
 
 test('validation rejects local/ai modes for trusted stats', () => {
   for (const mode of ['local', 'ai']) {
-    const safe = sanitizeSubmission(buildValidRaw({ mode }));
+    const safe = sanitizeSubmission(buildInvalidLocalSubmission({ mode }));
     const result = validateSubmissionForTrustedStats(safe, { pathUid: 'u1' });
     assert.equal(result.valid, false);
     assert.ok(result.errors.includes('unsupported-mode'));
@@ -49,28 +40,28 @@ test('validation rejects local/ai modes for trusted stats', () => {
 });
 
 test('validation rejects same uid as winner and loser', () => {
-  const safe = sanitizeSubmission(buildValidRaw({ winnerUid: 'u1', loserUid: 'u1' }));
+  const safe = sanitizeSubmission(buildValidOnlineSubmission({ winnerUid: 'u1', loserUid: 'u1' }));
   const result = validateSubmissionForTrustedStats(safe, { pathUid: 'u1' });
   assert.equal(result.valid, false);
   assert.ok(result.errors.includes('same-player'));
 });
 
 test('validation rejects missing players', () => {
-  const safe = sanitizeSubmission(buildValidRaw({ players: [{ uid: 'u1', color: 'white' }] }));
+  const safe = sanitizeSubmission(buildMissingPlayersSubmission());
   const result = validateSubmissionForTrustedStats(safe, { pathUid: 'u1' });
   assert.equal(result.valid, false);
   assert.ok(result.errors.includes('missing-players'));
 });
 
 test('validation rejects winner/loser not included in players list', () => {
-  const safe = sanitizeSubmission(buildValidRaw({ winnerUid: 'u3' }));
+  const safe = sanitizeSubmission(buildValidOnlineSubmission({ winnerUid: 'u3' }));
   const result = validateSubmissionForTrustedStats(safe, { pathUid: 'u1' });
   assert.equal(result.valid, false);
   assert.ok(result.errors.includes('winner-not-in-players'));
 });
 
 test('validation rejects unrelated submitter', () => {
-  const safe = sanitizeSubmission(buildValidRaw({ clientSubmittedBy: 'u3' }));
+  const safe = sanitizeSubmission(buildMismatchedSubmitterSubmission({ clientSubmittedBy: 'u3' }));
   const result = validateSubmissionForTrustedStats(safe, { pathUid: 'u1' });
   assert.equal(result.valid, false);
   assert.ok(result.errors.includes('submitter-path-mismatch'));

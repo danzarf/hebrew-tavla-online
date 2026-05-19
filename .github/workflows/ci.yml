@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install root dependencies
+        run: npm install
+
+      - name: Run root tests
+        run: npm test
+
+      - name: Install functions dependencies
+        run: npm install --prefix functions
+
+      - name: Run functions static check
+        run: npm run functions:check
+
+      - name: Run functions tests
+        run: npm run functions:test
+
+      - name: Validate database.rules.json syntax
+        run: node -e "JSON.parse(require('node:fs').readFileSync('database.rules.json','utf8')); console.log('database.rules.json is valid JSON');"
