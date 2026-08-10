@@ -10,7 +10,6 @@ jobs:
       contents: read
     env:
       FIREBASE_PROJECT_ID: hebrew-tavla-online
-      FIREBASE_SERVICE_ACCOUNT_FILE: ${{ runner.temp }}/firebase-service-account.json
 
     steps:
       - name: Checkout
@@ -47,13 +46,13 @@ jobs:
             echo "Missing FIREBASE_SERVICE_ACCOUNT_HEBREW_TAVLA_ONLINE secret." >&2
             exit 1
           fi
+          FIREBASE_SERVICE_ACCOUNT_FILE="$RUNNER_TEMP/firebase-service-account.json"
+          echo "FIREBASE_SERVICE_ACCOUNT_FILE=$FIREBASE_SERVICE_ACCOUNT_FILE" >> "$GITHUB_ENV"
           printf '%s' "$FIREBASE_SERVICE_ACCOUNT_JSON" > "$FIREBASE_SERVICE_ACCOUNT_FILE"
           chmod 600 "$FIREBASE_SERVICE_ACCOUNT_FILE"
 
       - name: Deploy onMatchResultSubmissionCreated only
-        env:
-          GOOGLE_APPLICATION_CREDENTIALS: ${{ env.FIREBASE_SERVICE_ACCOUNT_FILE }}
-        run: npx firebase-tools@latest deploy --project "$FIREBASE_PROJECT_ID" --only functions:onMatchResultSubmissionCreated
+        run: GOOGLE_APPLICATION_CREDENTIALS="$FIREBASE_SERVICE_ACCOUNT_FILE" npx firebase-tools@latest deploy --project "$FIREBASE_PROJECT_ID" --only functions:onMatchResultSubmissionCreated
 
       - name: Remove Firebase credentials
         if: always()
