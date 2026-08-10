@@ -108,3 +108,66 @@ playerStats/{loserUid}
 - האם ה-service account שייך לפרויקט `hebrew-tavla-online`.
 - האם ל-service account יש הרשאות deploy מתאימות ל-Cloud Functions.
 - האם Blaze / billing פעיל בפרויקט Firebase.
+
+## בדיקת Preflight לפני deploy
+
+לפני פקודת ה-deploy, ה-workflow בודק מראש ש-APIs חשובים לפריסת Firebase Functions Gen 2 כבר פעילים. אם חסר API, ה-workflow יעצור לפני deploy וידפיס רשימה אחת של כל ה-APIs החסרים.
+
+APIs שצריכים להיות פעילים בפרויקט:
+
+```text
+artifactregistry.googleapis.com
+cloudbilling.googleapis.com
+cloudbuild.googleapis.com
+cloudfunctions.googleapis.com
+eventarc.googleapis.com
+firebase.googleapis.com
+firebasedatabase.googleapis.com
+pubsub.googleapis.com
+run.googleapis.com
+serviceusage.googleapis.com
+```
+
+השגיאה האחרונה שנראתה היתה חסימה על:
+
+```text
+cloudbilling.googleapis.com
+```
+
+אם ה-API הזה חסר, הפתרון הקצר הוא לפתוח:
+
+```text
+Google Cloud Console -> APIs & Services -> Library -> Cloud Billing API -> Enable
+```
+
+## הרשאות מומלצות ל-service account של GitHub Actions
+
+ה-service account שנמצא ב-secret:
+
+```text
+FIREBASE_SERVICE_ACCOUNT_HEBREW_TAVLA_ONLINE
+```
+
+צריך להיות principal עם הרשאות שמאפשרות deploy של Functions Gen 2. לפרויקט קטן ואישי, הסט הפרקטי הוא:
+
+```text
+roles/cloudfunctions.admin
+roles/iam.serviceAccountUser
+roles/firebase.admin
+roles/cloudbuild.builds.editor
+roles/artifactregistry.writer
+roles/run.admin
+roles/eventarc.admin
+roles/pubsub.admin
+roles/storage.admin
+```
+
+כדי למנוע מרדף אחרי API חסר בכל deploy ראשון, אפשר להוסיף גם:
+
+```text
+roles/serviceusage.serviceUsageAdmin
+```
+
+אם לא רוצים לתת ל-service account הרשאה להפעיל APIs, אז צריך להפעיל ידנית מראש את כל ה-APIs ברשימה למעלה.
+
+הערה: לא לתת service-agent roles ל-service account רגיל. תפקידים כאלה מיועדים רק ל-service agents של Google.

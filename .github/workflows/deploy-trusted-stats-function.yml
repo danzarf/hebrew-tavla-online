@@ -51,6 +51,54 @@ jobs:
           printf '%s' "$FIREBASE_SERVICE_ACCOUNT_JSON" > "$FIREBASE_SERVICE_ACCOUNT_FILE"
           chmod 600 "$FIREBASE_SERVICE_ACCOUNT_FILE"
 
+      - name: Authenticate Google Cloud preflight
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_HEBREW_TAVLA_ONLINE }}
+
+      - name: Setup Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Check required Google Cloud APIs
+        run: |
+          set -euo pipefail
+          gcloud config set project "$FIREBASE_PROJECT_ID"
+
+          required_apis=(
+            artifactregistry.googleapis.com
+            cloudbilling.googleapis.com
+            cloudbuild.googleapis.com
+            cloudfunctions.googleapis.com
+            eventarc.googleapis.com
+            firebase.googleapis.com
+            firebasedatabase.googleapis.com
+            pubsub.googleapis.com
+            run.googleapis.com
+            serviceusage.googleapis.com
+          )
+
+          if ! enabled_apis="$(gcloud services list --enabled --project "$FIREBASE_PROJECT_ID" --format="value(config.name)" 2>&1)"; then
+            echo "::error::Could not list enabled APIs. Grant roles/serviceusage.serviceUsageViewer or roles/serviceusage.serviceUsageAdmin to the deploy service account."
+            echo "$enabled_apis"
+            exit 1
+          fi
+
+          missing_apis=()
+          for api in "${required_apis[@]}"; do
+            if printf '%s\n' "$enabled_apis" | grep -qx "$api"; then
+              echo "API enabled: $api"
+            else
+              missing_apis+=("$api")
+            fi
+          done
+
+          if [ "${#missing_apis[@]}" -gt 0 ]; then
+            echo "::error::Missing required APIs for Firebase Functions Gen 2 deploy:"
+            printf ' - %s\n' "${missing_apis[@]}"
+            echo "::error::Enable these APIs in Google Cloud Console, or grant roles/serviceusage.serviceUsageAdmin to the deploy service account so the Firebase CLI can enable required APIs."
+            exit 1
+          fi
+
       - name: Deploy onMatchResultSubmissionCreated only
         run: GOOGLE_APPLICATION_CREDENTIALS="$FIREBASE_SERVICE_ACCOUNT_FILE" npx firebase-tools@latest deploy --project "$FIREBASE_PROJECT_ID" --only functions:onMatchResultSubmissionCreated
 
