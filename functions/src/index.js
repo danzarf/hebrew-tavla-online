@@ -5,11 +5,14 @@ import { buildStatsUpdate, sanitizeSubmission, validateSubmissionForTrustedStats
 
 initializeApp();
 
+const TRUSTED_STATS_DATABASE_REGION = 'europe-west1';
+const TRUSTED_STATS_DATABASE_INSTANCE = process.env.FIREBASE_DATABASE_INSTANCE || 'hebrew-tavla-online-default-rtdb';
+
 export const onMatchResultSubmissionCreated = onValueCreated(
   {
     ref: '/matchResultSubmissions/{uid}/{matchId}',
-    region: 'us-central1',
-    instance: process.env.FIREBASE_DATABASE_INSTANCE || undefined,
+    region: TRUSTED_STATS_DATABASE_REGION,
+    instance: TRUSTED_STATS_DATABASE_INSTANCE,
   },
   async (event) => {
     const raw = event.data?.val();

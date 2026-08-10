@@ -97,6 +97,35 @@ firebase deploy --only functions:onMatchResultSubmissionCreated
 
 כך נמנעת פריסה רחבה של כל שירותי Firebase בטעות.
 
+### אזור Realtime Database
+
+הפונקציה `onMatchResultSubmissionCreated` מאזינה ל-Realtime Database ולכן חייבת להיפרס באותו אזור של מסד הנתונים הקיים.
+
+בפרויקט הזה ה-RTDB production URL הוא:
+
+```text
+https://hebrew-tavla-online-default-rtdb.europe-west1.firebasedatabase.app
+```
+
+לכן ה-trigger מוגדר ל:
+
+```text
+region: europe-west1
+instance: hebrew-tavla-online-default-rtdb
+```
+
+אם הפונקציה מוגדרת בטעות ל-`us-central1`, פריסת Gen 2 יכולה להיכשל עם:
+
+```text
+pattern cannot match any databases in region us-central1
+```
+
+אם יש ספק, בדוק ב-Firebase Console:
+
+```text
+Firebase Console -> Realtime Database -> Data/Settings -> database URL/location
+```
+
 ## 11) אימות שהפריסה הצליחה
 
 1. בדוק פלט CLI שהפריסה הסתיימה ללא שגיאות.
