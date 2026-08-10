@@ -69,6 +69,40 @@ GitHub -> Actions -> Deploy Trusted Stats Function -> Run workflow
 - Functions: לוודא ש-`onMatchResultSubmissionCreated` קיימת ופעילה.
 - Realtime Database: לבדוק נתונים אחרי משחק אונליין.
 
+## אזור הפונקציה וה-Database
+
+הפונקציה מאזינה ל-Realtime Database ולכן אזור ה-trigger חייב להתאים לאזור של מסד הנתונים הקיים.
+
+בפרויקט הזה ה-RTDB production URL הוא:
+
+```text
+https://hebrew-tavla-online-default-rtdb.europe-west1.firebasedatabase.app
+```
+
+לכן הפונקציה מוגדרת לאזור:
+
+```text
+europe-west1
+```
+
+ול-instance:
+
+```text
+hebrew-tavla-online-default-rtdb
+```
+
+אם ה-trigger מוגדר לאזור אחר, למשל `us-central1`, הפריסה יכולה להיכשל עם:
+
+```text
+pattern cannot match any databases in region us-central1
+```
+
+אם צריך לאמת ידנית:
+
+```text
+Firebase Console -> Realtime Database -> Data/Settings -> database URL/location
+```
+
 ## בדיקת QA אחרי deploy
 
 1. סיים משחק אונליין אמיתי.
