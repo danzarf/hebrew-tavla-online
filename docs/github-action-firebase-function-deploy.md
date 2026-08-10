@@ -260,3 +260,40 @@ Firebase CLI 14 ומעלה יכול להגדיר cleanup policy ל-Artifact Regi
 ```text
 functions:onMatchResultSubmissionCreated
 ```
+
+## אם קיימת פונקציית HTTPS באותו שם
+
+אם deploy נכשל עם:
+
+```text
+Changing from an HTTPS function to a background triggered function is not allowed.
+Please delete your function and create a new one instead.
+```
+
+המשמעות היא שבפרויקט כבר קיימת פונקציה בשם `onMatchResultSubmissionCreated` באזור `europe-west1`, אבל היא קיימת כ-HTTPS function. הקוד הנוכחי מגדיר אותה כ-Realtime Database background trigger, ו-Firebase לא מאפשר לשנות trigger type במקום.
+
+במקרה כזה:
+
+1. להריץ את workflow המחיקה הידני:
+
+```text
+GitHub -> Actions -> Delete Trusted Stats Function -> Run workflow
+```
+
+2. להזין בשדה האישור בדיוק:
+
+```text
+onMatchResultSubmissionCreated
+```
+
+3. אחרי שהמחיקה הצליחה, להריץ שוב:
+
+```text
+GitHub -> Actions -> Deploy Trusted Stats Function -> Run workflow
+```
+
+פרטים מלאים נמצאים ב:
+
+```text
+docs/delete-trusted-stats-function.md
+```

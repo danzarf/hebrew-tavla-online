@@ -202,6 +202,47 @@ Functions successfully deployed but could not set up cleanup policy...
 functions:onMatchResultSubmissionCreated
 ```
 
+## 12.3) אם קיימת HTTPS function באותו שם
+
+אם הפריסה נכשלת עם:
+
+```text
+Changing from an HTTPS function to a background triggered function is not allowed.
+Please delete your function and create a new one instead.
+```
+
+אז קיימת פונקציה ישנה באותו שם ובאותו אזור, אבל עם trigger type אחר. Firebase לא מאפשר לשנות פונקציה קיימת מ-HTTPS ל-background trigger במקום.
+
+במקרה כזה צריך למחוק רק את הפונקציה:
+
+```text
+onMatchResultSubmissionCreated
+```
+
+מהאזור:
+
+```text
+europe-west1
+```
+
+ואז להריץ deploy מחדש. למחיקה בטוחה דרך GitHub Actions, השתמש ב:
+
+```text
+Delete Trusted Stats Function
+```
+
+ה-workflow דורש אישור ידני עם הערך המדויק:
+
+```text
+onMatchResultSubmissionCreated
+```
+
+אחרי מחיקה מוצלחת, הרץ שוב:
+
+```text
+Deploy Trusted Stats Function
+```
+
 ## 13) Rollback / Disable במקרה תקלה
 
 אם צריך לעצור מיד:
