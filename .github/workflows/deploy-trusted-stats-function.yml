@@ -10,6 +10,7 @@ jobs:
       contents: read
     env:
       FIREBASE_PROJECT_ID: hebrew-tavla-online
+      FIREBASE_PROJECT_NUMBER: "917406478506"
 
     steps:
       - name: Checkout
@@ -99,8 +100,39 @@ jobs:
             exit 1
           fi
 
+      - name: Check Cloud Build service account role
+        run: |
+          set -euo pipefail
+          build_service_account="${FIREBASE_PROJECT_NUMBER}-compute@developer.gserviceaccount.com"
+          required_member="serviceAccount:${build_service_account}"
+          required_role="roles/cloudbuild.builds.builder"
+
+          if ! project_policy="$(gcloud projects get-iam-policy "$FIREBASE_PROJECT_ID" --format=json 2>&1)"; then
+            echo "::warning::Could not inspect IAM policy. If deploy fails during build, grant ${required_role} to ${build_service_account}."
+            echo "$project_policy"
+            exit 0
+          fi
+
+          if ! printf '%s' "$project_policy" | node -e '
+            const fs = require("node:fs");
+            const policy = JSON.parse(fs.readFileSync(0, "utf8"));
+            const role = process.env.REQUIRED_ROLE;
+            const member = process.env.REQUIRED_MEMBER;
+            const binding = (policy.bindings || []).find((item) => item.role === role && (item.members || []).includes(member));
+            process.exit(binding ? 0 : 1);
+          '; then
+            echo "::error::Missing ${required_role} on build service account ${build_service_account}."
+            echo "::error::Grant this role in Google Cloud IAM, then rerun this workflow."
+            exit 1
+          fi
+
+          echo "Build service account has ${required_role}: ${build_service_account}"
+        env:
+          REQUIRED_MEMBER: serviceAccount:917406478506-compute@developer.gserviceaccount.com
+          REQUIRED_ROLE: roles/cloudbuild.builds.builder
+
       - name: Deploy onMatchResultSubmissionCreated only
-        run: GOOGLE_APPLICATION_CREDENTIALS="$FIREBASE_SERVICE_ACCOUNT_FILE" npx firebase-tools@latest deploy --project "$FIREBASE_PROJECT_ID" --only functions:onMatchResultSubmissionCreated
+        run: GOOGLE_APPLICATION_CREDENTIALS="$FIREBASE_SERVICE_ACCOUNT_FILE" npx firebase-tools@latest deploy --project "$FIREBASE_PROJECT_ID" --only functions:onMatchResultSubmissionCreated --force
 
       - name: Remove Firebase credentials
         if: always()
