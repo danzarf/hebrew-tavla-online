@@ -146,6 +146,62 @@ firebase functions:log --only onMatchResultSubmissionCreated --limit 100
 
 אפשר גם דרך Firebase Console > Functions > Logs.
 
+## 12.1) אם build נכשל בגלל build service account
+
+אם הפריסה מגיעה לשלב יצירת הפונקציה:
+
+```text
+creating Node.js 20 (2nd Gen) function onMatchResultSubmissionCreated(europe-west1)...
+```
+
+ואז נכשלת עם:
+
+```text
+Could not build the function due to a missing permission on the build service account.
+```
+
+החשבון שחסר לו role הוא בדרך כלל default Compute service account, לא חשבון ה-deploy של GitHub:
+
+```text
+917406478506-compute@developer.gserviceaccount.com
+```
+
+יש להוסיף לו:
+
+```text
+roles/cloudbuild.builds.builder
+```
+
+ב-Google Cloud Console:
+
+```text
+IAM & Admin -> IAM -> Grant access
+Principal: 917406478506-compute@developer.gserviceaccount.com
+Role: Cloud Build Service Account
+```
+
+ה-role הזה מאפשר ל-build לקרוא source bucket, לכתוב logs, ולקרוא/לכתוב artifacts הדרושים ל-Functions Gen 2.
+
+## 12.2) Cleanup policy של Artifact Registry
+
+אם הפריסה מסתיימת אבל Firebase CLI כותב:
+
+```text
+Functions successfully deployed but could not set up cleanup policy...
+```
+
+אפשר להריץ deploy עם:
+
+```text
+--force
+```
+
+ב-workflow הידני הדגל הזה כבר מופעל, ועדיין הפריסה מוגבלת רק ל:
+
+```text
+functions:onMatchResultSubmissionCreated
+```
+
 ## 13) Rollback / Disable במקרה תקלה
 
 אם צריך לעצור מיד:

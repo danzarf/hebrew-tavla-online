@@ -205,3 +205,58 @@ roles/serviceusage.serviceUsageAdmin
 אם לא רוצים לתת ל-service account הרשאה להפעיל APIs, אז צריך להפעיל ידנית מראש את כל ה-APIs ברשימה למעלה.
 
 הערה: לא לתת service-agent roles ל-service account רגיל. תפקידים כאלה מיועדים רק ל-service agents של Google.
+
+## הרשאה נדרשת ל-build service account
+
+בפריסת Firebase Functions Gen 2 יש שני חשבונות שונים:
+
+- deploy service account: החשבון שנמצא ב-GitHub secret ומריץ את `firebase deploy`.
+- build service account: החשבון ש-Cloud Build משתמש בו כדי לבנות את הקונטיינר של הפונקציה.
+
+בפרויקט הזה build service account ברירת המחדל הוא:
+
+```text
+917406478506-compute@developer.gserviceaccount.com
+```
+
+אם הפריסה מגיעה לשלב:
+
+```text
+creating Node.js 20 (2nd Gen) function onMatchResultSubmissionCreated(europe-west1)...
+```
+
+ואז נכשלת עם:
+
+```text
+Could not build the function due to a missing permission on the build service account.
+```
+
+צריך להוסיף לחשבון הזה:
+
+```text
+roles/cloudbuild.builds.builder
+```
+
+ב-Google Cloud Console:
+
+```text
+IAM & Admin -> IAM -> Grant access
+Principal: 917406478506-compute@developer.gserviceaccount.com
+Role: Cloud Build Service Account
+```
+
+זה שונה מ-`Cloud Build Editor` על ה-service account של GitHub. ה-build עצמו לא רץ כ-`firebase-adminsdk-fbsvc@...`, אלא כ-default Compute service account.
+
+## Artifact cleanup policy
+
+Firebase CLI 14 ומעלה יכול להגדיר cleanup policy ל-Artifact Registry אחרי deploy של Functions. ה-workflow מריץ deploy עם:
+
+```text
+--force
+```
+
+כדי לאפשר ל-Firebase CLI להגדיר את cleanup policy אוטומטית בלי לעצור את ה-workflow על prompt/אישור ידני. ה-deploy עדיין מוגבל רק ל:
+
+```text
+functions:onMatchResultSubmissionCreated
+```
