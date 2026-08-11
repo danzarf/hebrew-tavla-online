@@ -1,0 +1,74 @@
+import { buildStatsUpdate, sanitizeSubmission, validateSubmissionForTrustedStats } from './verification.js';
+
+export async function processMatchResultSubmission({ db, raw, uid, matchId, now = Date.now, logger = console } = {}) {
+  if (!raw) return { status: 'empty' };
+
+  const reviewedAt = now();
+  const submissionPath = `matchResultSubmissions/${uid}/${matchId}`;
+  const submissionRef = db.ref(submissionPath);
+  const safe = sanitizeSubmission(raw);
+
+  try {
+    const validation = validateSubmissionForTrustedStats(safe, { pathUid: uid });
+    if (!validation.valid) {
+      await submissionRef.child('serverReview').set({
+        status: 'rejected',
+        reason: validation.errors,
+        reviewedAt,
+      });
+      return { status: 'rejected', reason: validation.errors };
+    }
+
+    const idempotencyRef = db.ref(`trustedStatsApplications/${safe.matchId}`);
+    const claim = await idempotencyRef.transaction((current) => {
+      if (current?.status === 'applied') return;
+      return {
+        status: 'processing',
+        claimedAt: reviewedAt,
+        ownerUid: uid,
+      };
+    });
+
+    if (!claim.committed) {
+      await submissionRef.child('serverReview').set({
+        status: 'duplicate',
+        reviewedAt,
+      });
+      return { status: 'duplicate' };
+    }
+
+    const [winnerSnap, loserSnap] = await Promise.all([
+      db.ref(`playerStats/${safe.winnerUid}`).get(),
+      db.ref(`playerStats/${safe.loserUid}`).get(),
+    ]);
+
+    const winnerNext = buildStatsUpdate(winnerSnap.val() || {}, 'win', safe.endedAt, reviewedAt);
+    const loserNext = buildStatsUpdate(loserSnap.val() || {}, 'loss', safe.endedAt, reviewedAt);
+
+    await db.ref().update({
+      [`playerStats/${safe.winnerUid}`]: winnerNext,
+      [`playerStats/${safe.loserUid}`]: loserNext,
+      [`${submissionPath}/serverVerified`]: true,
+      [`${submissionPath}/trustedStatsApplied`]: true,
+      [`${submissionPath}/serverReview`]: {
+        status: 'applied',
+        reviewedAt,
+      },
+      [`trustedStatsApplications/${safe.matchId}`]: {
+        status: 'applied',
+        appliedAt: reviewedAt,
+        winnerUid: safe.winnerUid,
+        loserUid: safe.loserUid,
+      },
+    });
+    return { status: 'applied' };
+  } catch (error) {
+    logger?.error?.('Trusted stats submission processing failed.', { uid, matchId, error });
+    await submissionRef.child('serverReview').set({
+      status: 'error',
+      reason: 'server-processing-failed',
+      reviewedAt,
+    });
+    throw error;
+  }
+}

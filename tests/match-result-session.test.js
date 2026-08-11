@@ -34,6 +34,8 @@ test('buildGameEndMatchResult maps an online finished game to a non-persistent m
       humanColor: 'white',
       computerColor: 'black',
       playerId: 'guest-host',
+      playerIds: { human: 'guest-host', computer: 'guest-joiner' },
+      playerUids: { human: 'uid-host', computer: 'uid-joiner' },
       playerNames: { human: 'Host', computer: 'Guest' },
     },
     winnerColor: 'black',
@@ -48,6 +50,8 @@ test('buildGameEndMatchResult maps an online finished game to a non-persistent m
   assert.equal(result.mode, 'online');
   assert.equal(result.resultSource, 'online-game-end');
   assert.equal(result.winnerColor, 'black');
+  assert.equal(result.winnerUid, 'uid-joiner');
+  assert.equal(result.loserUid, 'uid-host');
   assert.equal(result.loserColor, 'white');
   assert.equal(result.clientSubmittedBy, 'uid-host');
   assert.equal(result.serverVerified, false);
