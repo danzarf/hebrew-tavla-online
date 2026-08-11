@@ -872,6 +872,8 @@ import { BLACK, WHITE, countColorAt, otherColor } from "./src/game/rules.js";
 import { applyMove, getAllLegalMoves, getLegalMovesForSource, sameMove } from "./src/game/moves.js";
 import { createInitialBoard, createInitialState, createNewGameStateValues } from "./src/game/state.js";
 import { createSharedGameState, normalizeBoard, shouldTriggerRemoteRollFeedback } from "./src/game/onlineState.js";
+import { createAutoEndState, getEndTurnDelaySeconds } from "./src/game/turnDelay.js";
+import { resolvePendingVictoryDoubleRoll } from "./src/game/victoryRules.js";
 import { chooseAiSequence, chooseBestDoubleFor, pipCount } from "./src/game/ai.js";
 import { HEB_COLOR, HEB_DIFF, HEB_MODE } from "./src/ui/text.js";
 import { addLog as addLogMessage, computerMoveText, escapeHtml, isImportantComputerMove, logMove as logMoveMessage, renderLog as renderLogMessage, showMessage as showMessageMessage } from "./src/ui/messages.js";
@@ -1529,17 +1531,24 @@ function undo(){
 
 function afterHumanMove(){
   const color=actorColor(localActor());
-  if(state.remaining.length===0){syncShared('usedAllMoves');startAutoEnd(state.currentActor==='computer'?0:3,'התור יסתיים בעוד');return;}
-  if(!getAllLegalMoves(state,color,state.remaining,state.freeMode).length){addLog('אין מהלכים חוקיים','danger');showMessage('אין מהלכים חוקיים',1300);syncShared('noMovesAfterMove');startAutoEnd(state.currentActor==='computer'?0:3,'אין מהלכים חוקיים — התור יסתיים בעוד');}
+  if(state.remaining.length===0){startAutoEnd(getEndTurnDelaySeconds(state),'התור יסתיים בעוד');return;}
+  if(!getAllLegalMoves(state,color,state.remaining,state.freeMode).length){addLog('אין מהלכים חוקיים','danger');showMessage('אין מהלכים חוקיים',1300);startAutoEnd(getEndTurnDelaySeconds(state),'אין מהלכים חוקיים — התור יסתיים בעוד');}
 }
 
 function startAutoEnd(sec,prefix){
   if(sec<=0){cancelAutoEnd();endTurn();return;}
-  cancelAutoEnd();state.countdown=sec;renderUI();showMessage(`${prefix} ${sec}...`,1000);
+  cancelAutoEnd();state.autoEnd=createAutoEndState({seconds:sec,prefix});state.countdown=sec;renderUI();showMessage(`${prefix} ${sec}...`,1000);syncShared('autoEndStart');
   state.countdownTimer=setInterval(()=>{state.countdown--;renderUI();if(state.countdown>0)showMessage(`${prefix} ${state.countdown}...`,900);if(state.countdown<=0){cancelAutoEnd();endTurn();}},850);
 }
-function cancelAutoEnd(){clearInterval(state.countdownTimer);state.countdownTimer=null;state.countdown=0;renderUI();}
-function clearTimers(){clearTimeout(state.autoTimer);clearInterval(state.countdownTimer);state.autoTimer=null;state.countdownTimer=null;state.countdown=0;}
+function cancelAutoEnd(){clearInterval(state.countdownTimer);state.countdownTimer=null;state.countdown=0;state.autoEnd=null;renderUI();}
+function clearTimers(){clearTimeout(state.autoTimer);clearInterval(state.countdownTimer);state.autoTimer=null;state.countdownTimer=null;state.countdown=0;state.autoEnd=null;}
+function startRemoteAutoEndDisplay(autoEnd){
+  if(!autoEnd?.deadline||state.currentActor===localActor())return;
+  clearInterval(state.countdownTimer);
+  const tick=()=>{state.countdown=Math.max(0,Math.ceil((autoEnd.deadline-Date.now())/1000));renderUI();if(state.countdown<=0){clearInterval(state.countdownTimer);state.countdownTimer=null;}};
+  tick();
+  if(state.countdown>0)state.countdownTimer=setInterval(tick,350);
+}
 function logMove(who,move){
   logMoveMessage(addLog,who,move);
 }
@@ -1694,10 +1703,12 @@ function processPendingVictoryRoll(d){
   if(!pending)return;
   if(d[0]===d[1]){
     state.doubleStreak[actor]++;
-    if(state.doubleStreak[actor]>=3){
-      addLog('בדיקת ניצחון: הדאבל השלישי הגיע לפני אישור הניצחון','special');
-      showMessage('דאבל שלישי — מפעילים חילוף צדדים לפני ניצחון',3000);
-      return triggerSideSwap();
+    const decision=resolvePendingVictoryDoubleRoll({pending,dice:d,nextStreak:state.doubleStreak[actor]});
+    if(decision.action==='penalty-win'){
+      state.pendingVictory=null;
+      addLog('דאבל שלישי אחרי הוצאת כל האבנים — הניצחון עובר ליריב','special');
+      showMessage('דאבל שלישי — היריב מנצח!',4200);
+      return finishGame(decision.winner,false);
     }
     pending.streak=state.doubleStreak[actor];
     state.status='victoryPendingDoubleCheck';
@@ -1887,13 +1898,16 @@ function applyShared(g){
     chosenDouble:!!g.chosenDouble,
     log:g.log||[],
     doubleStreak:g.doubleStreak||{human:0,computer:0},
+    autoEnd:g.autoEnd||null,
     gameOver:!!g.gameOver,
     lastChance:g.lastChance||null,
     pendingVictory:g.pendingVictory||null,
     lastMove:g.lastMove||null,
     winnerColor:g.winnerColor||null,
     stolen:!!g.stolen,
-    victoryId:g.victoryId||null
+    victoryId:g.victoryId||null,
+    playerIds:g.playerIds||state.playerIds||{},
+    playerUids:g.playerUids||state.playerUids||{}
   });
   if(state.status&&state.status!=='setup'){
     els.startModal.classList.remove('show');
@@ -1915,6 +1929,7 @@ function applyShared(g){
   if(remoteRollFeedback.feedbackId)state.lastRemoteRollFeedbackId=remoteRollFeedback.feedbackId;
   if(remoteRollFeedback.shouldTrigger)rollDiceVisual(state.dice,rnd(900,1200));
   if(remoteMove)animateRemoteMove(lm,remoteStart);
+  if(state.autoEnd&&!state.gameOver)startRemoteAutoEndDisplay(state.autoEnd);
   if(state.lastChance&&state.lastChance.phase==='rolling'&&state.lastChance.rollingId)showRemoteLastChanceRolling(state.lastChance);
   if(state.lastChance&&state.lastChance.resultId)showLastChanceResult(state.lastChance);
   if(state.gameOver&&state.victoryId&&state.lastVictorySeen!==state.victoryId){
@@ -1933,9 +1948,10 @@ async function syncShared(reason=''){
 async function waitForRoomAuth(){await authSession.ready.catch(()=>null);authSession.refreshUser?.();}
 function logRoomCreateFailure(error){console.error('Friend room creation failed',buildRoomFirebaseErrorLog(error,{operation:'createRoom',databaseURL:firebaseConfig.databaseURL,authStatus:authSession.getStatus?.(),hasUid:!!authSession.getUid?.()}));}
 async function generateRoomCode(){for(let i=0;i<40;i++){const code=String(rnd(1000,9999));const snap=await get(roomRef(code));if(!snap.exists())return code}return String(Date.now()).slice(-4);}
-function subscribeRoom(code){if(state.roomUnsub){state.roomUnsub();state.roomUnsub=null;}state.roomCode=code;const rr=roomRef(code);state.roomUnsub=onValue(rr,snap=>{const room=snap.val();if(!room){showMessage('החדר לא קיים');return}renderLobby(room);renderProfileStatus();if(room.reaction&&room.reaction.id!==subscribeRoom.lastReaction){subscribeRoom.lastReaction=room.reaction.id;if(room.reaction.from!==state.localActor)showReaction(room.reaction.text,room.reaction.from)}if(room.game)applyShared(room.game);if(!room.game&&room.players?.human&&room.players?.computer&&room.ready?.human&&room.ready?.computer&&state.localActor==='human'&&state.status!=='opening')startOnlineOpening();});}
-async function createRoom(){renderRoomCreating();try{await waitForRoomAuth();const code=await generateRoomCode();state.gameMode='online';state.localActor='human';state.playerId=localPlayerId();state.playerNames={human:localPlayerName(),computer:'מחכה לחבר'};renderProfileStatus();syncCurrentPlayerProfile(state.playerNames.human);state.diceMode=state.diceMode||'manual';state.status='lobby';const room={roomCode:code,createdAt:Date.now(),updatedAt:Date.now(),diceMode:state.diceMode,players:{human:{id:state.playerId,name:state.playerNames.human,connected:true},computer:null},ready:{human:false,computer:false},game:null,reaction:null};await set(roomRef(code),room);state.roomCode=code;els.startModal.classList.add('show');renderLobby(room);subscribeRoom(code);showMessage('חדר נפתח');}catch(e){logRoomCreateFailure(e);state.roomCode=null;const message=getRoomCreateErrorMessage(e);renderRoomCreateError(message);showMessage(message)}}
-async function joinRoom(){try{await waitForRoomAuth();const code=(els.joinCodeInput.value||'').trim();if(!/^\d{4}$/.test(code))return showMessage('קוד חדר חייב להיות 4 ספרות');const snap=await get(roomRef(code));if(!snap.exists())return showMessage('החדר לא נמצא');const room=snap.val();if(room.players?.computer&&room.players.computer.id!==localPlayerId())return showMessage('החדר מלא');state.gameMode='online';state.localActor=room.players?.human?.id===localPlayerId()?'human':'computer';state.playerId=localPlayerId();if(state.localActor==='computer'){const joiningPlayerName=localPlayerName();syncCurrentPlayerProfile(joiningPlayerName);await update(roomRef(code),{['players/computer']:{id:state.playerId,name:joiningPlayerName,connected:true},['ready/computer']:false,updatedAt:Date.now()});}else{syncCurrentPlayerProfile(room.players?.human?.name||localPlayerName());}state.diceMode=room.diceMode||state.diceMode||'manual';state.status='lobby';renderProfileStatus();els.startModal.classList.add('show');subscribeRoom(code);showMessage('הצטרפת לחדר');}catch(e){console.error(e);showMessage('בעיה בהצטרפות')}}
+function applyRoomPlayerIdentity(room){const p=room?.players||{};state.playerIds={human:p.human?.id||null,computer:p.computer?.id||null};state.playerUids={human:p.human?.uid||null,computer:p.computer?.uid||null};}
+function subscribeRoom(code){if(state.roomUnsub){state.roomUnsub();state.roomUnsub=null;}state.roomCode=code;const rr=roomRef(code);state.roomUnsub=onValue(rr,snap=>{const room=snap.val();if(!room){showMessage('החדר לא קיים');return}applyRoomPlayerIdentity(room);renderLobby(room);renderProfileStatus();if(room.reaction&&room.reaction.id!==subscribeRoom.lastReaction){subscribeRoom.lastReaction=room.reaction.id;if(room.reaction.from!==state.localActor)showReaction(room.reaction.text,room.reaction.from)}if(room.game)applyShared(room.game);if(!room.game&&room.players?.human&&room.players?.computer&&room.ready?.human&&room.ready?.computer&&state.localActor==='human'&&state.status!=='opening')startOnlineOpening();});}
+async function createRoom(){renderRoomCreating();try{await waitForRoomAuth();const code=await generateRoomCode();state.gameMode='online';state.localActor='human';state.playerId=localPlayerId();state.playerNames={human:localPlayerName(),computer:'מחכה לחבר'};state.playerIds={human:state.playerId,computer:null};state.playerUids={human:authSession.getUid?.()||null,computer:null};renderProfileStatus();syncCurrentPlayerProfile(state.playerNames.human);state.diceMode=state.diceMode||'manual';state.status='lobby';const room={roomCode:code,createdAt:Date.now(),updatedAt:Date.now(),diceMode:state.diceMode,players:{human:{id:state.playerId,uid:state.playerUids.human,name:state.playerNames.human,connected:true},computer:null},ready:{human:false,computer:false},game:null,reaction:null};await set(roomRef(code),room);state.roomCode=code;els.startModal.classList.add('show');renderLobby(room);subscribeRoom(code);showMessage('חדר נפתח');}catch(e){logRoomCreateFailure(e);state.roomCode=null;const message=getRoomCreateErrorMessage(e);renderRoomCreateError(message);showMessage(message)}}
+async function joinRoom(){try{await waitForRoomAuth();const code=(els.joinCodeInput.value||'').trim();if(!/^\d{4}$/.test(code))return showMessage('קוד חדר חייב להיות 4 ספרות');const snap=await get(roomRef(code));if(!snap.exists())return showMessage('החדר לא נמצא');const room=snap.val();if(room.players?.computer&&room.players.computer.id!==localPlayerId())return showMessage('החדר מלא');state.gameMode='online';state.localActor=room.players?.human?.id===localPlayerId()?'human':'computer';state.playerId=localPlayerId();applyRoomPlayerIdentity(room);if(state.localActor==='computer'){const joiningPlayerName=localPlayerName();const joiningUid=authSession.getUid?.()||null;syncCurrentPlayerProfile(joiningPlayerName);state.playerIds.computer=state.playerId;state.playerUids.computer=joiningUid;await update(roomRef(code),{['players/computer']:{id:state.playerId,uid:joiningUid,name:joiningPlayerName,connected:true},['ready/computer']:false,updatedAt:Date.now()});}else{syncCurrentPlayerProfile(room.players?.human?.name||localPlayerName());}state.diceMode=room.diceMode||state.diceMode||'manual';state.status='lobby';renderProfileStatus();els.startModal.classList.add('show');subscribeRoom(code);showMessage('הצטרפת לחדר');}catch(e){console.error(e);showMessage('בעיה בהצטרפות')}}
 async function toggleReady(){if(!isOnline()||!state.roomCode)return;const snap=await get(roomRef(state.roomCode+'/ready/'+state.localActor));const cur=!!snap.val();await update(roomRef(state.roomCode),{['ready/'+state.localActor]:!cur,updatedAt:Date.now()});}
 async function startOnlineOpening(){state.status='opening';state.diceMode=state.diceMode||'manual';state.difficulty='medium';state.log=[];setInitialBoard();state.gameOver=false;state.lastChance=null;state.pendingVictory=null;state.lastMove=null;state.lastMoveSeen=null;state.lastVictorySeen=null;state.winnerColor=null;state.stolen=false;state.victoryId=null;state.lastChanceRollingSeen=null;state.lastChanceResultSeen=null;state.doubleStreak={human:0,computer:0};state.dice=[0,0];state.remaining=[];addLog('גלגולת פתיחה אונליין מתחילה','special');renderAll();await syncShared('openingStart');let h,c;do{[h,c]=rollDicePair();state.dice=[h,c];addLog(`${actorName('human')} גלגל: ${h}`);addLog(`${actorName('computer')} גלגל: ${c}`);if(h===c){addLog('תיקו בפתיחה — מגלגלים שוב','special')}}while(h===c);if(h>c){state.humanColor=WHITE;state.computerColor=BLACK;state.currentActor='human';addLog(`${actorName('human')} מתחיל ומשחק בלבן`,'special')}else{state.humanColor=BLACK;state.computerColor=WHITE;state.currentActor='computer';addLog(`${actorName('computer')} מתחיל ומשחק בלבן`,'special')}await syncShared('openingDone');setTimeout(()=>startTurn(state.currentActor),900);}
 async function sendReaction(text){

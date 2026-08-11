@@ -1,0 +1,104 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+
+import { processMatchResultSubmission } from '../src/processor.js';
+import { buildValidOnlineSubmission } from './fixtures/submissions.js';
+
+function getAt(root, path) {
+  if (!path) return root;
+  return path.split('/').reduce((node, key) => node?.[key], root);
+}
+
+function setAt(root, path, value) {
+  const parts = path.split('/').filter(Boolean);
+  let node = root;
+  for (const part of parts.slice(0, -1)) node = node[part] ||= {};
+  node[parts.at(-1)] = value;
+}
+
+function updateAt(root, updates) {
+  for (const [path, value] of Object.entries(updates)) setAt(root, path, value);
+}
+
+function createMemoryDb({ failStatsRead = false } = {}) {
+  const data = {};
+  return {
+    data,
+    ref(path = '') {
+      return {
+        child(childPath) {
+          return this.rootRef(`${path}/${childPath}`);
+        },
+        rootRef: (nextPath) => this.ref(nextPath.replace(/^\/+/, '')),
+        async get() {
+          if (failStatsRead && path.startsWith('playerStats/')) throw new Error('stats read failed');
+          return { val: () => getAt(data, path) || null };
+        },
+        async set(value) {
+          setAt(data, path, value);
+        },
+        async update(updates) {
+          if (path && !getAt(data, path)) setAt(data, path, {});
+          updateAt(path ? getAt(data, path) : data, updates);
+        },
+        async transaction(updater) {
+          const current = getAt(data, path) || null;
+          const next = updater(current);
+          if (next === undefined) return { committed: false, snapshot: { val: () => current } };
+          setAt(data, path, next);
+          return { committed: true, snapshot: { val: () => next } };
+        },
+      };
+    },
+  };
+}
+
+test('processMatchResultSubmission applies valid online submission to trusted stats', async () => {
+  const db = createMemoryDb();
+  const raw = buildValidOnlineSubmission({
+    matchId: 'm-apply',
+    winnerUid: 'u1',
+    loserUid: 'u2',
+    serverVerified: false,
+    trustedStatsApplied: false,
+  });
+
+  const result = await processMatchResultSubmission({ db, raw, uid: 'u1', matchId: 'm-apply', now: () => 500 });
+
+  assert.equal(result.status, 'applied');
+  assert.equal(db.data.matchResultSubmissions.u1['m-apply'].serverReview.status, 'applied');
+  assert.equal(db.data.trustedStatsApplications['m-apply'].status, 'applied');
+  assert.equal(db.data.playerStats.u1.wins, 1);
+  assert.equal(db.data.playerStats.u2.losses, 1);
+});
+
+test('processMatchResultSubmission rejects invalid submissions with serverReview', async () => {
+  const db = createMemoryDb();
+  const result = await processMatchResultSubmission({
+    db,
+    raw: buildValidOnlineSubmission({ mode: 'local' }),
+    uid: 'u1',
+    matchId: 'm-reject',
+    now: () => 600,
+  });
+
+  assert.equal(result.status, 'rejected');
+  assert.equal(db.data.matchResultSubmissions.u1['m-reject'].serverReview.status, 'rejected');
+});
+
+test('processMatchResultSubmission writes error serverReview before rethrowing server failures', async () => {
+  const db = createMemoryDb({ failStatsRead: true });
+  const raw = buildValidOnlineSubmission({
+    matchId: 'm-error',
+    winnerUid: 'u1',
+    loserUid: 'u2',
+    serverVerified: false,
+    trustedStatsApplied: false,
+  });
+
+  await assert.rejects(
+    processMatchResultSubmission({ db, raw, uid: 'u1', matchId: 'm-error', now: () => 700, logger: null }),
+    /stats read failed/,
+  );
+  assert.equal(db.data.matchResultSubmissions.u1['m-error'].serverReview.status, 'error');
+});

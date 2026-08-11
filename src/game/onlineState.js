@@ -16,6 +16,7 @@ export function createSharedGameState(state) {
     chosenDouble: state.chosenDouble,
     log: state.log,
     doubleStreak: state.doubleStreak,
+    autoEnd: state.autoEnd || null,
     gameOver: state.gameOver,
     lastChance: state.lastChance,
     pendingVictory: state.pendingVictory || null,
@@ -23,6 +24,8 @@ export function createSharedGameState(state) {
     winnerColor: state.winnerColor || null,
     stolen: !!state.stolen,
     victoryId: state.victoryId || null,
+    playerIds: state.playerIds || {},
+    playerUids: state.playerUids || {},
     updatedAt: Date.now(),
   };
 }

@@ -49,9 +49,12 @@ test('createSharedGameState includes the key synchronized game fields', () => {
     chosenDouble: false,
     log: [{ text: 'move', type: '' }],
     doubleStreak: { human: 0, computer: 1 },
+    autoEnd: { deadline: 2000, prefix: 'התור יסתיים בעוד' },
     gameOver: false,
     lastChance: { phase: 'choose' },
     pendingVictory: { winner: 'white', loser: 'black', actor: 'human', streak: 2 },
+    playerIds: { human: 'guest-host', computer: 'guest-joiner' },
+    playerUids: { human: 'uid-host', computer: 'uid-joiner' },
   };
 
   const before = Date.now();
@@ -71,6 +74,8 @@ test('createSharedGameState includes the key synchronized game fields', () => {
     'log',
     'lastChance',
     'pendingVictory',
+    'playerIds',
+    'playerUids',
     'lastMove',
     'winnerColor',
     'stolen',
@@ -92,6 +97,9 @@ test('createSharedGameState includes the key synchronized game fields', () => {
   assert.equal(shared.log, source.log);
   assert.equal(shared.lastChance, source.lastChance);
   assert.equal(shared.pendingVictory, source.pendingVictory);
+  assert.equal(shared.autoEnd, source.autoEnd);
+  assert.equal(shared.playerIds, source.playerIds);
+  assert.equal(shared.playerUids, source.playerUids);
   assert.equal(shared.lastMove, null);
   assert.equal(shared.winnerColor, null);
   assert.equal(shared.victoryId, null);
