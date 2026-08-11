@@ -11,6 +11,7 @@ jobs:
     env:
       FIREBASE_PROJECT_ID: hebrew-tavla-online
       FIREBASE_PROJECT_NUMBER: "917406478506"
+      TRUSTED_STATS_RUNTIME_SERVICE_ACCOUNT: firebase-adminsdk-fbsvc@hebrew-tavla-online.iam.gserviceaccount.com
 
     steps:
       - name: Checkout
@@ -130,6 +131,34 @@ jobs:
         env:
           REQUIRED_MEMBER: serviceAccount:917406478506-compute@developer.gserviceaccount.com
           REQUIRED_ROLE: roles/cloudbuild.builds.builder
+
+      - name: Check trusted stats runtime database role
+        run: |
+          set -euo pipefail
+          required_member="serviceAccount:${TRUSTED_STATS_RUNTIME_SERVICE_ACCOUNT}"
+
+          if ! project_policy="$(gcloud projects get-iam-policy "$FIREBASE_PROJECT_ID" --format=json 2>&1)"; then
+            echo "::warning::Could not inspect IAM policy. If runtime writes fail, grant roles/firebasedatabase.admin to ${TRUSTED_STATS_RUNTIME_SERVICE_ACCOUNT}."
+            echo "$project_policy"
+            exit 0
+          fi
+
+          if ! printf '%s' "$project_policy" | node -e '
+            const fs = require("node:fs");
+            const policy = JSON.parse(fs.readFileSync(0, "utf8"));
+            const member = process.env.REQUIRED_MEMBER;
+            const allowedRoles = new Set(["roles/firebase.admin", "roles/firebasedatabase.admin"]);
+            const hasRole = (policy.bindings || []).some((item) => allowedRoles.has(item.role) && (item.members || []).includes(member));
+            process.exit(hasRole ? 0 : 1);
+          '; then
+            echo "::error::Missing runtime RTDB write role on ${TRUSTED_STATS_RUNTIME_SERVICE_ACCOUNT}."
+            echo "::error::Grant Firebase Admin or Firebase Realtime Database Admin to this runtime service account, then rerun deploy."
+            exit 1
+          fi
+
+          echo "Trusted stats runtime service account has Firebase Admin or Firebase Realtime Database Admin: ${TRUSTED_STATS_RUNTIME_SERVICE_ACCOUNT}"
+        env:
+          REQUIRED_MEMBER: serviceAccount:firebase-adminsdk-fbsvc@hebrew-tavla-online.iam.gserviceaccount.com
 
       - name: Deploy onMatchResultSubmissionCreated only
         run: GOOGLE_APPLICATION_CREDENTIALS="$FIREBASE_SERVICE_ACCOUNT_FILE" npx firebase-tools@latest deploy --project "$FIREBASE_PROJECT_ID" --only functions:onMatchResultSubmissionCreated --force
