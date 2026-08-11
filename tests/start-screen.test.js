@@ -67,6 +67,9 @@ test('index start rules panel keeps the complete Hebrew rules structure', async 
   assert.match(html, /friendLobbyPrimaryActions/);
   assert.match(html, /friendLobbySecondaryActions/);
   assert.match(html, /function setFriendActionState\(activeAction=''\)/);
+  assert.match(html, /async function waitForRoomAuth\(\)/);
+  assert.match(html, /async function createRoom\(\)\{renderRoomCreating\(\);try\{await waitForRoomAuth\(\);const code=await generateRoomCode\(\);/);
+  assert.match(html, /async function joinRoom\(\)\{try\{await waitForRoomAuth\(\);const code=/);
   assert.match(html, /openRoomModeBtn\?\.classList\.toggle\('active',isCreate\)/);
   assert.match(html, /joinRoomModeBtn\?\.classList\.toggle\('active',isJoin\)/);
   assert.match(html, /הכנס קוד חדר/);
