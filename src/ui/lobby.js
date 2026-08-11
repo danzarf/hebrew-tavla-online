@@ -19,6 +19,7 @@ export function createLobbyHelpers({ els, state, escapeHtml, getAuthenticatedUid
     state.onlineReady = { human: !!r.human, computer: !!r.computer };
     if (!els.roomLobby) return;
     els.roomLobby.style.display = 'block';
+    if (els.readyBtn) els.readyBtn.hidden = false;
     els.roomCodeDisplay.textContent = roomCode || '----';
     els.roomPlayers.innerHTML = `<div class="playerLine"><span>שחקן 1</span><b>${escapeHtml(state.playerNames.human)}</b><span>${r.human ? '✅ מוכן' : '⏳ לא מוכן'}</span></div><div class="playerLine"><span>שחקן 2</span><b>${escapeHtml(state.playerNames.computer)}</b><span>${r.computer ? '✅ מוכן' : '⏳ לא מוכן'}</span></div>`;
     const myReady = !!r[state.localActor];
@@ -26,9 +27,29 @@ export function createLobbyHelpers({ els, state, escapeHtml, getAuthenticatedUid
     els.roomStatusText.textContent = (p.human && p.computer) ? ((r.human && r.computer) ? 'שניכם מוכנים — מתחילים...' : 'שניכם בחדר. תלחצו אני מוכן.') : 'מחכים לשחקן נוסף...';
   }
 
+  function renderRoomCreating() {
+    if (!els.roomLobby) return;
+    els.roomLobby.style.display = 'block';
+    els.roomCodeDisplay.textContent = '';
+    els.roomPlayers.innerHTML = '';
+    if (els.readyBtn) els.readyBtn.hidden = true;
+    els.roomStatusText.textContent = 'פותח חדר...';
+  }
+
+  function renderRoomCreateError(message = 'בעיה בפתיחת חדר. נסה שוב.') {
+    if (!els.roomLobby) return;
+    els.roomLobby.style.display = 'block';
+    els.roomCodeDisplay.textContent = '';
+    els.roomPlayers.innerHTML = '';
+    if (els.readyBtn) els.readyBtn.hidden = true;
+    els.roomStatusText.textContent = message;
+  }
+
   return {
     localPlayerId,
     localPlayerName,
     renderLobby,
+    renderRoomCreating,
+    renderRoomCreateError,
   };
 }
