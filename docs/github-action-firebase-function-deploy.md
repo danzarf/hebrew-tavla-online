@@ -118,6 +118,21 @@ matchResultSubmissions/{uid}/{matchId}
 serverReview.status = "applied"
 ```
 
+הפונקציה מאזינה לכתיבה על:
+
+```text
+matchResultSubmissions/{uid}/{matchId}
+```
+
+כל submission חדש צריך להסתיים עם `serverReview.status` בערך `applied`, `rejected` או `error`. הפונקציה מדלגת על submissions שכבר כוללים `serverReview`, כדי שכתיבת השרת לא תיצור לולאת trigger.
+
+אם deploy עתידי נכשל בגלל שינוי סוג trigger, מחק ופרוס מחדש רק את הפונקציה דרך:
+
+```text
+GitHub -> Actions -> Delete Trusted Stats Function -> Run workflow
+GitHub -> Actions -> Deploy Trusted Stats Function -> Run workflow
+```
+
 4. בדוק שנוצר:
 
 ```text
