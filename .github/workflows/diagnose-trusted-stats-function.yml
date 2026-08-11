@@ -1,0 +1,205 @@
+name: Diagnose Trusted Stats Function
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: write-test creates a diagnostic submission; inspect-existing checks an existing submission.
+        required: true
+        default: write-test
+        type: choice
+        options:
+          - write-test
+          - inspect-existing
+      uid:
+        description: Submission owner UID. Required for inspect-existing; optional for write-test.
+        required: false
+        default: ""
+      match_id:
+        description: Match ID. Required for inspect-existing; optional for write-test.
+        required: false
+        default: ""
+      timeout_ms:
+        description: How long to wait for serverReview.
+        required: true
+        default: "120000"
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      FIREBASE_PROJECT_ID: hebrew-tavla-online
+      FIREBASE_FUNCTION_REGION: europe-west1
+      FIREBASE_DATABASE_INSTANCE: hebrew-tavla-online-default-rtdb
+      TRUSTED_STATS_FUNCTION: onMatchResultSubmissionCreated
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install functions dependencies
+        run: npm install --prefix functions
+
+      - name: Prepare Firebase credentials
+        env:
+          FIREBASE_SERVICE_ACCOUNT_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_HEBREW_TAVLA_ONLINE }}
+        run: |
+          set -euo pipefail
+          if [ -z "$FIREBASE_SERVICE_ACCOUNT_JSON" ]; then
+            echo "::error::Missing FIREBASE_SERVICE_ACCOUNT_HEBREW_TAVLA_ONLINE secret."
+            exit 1
+          fi
+
+          FIREBASE_SERVICE_ACCOUNT_FILE="$RUNNER_TEMP/firebase-service-account.json"
+          echo "FIREBASE_SERVICE_ACCOUNT_FILE=$FIREBASE_SERVICE_ACCOUNT_FILE" >> "$GITHUB_ENV"
+          printf '%s' "$FIREBASE_SERVICE_ACCOUNT_JSON" > "$FIREBASE_SERVICE_ACCOUNT_FILE"
+          chmod 600 "$FIREBASE_SERVICE_ACCOUNT_FILE"
+
+      - name: Authenticate Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_HEBREW_TAVLA_ONLINE }}
+
+      - name: Setup Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Show deployed function and trigger config
+        run: |
+          set -euo pipefail
+          gcloud config set project "$FIREBASE_PROJECT_ID"
+
+          gcloud functions describe "$TRUSTED_STATS_FUNCTION" \
+            --gen2 \
+            --region "$FIREBASE_FUNCTION_REGION" \
+            --project "$FIREBASE_PROJECT_ID" \
+            --format=json > "$RUNNER_TEMP/function.json"
+
+          node - "$RUNNER_TEMP/function.json" <<'NODE'
+          const fs = require('node:fs');
+          const fn = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'));
+          const trigger = fn.eventTrigger || {};
+          console.log(JSON.stringify({
+            name: fn.name,
+            state: fn.state,
+            updateTime: fn.updateTime,
+            serviceConfig: {
+              service: fn.serviceConfig?.service,
+              uri: fn.serviceConfig?.uri,
+              serviceAccountEmail: fn.serviceConfig?.serviceAccountEmail,
+            },
+            buildConfig: {
+              runtime: fn.buildConfig?.runtime,
+              entryPoint: fn.buildConfig?.entryPoint,
+              source: fn.buildConfig?.source,
+            },
+            eventTrigger: {
+              eventType: trigger.eventType,
+              triggerRegion: trigger.triggerRegion,
+              eventFilters: trigger.eventFilters,
+              serviceAccountEmail: trigger.serviceAccountEmail,
+              pubsubTopic: trigger.pubsubTopic,
+            },
+          }, null, 2));
+          NODE
+
+      - name: Show matching Eventarc triggers
+        run: |
+          set -euo pipefail
+          gcloud eventarc triggers list \
+            --location "$FIREBASE_FUNCTION_REGION" \
+            --project "$FIREBASE_PROJECT_ID" \
+            --format=json > "$RUNNER_TEMP/eventarc-triggers.json"
+
+          node - "$RUNNER_TEMP/eventarc-triggers.json" "$TRUSTED_STATS_FUNCTION" "$FIREBASE_DATABASE_INSTANCE" <<'NODE'
+          const fs = require('node:fs');
+          const triggers = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'));
+          const functionName = process.argv[3].toLowerCase();
+          const databaseInstance = process.argv[4];
+          const matching = triggers.filter((trigger) => {
+            const text = JSON.stringify(trigger).toLowerCase();
+            return text.includes(functionName) || text.includes(databaseInstance.toLowerCase());
+          });
+          console.log(JSON.stringify(matching.map((trigger) => ({
+            name: trigger.name,
+            destination: trigger.destination,
+            eventFilters: trigger.eventFilters,
+            transport: trigger.transport,
+            serviceAccount: trigger.serviceAccount,
+            updateTime: trigger.updateTime,
+          })), null, 2));
+          if (matching.length === 0) {
+            console.log('No matching Eventarc trigger was found in this region.');
+          }
+          NODE
+
+      - name: Run trusted stats RTDB diagnostic
+        id: diagnostic
+        continue-on-error: true
+        env:
+          ACTION: ${{ inputs.action }}
+          INPUT_UID: ${{ inputs.uid }}
+          INPUT_MATCH_ID: ${{ inputs.match_id }}
+          TIMEOUT_MS: ${{ inputs.timeout_ms }}
+        run: |
+          set -euo pipefail
+
+          uid="$INPUT_UID"
+          match_id="$INPUT_MATCH_ID"
+
+          if [ "$ACTION" = "inspect-existing" ]; then
+            if [ -z "$uid" ] || [ -z "$match_id" ]; then
+              echo "::error::inspect-existing requires uid and match_id inputs."
+              exit 1
+            fi
+          else
+            if [ -z "$uid" ]; then
+              uid="diagnostic-${GITHUB_RUN_ID}"
+            fi
+            if [ -z "$match_id" ]; then
+              match_id="diagnostic-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+            fi
+          fi
+
+          echo "Diagnostic action: $ACTION"
+          echo "Submission owner UID: $uid"
+          echo "Match ID: $match_id"
+          GOOGLE_APPLICATION_CREDENTIALS="$FIREBASE_SERVICE_ACCOUNT_FILE" node functions/scripts/diagnose-trusted-stats-function.mjs \
+            --action="$ACTION" \
+            --uid="$uid" \
+            --match-id="$match_id" \
+            --timeout-ms="$TIMEOUT_MS"
+
+      - name: Read recent function logs
+        if: always()
+        run: |
+          set +e
+          echo "Recent Firebase Functions logs:"
+          gcloud functions logs read "$TRUSTED_STATS_FUNCTION" \
+            --gen2 \
+            --region "$FIREBASE_FUNCTION_REGION" \
+            --project "$FIREBASE_PROJECT_ID" \
+            --limit 100
+
+          echo "Recent Cloud Run logs for the Gen 2 service:"
+          gcloud logging read \
+            "resource.type=\"cloud_run_revision\" AND resource.labels.service_name=\"onmatchresultsubmissioncreated\"" \
+            --project "$FIREBASE_PROJECT_ID" \
+            --limit 100 \
+            --format="table(timestamp,severity,textPayload,jsonPayload.message)"
+
+      - name: Fail if diagnostic failed
+        if: steps.diagnostic.outcome != 'success'
+        run: |
+          echo "::error::Trusted stats diagnostic did not observe serverReview. See function and Eventarc output above."
+          exit 1
+
+      - name: Remove Firebase credentials
+        if: always()
+        run: rm -f "$FIREBASE_SERVICE_ACCOUNT_FILE"
