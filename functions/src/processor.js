@@ -13,12 +13,19 @@ export async function processMatchResultSubmission({ db, raw, uid, matchId, now 
   const safe = sanitizeSubmission(raw);
 
   try {
+    await submissionRef.child('serverReview').set({
+      status: 'processing',
+      reviewedAt,
+      processedAt: reviewedAt,
+    });
+
     const validation = validateSubmissionForTrustedStats(safe, { pathUid: uid });
     if (!validation.valid) {
       await submissionRef.child('serverReview').set({
         status: 'rejected',
         reason: validation.errors,
         reviewedAt,
+        processedAt: reviewedAt,
       });
       return { status: 'rejected', reason: validation.errors };
     }
@@ -37,6 +44,7 @@ export async function processMatchResultSubmission({ db, raw, uid, matchId, now 
       await submissionRef.child('serverReview').set({
         status: 'duplicate',
         reviewedAt,
+        processedAt: reviewedAt,
       });
       return { status: 'duplicate' };
     }
@@ -57,6 +65,7 @@ export async function processMatchResultSubmission({ db, raw, uid, matchId, now 
       [`${submissionPath}/serverReview`]: {
         status: 'applied',
         reviewedAt,
+        processedAt: reviewedAt,
       },
       [`trustedStatsApplications/${safe.matchId}`]: {
         status: 'applied',
@@ -71,7 +80,9 @@ export async function processMatchResultSubmission({ db, raw, uid, matchId, now 
     await submissionRef.child('serverReview').set({
       status: 'error',
       reason: 'server-processing-failed',
+      message: error?.message || 'unknown-error',
       reviewedAt,
+      processedAt: reviewedAt,
     });
     throw error;
   }
