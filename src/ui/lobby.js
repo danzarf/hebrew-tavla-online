@@ -14,11 +14,12 @@ export function createLobbyHelpers({ els, state, escapeHtml, getAuthenticatedUid
 
   function renderLobby(room = {}) {
     const p = room.players || {}, r = room.ready || {};
+    const roomCode = state.roomCode || room.roomCode || '';
     state.playerNames = { human: p.human?.name || 'שחקן 1', computer: p.computer?.name || 'מחכה לחבר' };
     state.onlineReady = { human: !!r.human, computer: !!r.computer };
     if (!els.roomLobby) return;
     els.roomLobby.style.display = 'block';
-    els.roomCodeDisplay.textContent = state.roomCode || '----';
+    els.roomCodeDisplay.textContent = roomCode || '----';
     els.roomPlayers.innerHTML = `<div class="playerLine"><span>שחקן 1</span><b>${escapeHtml(state.playerNames.human)}</b><span>${r.human ? '✅ מוכן' : '⏳ לא מוכן'}</span></div><div class="playerLine"><span>שחקן 2</span><b>${escapeHtml(state.playerNames.computer)}</b><span>${r.computer ? '✅ מוכן' : '⏳ לא מוכן'}</span></div>`;
     const myReady = !!r[state.localActor];
     els.readyBtn.textContent = myReady ? '✅ מוכן' : '✅ אני מוכן';
