@@ -9,7 +9,7 @@ function createLobbyHarness({ stateRoomCode = null } = {}) {
     roomLobby: { style: { display: 'none' } },
     roomCodeDisplay: { textContent: '' },
     roomPlayers: { innerHTML: '' },
-    readyBtn: { textContent: '' },
+    readyBtn: { textContent: '', hidden: false },
     roomStatusText: { textContent: '' },
   };
   const state = {
@@ -30,6 +30,7 @@ function createLobbyHarness({ stateRoomCode = null } = {}) {
 
 test('renderLobby shows a generated room code from room data before subscription state catches up', () => {
   const { els, renderLobby } = createLobbyHarness();
+  els.readyBtn.hidden = true;
 
   renderLobby({
     roomCode: '2218',
@@ -38,6 +39,7 @@ test('renderLobby shows a generated room code from room data before subscription
   });
 
   assert.equal(els.roomLobby.style.display, 'block');
+  assert.equal(els.readyBtn.hidden, false);
   assert.equal(els.roomCodeDisplay.textContent, '2218');
   assert.notEqual(els.roomCodeDisplay.textContent, '----');
 });
@@ -63,4 +65,29 @@ test('renderLobby prefers the subscribed state room code when available', () => 
   });
 
   assert.equal(els.roomCodeDisplay.textContent, '3344');
+});
+
+test('renderRoomCreating shows a visible loading state without a fake room code', () => {
+  const { els, renderRoomCreating } = createLobbyHarness();
+
+  renderRoomCreating();
+
+  assert.equal(els.roomLobby.style.display, 'block');
+  assert.equal(els.roomCodeDisplay.textContent, '');
+  assert.equal(els.roomPlayers.innerHTML, '');
+  assert.equal(els.readyBtn.hidden, true);
+  assert.equal(els.roomStatusText.textContent, 'פותח חדר...');
+});
+
+test('renderRoomCreateError shows a visible retry error without a placeholder code', () => {
+  const { els, renderRoomCreateError } = createLobbyHarness();
+
+  renderRoomCreateError();
+
+  assert.equal(els.roomLobby.style.display, 'block');
+  assert.equal(els.roomCodeDisplay.textContent, '');
+  assert.equal(els.roomPlayers.innerHTML, '');
+  assert.equal(els.readyBtn.hidden, true);
+  assert.equal(els.roomStatusText.textContent, 'בעיה בפתיחת חדר. נסה שוב.');
+  assert.notEqual(els.roomCodeDisplay.textContent, '----');
 });
