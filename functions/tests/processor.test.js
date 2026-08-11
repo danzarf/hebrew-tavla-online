@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { processMatchResultSubmission } from '../src/processor.js';
+import { processMatchResultSubmission, shouldProcessSubmission } from '../src/processor.js';
 import { buildValidOnlineSubmission } from './fixtures/submissions.js';
 
 function getAt(root, path) {
@@ -101,4 +101,10 @@ test('processMatchResultSubmission writes error serverReview before rethrowing s
     /stats read failed/,
   );
   assert.equal(db.data.matchResultSubmissions.u1['m-error'].serverReview.status, 'error');
+});
+
+test('shouldProcessSubmission skips writes that already have a serverReview', () => {
+  assert.equal(shouldProcessSubmission(null), false);
+  assert.equal(shouldProcessSubmission({ matchId: 'm-pending' }), true);
+  assert.equal(shouldProcessSubmission({ matchId: 'm-reviewed', serverReview: { status: 'applied' } }), false);
 });

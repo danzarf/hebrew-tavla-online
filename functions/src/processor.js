@@ -1,7 +1,11 @@
 import { buildStatsUpdate, sanitizeSubmission, validateSubmissionForTrustedStats } from './verification.js';
 
+export function shouldProcessSubmission(raw) {
+  return Boolean(raw && !raw.serverReview);
+}
+
 export async function processMatchResultSubmission({ db, raw, uid, matchId, now = Date.now, logger = console } = {}) {
-  if (!raw) return { status: 'empty' };
+  if (!shouldProcessSubmission(raw)) return { status: 'skipped' };
 
   const reviewedAt = now();
   const submissionPath = `matchResultSubmissions/${uid}/${matchId}`;
