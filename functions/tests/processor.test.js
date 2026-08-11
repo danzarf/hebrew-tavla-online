@@ -22,8 +22,10 @@ function updateAt(root, updates) {
 
 function createMemoryDb({ failStatsRead = false } = {}) {
   const data = {};
+  const writes = [];
   return {
     data,
+    writes,
     ref(path = '') {
       return {
         child(childPath) {
@@ -35,9 +37,11 @@ function createMemoryDb({ failStatsRead = false } = {}) {
           return { val: () => getAt(data, path) || null };
         },
         async set(value) {
+          writes.push({ type: 'set', path, value });
           setAt(data, path, value);
         },
         async update(updates) {
+          writes.push({ type: 'update', path, value: updates });
           if (path && !getAt(data, path)) setAt(data, path, {});
           updateAt(path ? getAt(data, path) : data, updates);
         },
@@ -67,6 +71,8 @@ test('processMatchResultSubmission applies valid online submission to trusted st
 
   assert.equal(result.status, 'applied');
   assert.equal(db.data.matchResultSubmissions.u1['m-apply'].serverReview.status, 'applied');
+  assert.equal(db.writes[0].path, 'matchResultSubmissions/u1/m-apply/serverReview');
+  assert.equal(db.writes[0].value.status, 'processing');
   assert.equal(db.data.trustedStatsApplications['m-apply'].status, 'applied');
   assert.equal(db.data.playerStats.u1.wins, 1);
   assert.equal(db.data.playerStats.u2.losses, 1);
@@ -84,6 +90,7 @@ test('processMatchResultSubmission rejects invalid submissions with serverReview
 
   assert.equal(result.status, 'rejected');
   assert.equal(db.data.matchResultSubmissions.u1['m-reject'].serverReview.status, 'rejected');
+  assert.equal(db.data.matchResultSubmissions.u1['m-reject'].serverReview.processedAt, 600);
 });
 
 test('processMatchResultSubmission writes error serverReview before rethrowing server failures', async () => {
@@ -101,6 +108,7 @@ test('processMatchResultSubmission writes error serverReview before rethrowing s
     /stats read failed/,
   );
   assert.equal(db.data.matchResultSubmissions.u1['m-error'].serverReview.status, 'error');
+  assert.equal(db.data.matchResultSubmissions.u1['m-error'].serverReview.message, 'stats read failed');
 });
 
 test('shouldProcessSubmission skips writes that already have a serverReview', () => {
