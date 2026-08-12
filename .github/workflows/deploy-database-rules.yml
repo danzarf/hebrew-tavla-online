@@ -21,6 +21,12 @@ jobs:
         with:
           node-version: 20
 
+      - name: Setup Java for Firebase Database Emulator
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
       - name: Prepare Firebase credentials
         env:
           FIREBASE_SERVICE_ACCOUNT_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_HEBREW_TAVLA_ONLINE }}
@@ -53,6 +59,16 @@ jobs:
 
           node -e "JSON.parse(require('node:fs').readFileSync(process.env.FIREBASE_RULES_FILE, 'utf8')); console.log('database.rules.json is valid JSON.');"
           npx firebase-tools@latest --version
+
+      - name: Validate Realtime Database rules syntax
+        run: |
+          set -euo pipefail
+          GOOGLE_APPLICATION_CREDENTIALS="$FIREBASE_SERVICE_ACCOUNT_FILE" \
+            npx firebase-tools@latest emulators:exec \
+              --only database \
+              --project "$FIREBASE_PROJECT_ID" \
+              --config firebase.json \
+              "node -e \"console.log('Realtime Database rules syntax accepted by emulator.')\""
 
       - name: Deploy Realtime Database rules only
         run: |
