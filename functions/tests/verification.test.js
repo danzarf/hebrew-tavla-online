@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
+  buildReadableMatchDebugEntry,
   buildRecentMatchIndexEntry,
   buildStatsUpdate,
   sanitizeSubmission,
@@ -76,6 +77,34 @@ test('recent match index entry is readable and marks V2 real matches', () => {
   assert.equal(entry.isDiagnostic, false);
   assert.equal(entry.winnerDisplayName, 'Winner');
   assert.match(entry.debugLabel, /Room 9748/);
+});
+
+test('readable match debug entry exposes the latest real match in one friendly node', () => {
+  const safe = sanitizeSubmission(buildValidOnlineSubmission({
+    matchId: 'real-2',
+    roomCode: '9799',
+    statsSchemaVersion: 2,
+    hasPlayerMatchStats: true,
+    players: [
+      { uid: 'u1', color: 'white', displayName: 'Winner' },
+      { uid: 'u2', color: 'black', displayName: 'Loser' },
+    ],
+    winnerUid: 'u1',
+    loserUid: 'u2',
+  }));
+
+  const recent = buildRecentMatchIndexEntry(safe, 'applied', 1234);
+  const readable = buildReadableMatchDebugEntry(recent, 12);
+
+  assert.equal(readable.matchNumberPadded, '000012');
+  assert.equal(readable.matchId, 'real-2');
+  assert.equal(readable.roomCode, '9799');
+  assert.equal(readable.winnerName, 'Winner');
+  assert.equal(readable.loserName, 'Loser');
+  assert.equal(readable.serverReviewStatus, 'applied');
+  assert.equal(readable.trustedStatsApplied, true);
+  assert.equal(readable.hasPlayerMatchStats, true);
+  assert.match(readable.readableName, /000012 \| REAL \| Room 9799 \| Winner beat Loser \| applied \| V2/);
 });
 
 test('recent match index entry marks diagnostics separately from real matches', () => {

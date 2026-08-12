@@ -57,6 +57,14 @@ async function readRecentMatch(db, matchId) {
   return (await db.ref(`recentMatches/${matchId}`).get()).val();
 }
 
+async function readDebugLatestRealMatch(db) {
+  return (await db.ref('debugLatestRealMatch').get()).val();
+}
+
+async function readDebugLatestDiagnosticMatch(db) {
+  return (await db.ref('debugLatestDiagnosticMatch').get()).val();
+}
+
 async function readLatestRealMatch(db) {
   const snap = await db.ref('recentMatches').orderByChild('processedAt').limitToLast(25).get();
   const matches = Object.entries(snap.val() || {})
@@ -97,6 +105,11 @@ const db = getDatabase(app);
 const path = `matchResultSubmissions/${uid}/${matchId}`;
 
 if (action === 'inspect-latest-real') {
+  const debugLatestRealMatch = await readDebugLatestRealMatch(db);
+  if (debugLatestRealMatch) {
+    console.log(`debugLatestRealMatch=${JSON.stringify(debugLatestRealMatch, null, 2)}`);
+    process.exit(0);
+  }
   const latestRealMatch = await readLatestRealMatch(db);
   if (!latestRealMatch) {
     console.error('No non-diagnostic recent match was found under recentMatches.');
@@ -136,6 +149,20 @@ console.log(`trustedStatsApplications/${matchId}=${JSON.stringify(trustedApplica
 
 const recentMatch = await readRecentMatch(db, matchId);
 console.log(`recentMatches/${matchId}=${JSON.stringify(recentMatch)}`);
+
+const debugLatestDiagnosticMatch = await readDebugLatestDiagnosticMatch(db);
+console.log(`debugLatestDiagnosticMatch=${JSON.stringify(debugLatestDiagnosticMatch)}`);
+
+if (action === 'write-test') {
+  const passes = [
+    ['V2 diagnostic applied', serverReview?.status === 'applied' && submission?.statsSchemaVersion === 2],
+    ['recentMatches written', !!recentMatch],
+    ['playerMatchStats present', !!recentMatch?.playerMatchStats && Object.keys(recentMatch.playerMatchStats).length >= 2],
+    ['debugLatestDiagnosticMatch updated', debugLatestDiagnosticMatch?.matchId === matchId],
+  ];
+  for (const [label, ok] of passes) console.log(`${ok ? 'PASS' : 'FAIL'}: ${label}`);
+  if (passes.some(([, ok]) => !ok)) process.exitCode = 4;
+}
 
 if (submission?.winnerUid) {
   const winnerStats = (await db.ref(`playerStats/${submission.winnerUid}`).get()).val();

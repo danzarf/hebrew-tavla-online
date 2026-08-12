@@ -14,6 +14,26 @@ test('third consecutive double while victory is pending gives the win to the opp
   assert.deepEqual(decision, { action: 'penalty-win', winner: 'black', loser: 'white' });
 });
 
+test('non-double 5-6 after pending bearing-off victory confirms winner without opening free moves', () => {
+  const decision = resolvePendingVictoryDoubleRoll({
+    pending: { winner: 'white', loser: 'black', actor: 'human' },
+    dice: [5, 6],
+    nextStreak: 0,
+  });
+
+  assert.deepEqual(decision, { action: 'confirm-victory', winner: 'white', loser: 'black' });
+});
+
+test('second double after pending bearing-off victory keeps victory pending', () => {
+  const decision = resolvePendingVictoryDoubleRoll({
+    pending: { winner: 'white', loser: 'black', actor: 'human' },
+    dice: [4, 4],
+    nextStreak: 2,
+  });
+
+  assert.deepEqual(decision, { action: 'continue-pending', streak: 2 });
+});
+
 test('third-double penalty result submission uses the opponent as winner', () => {
   const result = buildGameEndMatchResult({
     state: {

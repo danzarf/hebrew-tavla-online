@@ -74,12 +74,33 @@ function pickLoadedSoundUrl(config, buffers) {
   return urls[randomIndex(urls.length)] || null;
 }
 
-export function createSoundManager({ files = DEFAULT_SOUND_FILES, masterVolume = DEFAULT_MASTER_VOLUME } = {}) {
+export function createSoundEventGate({ now = () => Date.now(), debounceMsByType = { roll: 450 } } = {}) {
+  const lastPlayedAt = new Map();
+
+  return function shouldPlaySoundEvent(type = 'move') {
+    const debounceMs = Number(debounceMsByType[type]) || 0;
+    if (debounceMs <= 0) return true;
+
+    const currentTime = Number(now()) || 0;
+    const lastTime = lastPlayedAt.get(type);
+    if (Number.isFinite(lastTime) && currentTime - lastTime < debounceMs) return false;
+    lastPlayedAt.set(type, currentTime);
+    return true;
+  };
+}
+
+export function createSoundManager({
+  files = DEFAULT_SOUND_FILES,
+  masterVolume = DEFAULT_MASTER_VOLUME,
+  now = () => Date.now(),
+  soundDebounceMs = { roll: 450 },
+} = {}) {
   let audioCtx = null;
   let muted = readMutedPreference();
   const buffers = new Map();
   const failedFiles = new Set();
   const pendingLoads = new Map();
+  const shouldPlaySoundEvent = createSoundEventGate({ now, debounceMsByType: soundDebounceMs });
 
   function isMuted() {
     return muted;
@@ -194,6 +215,7 @@ export function createSoundManager({ files = DEFAULT_SOUND_FILES, masterVolume =
 
   function play(type = 'move') {
     if (muted) return;
+    if (!shouldPlaySoundEvent(type)) return;
     if (files[type]) {
       const played = playFile(type);
       if (!played && !muted) playFallback(type);

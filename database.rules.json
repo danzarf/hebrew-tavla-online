@@ -150,6 +150,26 @@
       ".read": false,
       ".write": false
     },
+    "readableMatches": {
+      ".read": false,
+      ".write": false
+    },
+    "debugLatestMatch": {
+      ".read": false,
+      ".write": false
+    },
+    "debugLatestRealMatch": {
+      ".read": false,
+      ".write": false
+    },
+    "debugLatestDiagnosticMatch": {
+      ".read": false,
+      ".write": false
+    },
+    "debugMatchCounter": {
+      ".read": false,
+      ".write": false
+    },
     "playerStats": {
       "$uid": {
         ".read": "auth != null && auth.uid == $uid",
