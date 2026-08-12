@@ -1,5 +1,6 @@
 const ALLOWED_MODES = new Set(['online']);
 const ALLOWED_COLORS = new Set(['white', 'black']);
+const TRUSTED_STATS_SCHEMA_VERSION = 2;
 
 function toSafeString(value, max = 80) {
   if (value === null || value === undefined) return null;
@@ -31,11 +32,18 @@ function matchStatsForUid(rawStats, uid) {
   };
 }
 
+function withoutNullish(value) {
+  return Object.fromEntries(
+    Object.entries(value).filter(([, fieldValue]) => fieldValue !== null && fieldValue !== undefined),
+  );
+}
+
 export function sanitizeSubmission(raw = {}) {
   const players = Array.isArray(raw.players) ? raw.players.slice(0, 2) : [];
   const safePlayers = players.map((p) => ({
     uid: toSafeString(p?.uid),
     color: toSafeString(p?.color),
+    displayName: toSafeString(p?.displayName, 32),
   })).filter((p) => p.uid && ALLOWED_COLORS.has(p.color));
 
   const winnerColor = toSafeString(raw.winnerColor);
@@ -48,6 +56,12 @@ export function sanitizeSubmission(raw = {}) {
     mode: toSafeString(raw.mode),
     gameType: toSafeString(raw.gameType),
     ruleset: toSafeString(raw.ruleset),
+    roomCode: toSafeString(raw.roomCode),
+    resultSource: toSafeString(raw.resultSource),
+    statsSchemaVersion: toSafeCounter(raw.statsSchemaVersion),
+    clientBuildVersion: toSafeString(raw.clientBuildVersion),
+    hasPlayerMatchStats: raw.hasPlayerMatchStats === true,
+    playerMatchStatsDebugLabel: toSafeString(raw.playerMatchStatsDebugLabel, 160),
     endedAt: Number(raw.endedAt),
     submittedAt: Number(raw.submittedAt),
     winnerColor,
@@ -66,6 +80,52 @@ export function sanitizeSubmission(raw = {}) {
   );
 
   return safe;
+}
+
+export function isDiagnosticSubmission(safe = {}) {
+  return String(safe.matchId || '').startsWith('diagnostic-')
+    || String(safe.clientSubmittedBy || '').startsWith('diagnostic-')
+    || String(safe.resultSource || '').includes('diagnostic');
+}
+
+export function displayNameForUid(safe = {}, uid) {
+  return safe.players?.find((player) => player.uid === uid)?.displayName || null;
+}
+
+export function buildRecentMatchIndexEntry(safe = {}, serverReviewStatus, processedAt) {
+  const isDiagnostic = isDiagnosticSubmission(safe);
+  const statsVersion = safe.statsSchemaVersion || 1;
+  const labelParts = isDiagnostic
+    ? ['DIAGNOSTIC', safe.matchId]
+    : ['REAL', safe.endedAt ? new Date(safe.endedAt).toISOString() : null, safe.roomCode ? `Room ${safe.roomCode}` : null];
+
+  labelParts.push(`${serverReviewStatus || 'unknown'}`);
+  labelParts.push(`V${statsVersion}`);
+
+  return withoutNullish({
+    matchId: safe.matchId,
+    statsSchemaVersion: statsVersion,
+    clientBuildVersion: safe.clientBuildVersion || null,
+    roomCode: safe.roomCode || null,
+    mode: safe.mode,
+    resultSource: safe.resultSource || null,
+    submittedAt: Number.isFinite(safe.submittedAt) ? safe.submittedAt : null,
+    endedAt: Number.isFinite(safe.endedAt) ? safe.endedAt : null,
+    processedAt,
+    serverReviewStatus,
+    serverVerified: serverReviewStatus === 'applied',
+    trustedStatsApplied: serverReviewStatus === 'applied',
+    winnerUid: safe.winnerUid,
+    loserUid: safe.loserUid,
+    winnerDisplayName: displayNameForUid(safe, safe.winnerUid),
+    loserDisplayName: displayNameForUid(safe, safe.loserUid),
+    winnerColor: safe.winnerColor,
+    loserColor: safe.loserColor,
+    isDiagnostic,
+    hasPlayerMatchStats: safe.hasPlayerMatchStats === true,
+    playerMatchStats: safe.playerMatchStats || {},
+    debugLabel: safe.playerMatchStatsDebugLabel || labelParts.filter(Boolean).join(' | '),
+  });
 }
 
 export function validateSubmissionForTrustedStats(safe, { pathUid } = {}) {
