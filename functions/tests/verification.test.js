@@ -22,6 +22,27 @@ test('valid online submission passes validation', () => {
   assert.equal(result.valid, true);
 });
 
+test('capture stats default to zero when missing', () => {
+  const safe = sanitizeSubmission(buildValidOnlineSubmission());
+  assert.deepEqual(safe.playerMatchStats.u1, { capturesMade: 0, capturesSuffered: 0 });
+  assert.deepEqual(safe.playerMatchStats.u2, { capturesMade: 0, capturesSuffered: 0 });
+});
+
+test('capture stats are sanitized per known player uid', () => {
+  const safe = sanitizeSubmission(buildValidOnlineSubmission({
+    playerMatchStats: {
+      u1: { capturesMade: 2.8, capturesSuffered: 1 },
+      u2: { capturesMade: '3', capturesSuffered: -4 },
+      outsider: { capturesMade: 99, capturesSuffered: 99 },
+    },
+  }));
+
+  assert.deepEqual(safe.playerMatchStats, {
+    u1: { capturesMade: 2, capturesSuffered: 1 },
+    u2: { capturesMade: 3, capturesSuffered: 0 },
+  });
+});
+
 test('validation rejects client server flags', () => {
   const safe = sanitizeSubmission(buildValidOnlineSubmission({ serverVerified: true, trustedStatsApplied: true }));
   const result = validateSubmissionForTrustedStats(safe, { pathUid: 'u1' });
@@ -69,7 +90,13 @@ test('validation rejects unrelated submitter', () => {
 });
 
 test('buildStatsUpdate calculates winRate and streaks', () => {
-  const next = buildStatsUpdate({ gamesPlayed: 2, wins: 1, losses: 1, currentStreak: 1, bestStreak: 1 }, 'win', 200, 300);
+  const next = buildStatsUpdate(
+    { gamesPlayed: 2, wins: 1, losses: 1, currentStreak: 1, bestStreak: 1, capturesMade: 3, capturesSuffered: 2 },
+    'win',
+    200,
+    300,
+    { capturesMade: 4, capturesSuffered: 1 },
+  );
   assert.deepEqual(next, {
     gamesPlayed: 3,
     wins: 2,
@@ -77,6 +104,10 @@ test('buildStatsUpdate calculates winRate and streaks', () => {
     winRate: 0.6667,
     currentStreak: 2,
     bestStreak: 2,
+    capturesMade: 7,
+    capturesSuffered: 3,
+    averageCapturesMadePerGame: 2.3333,
+    averageCapturesSufferedPerGame: 1,
     lastPlayedAt: 200,
     updatedAt: 300,
   });
@@ -87,4 +118,8 @@ test('buildStatsUpdate resets current streak on loss and keeps best streak', () 
   assert.equal(next.currentStreak, 0);
   assert.equal(next.bestStreak, 3);
   assert.equal(next.winRate, 0.5);
+  assert.equal(next.capturesMade, 0);
+  assert.equal(next.capturesSuffered, 0);
+  assert.equal(next.averageCapturesMadePerGame, 0);
+  assert.equal(next.averageCapturesSufferedPerGame, 0);
 });

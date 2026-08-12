@@ -26,6 +26,7 @@ export function createSharedGameState(state) {
     victoryId: state.victoryId || null,
     playerIds: state.playerIds || {},
     playerUids: state.playerUids || {},
+    playerMatchStats: state.playerMatchStats || {},
     updatedAt: Date.now(),
   };
 }

@@ -6,6 +6,7 @@ import {
   calculateWinRate,
   createEmptyPlayerStats,
   formatPlayerStatsForProfile,
+  isVisiblePlayerStatsUid,
   sanitizePlayerStats,
 } from '../src/product/playerStats.js';
 
@@ -18,7 +19,9 @@ test('createEmptyPlayerStats returns the safe empty contract', () => {
     currentStreak: 0,
     bestStreak: 0,
     capturesMade: 0,
-    capturesTaken: 0,
+    capturesSuffered: 0,
+    averageCapturesMadePerGame: 0,
+    averageCapturesSufferedPerGame: 0,
     lastPlayedAt: null,
     updatedAt: null,
   });
@@ -31,7 +34,9 @@ test('createEmptyPlayerStats returns the safe empty contract', () => {
     'currentStreak',
     'bestStreak',
     'capturesMade',
-    'capturesTaken',
+    'capturesSuffered',
+    'averageCapturesMadePerGame',
+    'averageCapturesSufferedPerGame',
     'lastPlayedAt',
     'updatedAt',
   ]);
@@ -51,8 +56,8 @@ test('sanitizePlayerStats normalizes invalid and inconsistent values', () => {
     losses: 20,
     currentStreak: 'abc',
     bestStreak: 2,
-    capturesMade: 0,
-    capturesTaken: 0,
+    capturesMade: 7,
+    capturesTaken: 3,
     lastPlayedAt: 'not-a-date',
     updatedAt: '2026-05-19T10:00:00Z',
     coins: 999,
@@ -67,8 +72,10 @@ test('sanitizePlayerStats normalizes invalid and inconsistent values', () => {
     winRate: 0,
     currentStreak: 0,
     bestStreak: 2,
-    capturesMade: 0,
-    capturesTaken: 0,
+    capturesMade: 7,
+    capturesSuffered: 3,
+    averageCapturesMadePerGame: 1.8,
+    averageCapturesSufferedPerGame: 0.8,
     lastPlayedAt: null,
     updatedAt: '2026-05-19T10:00:00.000Z',
   });
@@ -82,7 +89,28 @@ test('formatPlayerStatsForProfile keeps UI as coming soon by default', () => {
   const formatted = formatPlayerStatsForProfile({ gamesPlayed: 22, wins: 11 });
 
   assert.equal(formatted.isPlaceholder, true);
-  assert.deepEqual(formatted.items.map(item => item.label), ['משחקים', 'ניצחונות', 'הפסדים', 'אחוז ניצחון', 'רצף נוכחי', 'שיא רצף', 'אכלתי', 'אכלו אותי']);
+  assert.deepEqual(formatted.items.map(item => item.label), ['משחקים', 'ניצחונות', 'הפסדים', 'אחוז ניצחון', 'רצף נוכחי', 'שיא רצף', 'אכלתי כל הזמן', 'אכלו אותי כל הזמן', 'ממוצע אכילות למשחק', 'ממוצע שאכלו אותי']);
   assert.ok(formatted.items.every(item => item.value === 'בקרוב'));
   assert.match(formatted.note, /משחקים מאומתים/);
+});
+
+test('formatPlayerStatsForProfile shows trusted capture stats and averages', () => {
+  const formatted = formatPlayerStatsForProfile({
+    gamesPlayed: 2,
+    wins: 1,
+    losses: 1,
+    capturesMade: 5,
+    capturesSuffered: 3,
+  }, { showComingSoon: false });
+
+  assert.equal(formatted.items.find(item => item.label === 'אכלתי כל הזמן')?.value, '5');
+  assert.equal(formatted.items.find(item => item.label === 'אכלו אותי כל הזמן')?.value, '3');
+  assert.equal(formatted.items.find(item => item.label === 'ממוצע אכילות למשחק')?.value, '2.5');
+  assert.equal(formatted.items.find(item => item.label === 'ממוצע שאכלו אותי')?.value, '1.5');
+});
+
+test('diagnostic users are hidden from visible stats surfaces', () => {
+  assert.equal(isVisiblePlayerStatsUid('uid-player'), true);
+  assert.equal(isVisiblePlayerStatsUid('diagnostic-31477927029'), false);
+  assert.equal(isVisiblePlayerStatsUid('diagnostic-31477927029_winner'), false);
 });

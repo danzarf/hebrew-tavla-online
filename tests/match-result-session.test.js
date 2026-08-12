@@ -37,6 +37,10 @@ test('buildGameEndMatchResult maps an online finished game to a non-persistent m
       playerIds: { human: 'guest-host', computer: 'guest-joiner' },
       playerUids: { human: 'uid-host', computer: 'uid-joiner' },
       playerNames: { human: 'Host', computer: 'Guest' },
+      playerMatchStats: {
+        human: { capturesMade: 1, capturesSuffered: 3 },
+        computer: { capturesMade: 3, capturesSuffered: 1 },
+      },
     },
     winnerColor: 'black',
     localActor: 'human',
@@ -54,6 +58,10 @@ test('buildGameEndMatchResult maps an online finished game to a non-persistent m
   assert.equal(result.loserUid, 'uid-host');
   assert.equal(result.loserColor, 'white');
   assert.equal(result.clientSubmittedBy, 'uid-host');
+  assert.deepEqual(result.playerMatchStats, {
+    'uid-host': { capturesMade: 1, capturesSuffered: 3 },
+    'uid-joiner': { capturesMade: 3, capturesSuffered: 1 },
+  });
   assert.equal(result.serverVerified, false);
   assert.equal(result.endedAt, 123456);
   assert.deepEqual(validateMatchResult(result), { valid: true, errors: [] });

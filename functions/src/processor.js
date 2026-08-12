@@ -54,8 +54,20 @@ export async function processMatchResultSubmission({ db, raw, uid, matchId, now 
       db.ref(`playerStats/${safe.loserUid}`).get(),
     ]);
 
-    const winnerNext = buildStatsUpdate(winnerSnap.val() || {}, 'win', safe.endedAt, reviewedAt);
-    const loserNext = buildStatsUpdate(loserSnap.val() || {}, 'loss', safe.endedAt, reviewedAt);
+    const winnerNext = buildStatsUpdate(
+      winnerSnap.val() || {},
+      'win',
+      safe.endedAt,
+      reviewedAt,
+      safe.playerMatchStats?.[safe.winnerUid],
+    );
+    const loserNext = buildStatsUpdate(
+      loserSnap.val() || {},
+      'loss',
+      safe.endedAt,
+      reviewedAt,
+      safe.playerMatchStats?.[safe.loserUid],
+    );
 
     await db.ref().update({
       [`playerStats/${safe.winnerUid}`]: winnerNext,
@@ -72,6 +84,7 @@ export async function processMatchResultSubmission({ db, raw, uid, matchId, now 
         appliedAt: reviewedAt,
         winnerUid: safe.winnerUid,
         loserUid: safe.loserUid,
+        playerMatchStats: safe.playerMatchStats,
       },
     });
     return { status: 'applied' };

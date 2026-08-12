@@ -40,6 +40,10 @@ test('createMatchResult creates a valid safe match result object', () => {
     endedAt: 2000,
     resultSource: 'online-game-end',
     clientSubmittedBy: 'uid-white',
+    playerMatchStats: {
+      'uid-white': { capturesMade: 2, capturesSuffered: 1, ignored: 99 },
+      'uid-black': { capturesMade: 1, capturesTaken: 2 },
+    },
     coins: 500,
     xp: 25,
     rewards: ['coin-bonus'],
@@ -55,6 +59,7 @@ test('createMatchResult creates a valid safe match result object', () => {
     'loserUid',
     'matchId',
     'mode',
+    'playerMatchStats',
     'players',
     'resultSource',
     'roomCode',
@@ -76,6 +81,10 @@ test('createMatchResult creates a valid safe match result object', () => {
   assert.equal(result.gameType, 'tavla');
   assert.equal(result.ruleset, 'hebrew-tavla');
   assert.equal(result.serverVerified, false);
+  assert.deepEqual(result.playerMatchStats, {
+    'uid-white': { capturesMade: 2, capturesSuffered: 1 },
+    'uid-black': { capturesMade: 1, capturesSuffered: 2 },
+  });
   assert.deepEqual(validateMatchResult(result), { valid: true, errors: [] });
 });
 

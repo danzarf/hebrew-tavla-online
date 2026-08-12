@@ -49,6 +49,10 @@ export function createInitialState() {
     playerIds: {},
     playerUids: {},
     playerNames: { human: 'אתה', computer: 'המחשב' },
+    playerMatchStats: {
+      human: { capturesMade: 0, capturesSuffered: 0 },
+      computer: { capturesMade: 0, capturesSuffered: 0 },
+    },
     onlineReady: { human: false, computer: false },
     applyingRemote: false,
     roomUnsub: null,
@@ -92,6 +96,10 @@ export function createNewGameStateValues() {
     playerIds: {},
     playerUids: {},
     playerNames: { human: 'אתה', computer: 'המחשב' },
+    playerMatchStats: {
+      human: { capturesMade: 0, capturesSuffered: 0 },
+      computer: { capturesMade: 0, capturesSuffered: 0 },
+    },
     onlineReady: { human: false, computer: false },
     applyingRemote: false,
     lastMove: null,

@@ -936,7 +936,7 @@ const welcomeState={completed:false,message:'',tone:''};
 const trustedStatsState={trustedStats:null,hasTrustedStats:false,refreshMessage:'',refreshTone:'',lastCheckedLabel:'',isRefreshing:false,verificationStatusMessage:'',lastAutoRefreshAt:0};
 
 const lobbySelection={lastMode:''};
-const guestSessionStats={gamesPlayed:0,wins:0,losses:0,winRate:0,currentStreak:0,bestStreak:0,capturesMade:0,capturesTaken:0};
+const guestSessionStats={gamesPlayed:0,wins:0,losses:0,winRate:0,currentStreak:0,bestStreak:0,capturesMade:0,capturesSuffered:0};
 function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
 function rnd(min,max){return Math.floor(Math.random()*(max-min+1))+min;}
 function actorName(actor){
@@ -945,6 +945,21 @@ function actorName(actor){
 }
 function isOnline(){return state.gameMode==='online';}
 function localActor(){return isOnline()?state.localActor:'human';}
+function emptyMatchStats(){return {capturesMade:0,capturesSuffered:0};}
+function ensurePlayerMatchStats(){
+  state.playerMatchStats=state.playerMatchStats||{};
+  state.playerMatchStats.human={...emptyMatchStats(),...(state.playerMatchStats.human||{})};
+  state.playerMatchStats.computer={...emptyMatchStats(),...(state.playerMatchStats.computer||{})};
+}
+function recordCaptureForMove(move){
+  if(!move?.hit)return;
+  const actor=actorForColor(move.color);
+  const opponent=actor==='human'?'computer':actor==='computer'?'human':null;
+  if(!actor||!opponent)return;
+  ensurePlayerMatchStats();
+  state.playerMatchStats[actor].capturesMade+=1;
+  state.playerMatchStats[opponent].capturesSuffered+=1;
+}
 function roomRef(code){return ref(db,'rooms/'+code);}
 function roomGameRef(code){return ref(db,'rooms/'+code+'/game');}
 function getGoogleLinkReadiness(){
@@ -1491,10 +1506,10 @@ function selectSource(src){
   cancelAutoEnd();state.selected=src;state.legalChoices=choices;playSound('click');renderAll();
 }
 function snapshot(){
-  state.undoStack.push(JSON.stringify({board:state.board,bar:state.bar,off:state.off,remaining:state.remaining,freeMode:state.freeMode,doubleExtra:state.doubleExtra,chosenDouble:state.chosenDouble,dice:state.dice}));
+  state.undoStack.push(JSON.stringify({board:state.board,bar:state.bar,off:state.off,remaining:state.remaining,freeMode:state.freeMode,doubleExtra:state.doubleExtra,chosenDouble:state.chosenDouble,dice:state.dice,playerMatchStats:state.playerMatchStats}));
 }
 function restoreSnapshot(s){
-  const x=JSON.parse(s);state.board=x.board;state.bar=x.bar;state.off=x.off;state.remaining=x.remaining;state.freeMode=x.freeMode;state.doubleExtra=x.doubleExtra;state.chosenDouble=x.chosenDouble;state.dice=x.dice;state.selected=null;state.legalChoices=[];
+  const x=JSON.parse(s);state.board=x.board;state.bar=x.bar;state.off=x.off;state.remaining=x.remaining;state.freeMode=x.freeMode;state.doubleExtra=x.doubleExtra;state.chosenDouble=x.chosenDouble;state.dice=x.dice;state.playerMatchStats=x.playerMatchStats||state.playerMatchStats;state.selected=null;state.legalChoices=[];
 }
 
 function rememberLastMove(move){
@@ -1518,7 +1533,7 @@ async function animateRemoteMove(lm,start){
 }
 async function humanMove(move){
   if(state.animating)return;state.animating=true;cancelAutoEnd();snapshot();
-  const start=getPlaceCenter(move.from,move.color,true);applyMove(state,move);consumeMove(move);state.selected=null;state.legalChoices=[];renderAll();
+  const start=getPlaceCenter(move.from,move.color,true);applyMove(state,move);recordCaptureForMove(move);consumeMove(move);state.selected=null;state.legalChoices=[];renderAll();
   const end=getPlaceCenter(move.to,move.color,false);await flyPiece(move.color,start,end,move.hit);logMove(isOnline()?actorName(localActor()):'אתה',move);rememberLastMove(move);
   state.animating=false;const won=checkWinAfterMove(move.color);if(won){await syncShared('win');return;}if(!state.gameOver)afterHumanMove();await syncShared('move');
 }
@@ -1665,7 +1680,7 @@ async function computerMove(move){
   const moveText=computerMoveText(move);
   if(moveText)showMessage(moveText,1900);
   await sleep(650);
-  const start=getPlaceCenter(move.from,move.color,true);applyMove(state,move);consumeMove(move);renderAll();const end=getPlaceCenter(move.to,move.color,false);await flyPiece(move.color,start,end,move.hit);if(isImportantComputerMove(move))logMove('המחשב',move);return checkWinAfterMove(move.color);
+  const start=getPlaceCenter(move.from,move.color,true);applyMove(state,move);recordCaptureForMove(move);consumeMove(move);renderAll();const end=getPlaceCenter(move.to,move.color,false);await flyPiece(move.color,start,end,move.hit);if(isImportantComputerMove(move))logMove('המחשב',move);return checkWinAfterMove(move.color);
 }
 
 function endTurn(forceSwitch=false){
@@ -1903,6 +1918,7 @@ function applyShared(g){
     lastChance:g.lastChance||null,
     pendingVictory:g.pendingVictory||null,
     lastMove:g.lastMove||null,
+    playerMatchStats:g.playerMatchStats||state.playerMatchStats,
     winnerColor:g.winnerColor||null,
     stolen:!!g.stolen,
     victoryId:g.victoryId||null,

@@ -71,7 +71,7 @@ test('profile panel progression fields are coming-soon placeholders only', () =>
     PROFILE_PANEL_PROGRESS_PLACEHOLDERS.map(item => ({ ...item })),
   );
   assert.ok(view.progressPlaceholders.every(item => item.value === 'בקרוב'));
-  assert.deepEqual(view.progressPlaceholders.map(item => item.label), ['משחקים', 'ניצחונות', 'הפסדים', 'אחוז ניצחון', 'רצף נוכחי', 'שיא רצף', 'אכלתי', 'אכלו אותי']);
+  assert.deepEqual(view.progressPlaceholders.map(item => item.label), ['משחקים', 'ניצחונות', 'הפסדים', 'אחוז ניצחון', 'רצף נוכחי', 'שיא רצף', 'אכלתי כל הזמן', 'אכלו אותי כל הזמן', 'ממוצע אכילות למשחק', 'ממוצע שאכלו אותי']);
   assert.match(view.placeholderNote, /משחקים מאומתים/);
 });
 
@@ -129,6 +129,7 @@ test('profile panel shows trusted stats values when trusted stats exist', () => 
   assert.equal(view.progressPlaceholders[2].value, '3');
   assert.equal(view.progressPlaceholders[3].value, '70%');
   assert.equal(view.progressPlaceholders[4].value, '2');
+  assert.equal(view.progressPlaceholders.find(item => item.label === 'אכלתי כל הזמן')?.value, '0');
   assert.match(view.placeholderNote, /ממקור מאומת בלבד/);
 });
 
@@ -170,8 +171,8 @@ test('profile panel can show temporary guest stats distinctly', () => {
   const view = buildProfilePanelViewModel({ guestStats: { gamesPlayed: 2, wins: 1, losses: 1 } });
   assert.equal(view.progressPlaceholders[0].value, '2');
   assert.match(view.placeholderNote, /זמניות/);
-  assert.equal(view.progressPlaceholders.find(item => item.label === 'אכלתי')?.value, 'בקרוב');
-  assert.equal(view.progressPlaceholders.find(item => item.label === 'אכלו אותי')?.value, 'בקרוב');
+  assert.equal(view.progressPlaceholders.find(item => item.label === 'אכלתי כל הזמן')?.value, 'בקרוב');
+  assert.equal(view.progressPlaceholders.find(item => item.label === 'אכלו אותי כל הזמן')?.value, 'בקרוב');
   assert.deepEqual(view.statsEmptyGuidance, [
     'סטטיסטיקות אורח זמניות. כדי לשמור אותן בהמשך — התחבר עם Google.',
   ]);

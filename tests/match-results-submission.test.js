@@ -17,6 +17,10 @@ test('sanitizeMatchResultSubmission forces unverified flags and strips unsafe fi
     endedAt: 123,
     serverVerified: true,
     trustedStatsApplied: true,
+    playerMatchStats: {
+      u1: { capturesMade: 2, capturesSuffered: 1, ignored: 9 },
+      u2: { capturesMade: 1, capturesSuffered: 2 },
+    },
     wins: 999,
     coins: 50,
   }, { uid: 'u1', now: () => 321 });
@@ -24,6 +28,10 @@ test('sanitizeMatchResultSubmission forces unverified flags and strips unsafe fi
   assert.equal(submission.serverVerified, false);
   assert.equal(submission.trustedStatsApplied, false);
   assert.equal(submission.submittedAt, 321);
+  assert.deepEqual(submission.playerMatchStats, {
+    u1: { capturesMade: 2, capturesSuffered: 1 },
+    u2: { capturesMade: 1, capturesSuffered: 2 },
+  });
   assert.equal(Object.hasOwn(submission, 'wins'), false);
   assert.equal(Object.hasOwn(submission, 'coins'), false);
   assert.equal(Object.keys(submission).every(key => SAFE_MATCH_RESULT_SUBMISSION_FIELDS.includes(key)), true);
