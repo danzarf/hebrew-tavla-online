@@ -1,0 +1,67 @@
+name: Deploy Database Rules
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy-database-rules:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      FIREBASE_PROJECT_ID: hebrew-tavla-online
+      FIREBASE_RULES_FILE: database.rules.json
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Prepare Firebase credentials
+        env:
+          FIREBASE_SERVICE_ACCOUNT_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_HEBREW_TAVLA_ONLINE }}
+        run: |
+          set -euo pipefail
+          if [ -z "$FIREBASE_SERVICE_ACCOUNT_JSON" ]; then
+            echo "::error::Missing FIREBASE_SERVICE_ACCOUNT_HEBREW_TAVLA_ONLINE secret."
+            exit 1
+          fi
+
+          FIREBASE_SERVICE_ACCOUNT_FILE="$RUNNER_TEMP/firebase-service-account.json"
+          echo "FIREBASE_SERVICE_ACCOUNT_FILE=$FIREBASE_SERVICE_ACCOUNT_FILE" >> "$GITHUB_ENV"
+          printf '%s' "$FIREBASE_SERVICE_ACCOUNT_JSON" > "$FIREBASE_SERVICE_ACCOUNT_FILE"
+          chmod 600 "$FIREBASE_SERVICE_ACCOUNT_FILE"
+
+      - name: Authenticate Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_HEBREW_TAVLA_ONLINE }}
+
+      - name: Preflight database rules deploy
+        run: |
+          set -euo pipefail
+          echo "Firebase project: $FIREBASE_PROJECT_ID"
+
+          if [ ! -f "$FIREBASE_RULES_FILE" ]; then
+            echo "::error::$FIREBASE_RULES_FILE was not found."
+            exit 1
+          fi
+
+          node -e "JSON.parse(require('node:fs').readFileSync(process.env.FIREBASE_RULES_FILE, 'utf8')); console.log('database.rules.json is valid JSON.');"
+          npx firebase-tools@latest --version
+
+      - name: Deploy Realtime Database rules only
+        run: |
+          set -euo pipefail
+          GOOGLE_APPLICATION_CREDENTIALS="$FIREBASE_SERVICE_ACCOUNT_FILE" \
+            npx firebase-tools@latest deploy \
+              --project "$FIREBASE_PROJECT_ID" \
+              --only database
+
+      - name: Remove Firebase credentials
+        if: always()
+        run: rm -f "$FIREBASE_SERVICE_ACCOUNT_FILE"
