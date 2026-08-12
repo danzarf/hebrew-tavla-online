@@ -115,11 +115,40 @@
           "submittedAt": {
             ".validate": "newData.isNumber()"
           },
+          "statsSchemaVersion": {
+            ".validate": "!newData.exists() || (newData.isNumber() && newData.val() == 2)"
+          },
+          "clientBuildVersion": {
+            ".validate": "!newData.exists() || (newData.isString() && newData.val().length > 0 && newData.val().length <= 80)"
+          },
+          "hasPlayerMatchStats": {
+            ".validate": "!newData.exists() || newData.isBoolean()"
+          },
+          "playerMatchStatsDebugLabel": {
+            ".validate": "!newData.exists() || (newData.isString() && newData.val().length > 0 && newData.val().length <= 160)"
+          },
+          "playerMatchStats": {
+            "$playerUid": {
+              "capturesMade": {
+                ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100"
+              },
+              "capturesSuffered": {
+                ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100"
+              },
+              "$other": {
+                ".validate": false
+              }
+            }
+          },
           "$other": {
             ".validate": false
           }
         }
       }
+    },
+    "recentMatches": {
+      ".read": false,
+      ".write": false
     },
     "playerStats": {
       "$uid": {

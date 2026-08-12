@@ -36,6 +36,10 @@ function diagnosticSubmission({ uid, matchId, now = Date.now() }) {
       [winnerUid]: { capturesMade: 3, capturesSuffered: 1 },
       [loserUid]: { capturesMade: 1, capturesSuffered: 3 },
     },
+    statsSchemaVersion: 2,
+    clientBuildVersion: 'diagnostic-workflow-v2',
+    hasPlayerMatchStats: true,
+    playerMatchStatsDebugLabel: `DIAGNOSTIC | ${matchId} | V2`,
     endedAt: now,
     resultSource: 'diagnostic-workflow',
     gameType: 'tavla',
@@ -46,6 +50,20 @@ function diagnosticSubmission({ uid, matchId, now = Date.now() }) {
     trustedStatsApplied: false,
     submittedAt: now + 1,
   };
+}
+
+async function readRecentMatch(db, matchId) {
+  if (!matchId) return null;
+  return (await db.ref(`recentMatches/${matchId}`).get()).val();
+}
+
+async function readLatestRealMatch(db) {
+  const snap = await db.ref('recentMatches').orderByChild('processedAt').limitToLast(25).get();
+  const matches = Object.entries(snap.val() || {})
+    .map(([id, value]) => ({ id, ...value }))
+    .filter((match) => match && match.isDiagnostic !== true)
+    .sort((a, b) => Number(b.processedAt || b.endedAt || 0) - Number(a.processedAt || a.endedAt || 0));
+  return matches[0] || null;
 }
 
 async function readExistingPayload(filePath) {
@@ -78,7 +96,15 @@ const app = initializeApp({
 const db = getDatabase(app);
 const path = `matchResultSubmissions/${uid}/${matchId}`;
 
-if (action === 'write-test') {
+if (action === 'inspect-latest-real') {
+  const latestRealMatch = await readLatestRealMatch(db);
+  if (!latestRealMatch) {
+    console.error('No non-diagnostic recent match was found under recentMatches.');
+    process.exit(3);
+  }
+  console.log(`latestRealMatch=${JSON.stringify(latestRealMatch, null, 2)}`);
+  process.exit(0);
+} else if (action === 'write-test') {
   const payload = await readExistingPayload(payloadFile) || diagnosticSubmission({ uid, matchId });
   await db.ref(path).set(payload);
   console.log(`Wrote diagnostic submission: ${path}`);
@@ -107,6 +133,9 @@ console.log(`serverReview=${JSON.stringify(serverReview)}`);
 
 const trustedApplication = (await db.ref(`trustedStatsApplications/${matchId}`).get()).val();
 console.log(`trustedStatsApplications/${matchId}=${JSON.stringify(trustedApplication)}`);
+
+const recentMatch = await readRecentMatch(db, matchId);
+console.log(`recentMatches/${matchId}=${JSON.stringify(recentMatch)}`);
 
 if (submission?.winnerUid) {
   const winnerStats = (await db.ref(`playerStats/${submission.winnerUid}`).get()).val();

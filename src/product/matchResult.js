@@ -4,6 +4,8 @@ export const DEFAULT_MATCH_RESULT_MODE = 'local';
 export const DEFAULT_MATCH_RESULT_SOURCE = 'client-game-end';
 export const DEFAULT_GAME_TYPE = 'tavla';
 export const DEFAULT_RULESET = 'hebrew-tavla';
+export const TRUSTED_STATS_SCHEMA_VERSION = 2;
+export const DEFAULT_CLIENT_BUILD_VERSION = 'trusted-stats-v2';
 
 export const SAFE_MATCH_RESULT_FIELDS = Object.freeze([
   'matchId',
@@ -25,6 +27,10 @@ export const SAFE_MATCH_RESULT_FIELDS = Object.freeze([
   'clientSubmittedBy',
   'serverVerified',
   'playerMatchStats',
+  'statsSchemaVersion',
+  'clientBuildVersion',
+  'hasPlayerMatchStats',
+  'playerMatchStatsDebugLabel',
 ]);
 
 export const SAFE_MATCH_PLAYER_FIELDS = Object.freeze([
@@ -111,6 +117,32 @@ export function sanitizePlayerMatchStats(playerMatchStats = {}, allowedUids = nu
   );
 }
 
+function buildOnlinePlayerMatchStats(safePlayerMatchStats, safePlayers) {
+  return Object.fromEntries(
+    safePlayers
+      .map((player) => player.uid)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((uid) => [uid, {
+        capturesMade: cleanCounter(safePlayerMatchStats[uid]?.capturesMade),
+        capturesSuffered: cleanCounter(
+          safePlayerMatchStats[uid]?.capturesSuffered ?? safePlayerMatchStats[uid]?.capturesTaken,
+        ),
+      }]),
+  );
+}
+
+function buildPlayerMatchStatsDebugLabel({ mode, roomCode, matchId, hasPlayerMatchStats }) {
+  if (mode !== 'online') return null;
+  const parts = [
+    'V2',
+    `match:${cleanString(matchId) || 'pending'}`,
+    roomCode ? `room:${cleanString(roomCode)}` : null,
+    hasPlayerMatchStats ? 'playerMatchStats:present' : 'playerMatchStats:missing-uids',
+  ].filter(Boolean);
+  return parts.join(' | ');
+}
+
 function derivePlayerId(player, color) {
   return cleanString(player?.uid)
     || cleanString(player?.id)
@@ -164,10 +196,17 @@ export function createMatchResult({
   finalStatus = 'completed',
   clientSubmittedBy,
   playerMatchStats = {},
+  statsSchemaVersion,
+  clientBuildVersion = DEFAULT_CLIENT_BUILD_VERSION,
+  hasPlayerMatchStats,
+  playerMatchStatsDebugLabel,
   now = Date.now,
   idFactory = () => `match-${now()}`,
 } = {}) {
   const timestamp = now();
+  const safeMatchId = cleanString(matchId) || cleanString(idFactory());
+  const safeRoomCode = cleanString(roomCode);
+  const safeMode = cleanEnum(mode, MATCH_RESULT_MODES, DEFAULT_MATCH_RESULT_MODE);
   const safePlayers = sanitizeMatchPlayers(players);
   const safeWinnerColor = cleanEnum(winnerColor, MATCH_RESULT_COLORS);
   const safeLoserColor = cleanEnum(
@@ -178,11 +217,28 @@ export function createMatchResult({
   const winnerPlayer = safePlayers.find(player => player.color === safeWinnerColor);
   const loserPlayer = safePlayers.find(player => player.color === safeLoserColor);
   const safePlayerMatchStats = sanitizePlayerMatchStats(playerMatchStats, safePlayers.map(player => player.uid));
+  const onlinePlayerMatchStats = safeMode === 'online'
+    ? buildOnlinePlayerMatchStats(safePlayerMatchStats, safePlayers)
+    : safePlayerMatchStats;
+  const shouldIncludePlayerMatchStats = safeMode === 'online' || Object.keys(onlinePlayerMatchStats).length > 0;
+  const safeStatsSchemaVersion = safeMode === 'online'
+    ? TRUSTED_STATS_SCHEMA_VERSION
+    : cleanCounter(statsSchemaVersion);
+  const safeHasPlayerMatchStats = safeMode === 'online'
+    ? Object.keys(onlinePlayerMatchStats).length > 0
+    : (hasPlayerMatchStats === true ? true : null);
+  const safeDebugLabel = cleanString(playerMatchStatsDebugLabel, { maxLength: 160 })
+    || buildPlayerMatchStatsDebugLabel({
+      mode: safeMode,
+      roomCode: safeRoomCode,
+      matchId: safeMatchId,
+      hasPlayerMatchStats: safeHasPlayerMatchStats,
+    });
 
   return withoutEmptyFields({
-    matchId: cleanString(matchId) || cleanString(idFactory()),
-    roomCode: cleanString(roomCode),
-    mode: cleanEnum(mode, MATCH_RESULT_MODES, DEFAULT_MATCH_RESULT_MODE),
+    matchId: safeMatchId,
+    roomCode: safeRoomCode,
+    mode: safeMode,
     players: safePlayers,
     winnerId: cleanString(winnerId) || winnerPlayer?.id || cleanString(winnerUid),
     winnerUid: cleanString(winnerUid) || winnerPlayer?.uid,
@@ -198,7 +254,11 @@ export function createMatchResult({
     finalStatus: cleanString(finalStatus) || 'completed',
     clientSubmittedBy: cleanString(clientSubmittedBy),
     serverVerified: false,
-    playerMatchStats: Object.keys(safePlayerMatchStats).length ? safePlayerMatchStats : null,
+    playerMatchStats: shouldIncludePlayerMatchStats ? onlinePlayerMatchStats : null,
+    statsSchemaVersion: safeStatsSchemaVersion || null,
+    clientBuildVersion: safeMode === 'online' ? cleanString(clientBuildVersion) : null,
+    hasPlayerMatchStats: safeHasPlayerMatchStats,
+    playerMatchStatsDebugLabel: safeDebugLabel,
   });
 }
 
@@ -239,6 +299,13 @@ export function validateMatchResult(matchResult = {}) {
         if (!allowedStatsFields.includes(key)) errors.push(`unexpected-player-match-stat-field:${key}`);
       }
     }
+  }
+
+  if (matchResult?.statsSchemaVersion !== undefined && !Number.isFinite(Number(matchResult.statsSchemaVersion))) {
+    errors.push('invalid-statsSchemaVersion');
+  }
+  if (matchResult?.hasPlayerMatchStats !== undefined && typeof matchResult.hasPlayerMatchStats !== 'boolean') {
+    errors.push('invalid-hasPlayerMatchStats');
   }
 
   return {

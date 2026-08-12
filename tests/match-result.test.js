@@ -50,22 +50,26 @@ test('createMatchResult creates a valid safe match result object', () => {
   });
 
   assert.deepEqual(Object.keys(result).sort(), [
+    'clientBuildVersion',
     'clientSubmittedBy',
     'endedAt',
     'finalStatus',
     'gameType',
+    'hasPlayerMatchStats',
     'loserColor',
     'loserId',
     'loserUid',
     'matchId',
     'mode',
     'playerMatchStats',
+    'playerMatchStatsDebugLabel',
     'players',
     'resultSource',
     'roomCode',
     'ruleset',
     'serverVerified',
     'startedAt',
+    'statsSchemaVersion',
     'winnerColor',
     'winnerId',
     'winnerUid',
@@ -81,10 +85,39 @@ test('createMatchResult creates a valid safe match result object', () => {
   assert.equal(result.gameType, 'tavla');
   assert.equal(result.ruleset, 'hebrew-tavla');
   assert.equal(result.serverVerified, false);
+  assert.equal(result.statsSchemaVersion, 2);
+  assert.equal(result.clientBuildVersion, 'trusted-stats-v2');
+  assert.equal(result.hasPlayerMatchStats, true);
+  assert.match(result.playerMatchStatsDebugLabel, /V2/);
   assert.deepEqual(result.playerMatchStats, {
     'uid-white': { capturesMade: 2, capturesSuffered: 1 },
     'uid-black': { capturesMade: 1, capturesSuffered: 2 },
   });
+  assert.deepEqual(validateMatchResult(result), { valid: true, errors: [] });
+});
+
+test('createMatchResult includes V2 zero capture stats for online submissions', () => {
+  const result = createMatchResult({
+    matchId: 'match_zero_v2',
+    roomCode: '2218',
+    mode: 'online',
+    players: [
+      { uid: 'uid-white', color: 'white' },
+      { uid: 'uid-black', color: 'black' },
+    ],
+    winnerColor: 'black',
+    endedAt: 2500,
+    resultSource: 'online-game-end',
+    clientSubmittedBy: 'uid-white',
+  });
+
+  assert.equal(result.statsSchemaVersion, 2);
+  assert.equal(result.hasPlayerMatchStats, true);
+  assert.deepEqual(result.playerMatchStats, {
+    'uid-white': { capturesMade: 0, capturesSuffered: 0 },
+    'uid-black': { capturesMade: 0, capturesSuffered: 0 },
+  });
+  assert.notEqual(result.playerMatchStats, null);
   assert.deepEqual(validateMatchResult(result), { valid: true, errors: [] });
 });
 

@@ -28,6 +28,9 @@ test('sanitizeMatchResultSubmission forces unverified flags and strips unsafe fi
   assert.equal(submission.serverVerified, false);
   assert.equal(submission.trustedStatsApplied, false);
   assert.equal(submission.submittedAt, 321);
+  assert.equal(submission.statsSchemaVersion, 2);
+  assert.equal(submission.hasPlayerMatchStats, true);
+  assert.equal(submission.clientBuildVersion, 'trusted-stats-v2');
   assert.deepEqual(submission.playerMatchStats, {
     u1: { capturesMade: 2, capturesSuffered: 1 },
     u2: { capturesMade: 1, capturesSuffered: 2 },
@@ -35,6 +38,31 @@ test('sanitizeMatchResultSubmission forces unverified flags and strips unsafe fi
   assert.equal(Object.hasOwn(submission, 'wins'), false);
   assert.equal(Object.hasOwn(submission, 'coins'), false);
   assert.equal(Object.keys(submission).every(key => SAFE_MATCH_RESULT_SUBMISSION_FIELDS.includes(key)), true);
+});
+
+test('sanitizeMatchResultSubmission keeps V2 zero capture stats for online matches', () => {
+  const submission = sanitizeMatchResultSubmission({
+    matchId: 'm-zero',
+    roomCode: '9748',
+    mode: 'online',
+    players: [{ uid: 'u1', color: 'white' }, { uid: 'u2', color: 'black' }],
+    winnerColor: 'black',
+    endedAt: 555,
+    resultSource: 'online-game-end',
+    gameType: 'tavla',
+    ruleset: 'hebrew-tavla',
+    finalStatus: 'completed',
+    serverVerified: false,
+    trustedStatsApplied: false,
+  }, { uid: 'u1', now: () => 556 });
+
+  assert.equal(submission.statsSchemaVersion, 2);
+  assert.equal(submission.hasPlayerMatchStats, true);
+  assert.deepEqual(submission.playerMatchStats, {
+    u1: { capturesMade: 0, capturesSuffered: 0 },
+    u2: { capturesMade: 0, capturesSuffered: 0 },
+  });
+  assert.match(submission.playerMatchStatsDebugLabel, /room:9748/);
 });
 
 test('submitUnverifiedMatchResult gracefully skips when auth/db dependencies are missing', async () => {

@@ -1,4 +1,9 @@
-import { buildStatsUpdate, sanitizeSubmission, validateSubmissionForTrustedStats } from './verification.js';
+import {
+  buildRecentMatchIndexEntry,
+  buildStatsUpdate,
+  sanitizeSubmission,
+  validateSubmissionForTrustedStats,
+} from './verification.js';
 
 export function shouldProcessSubmission(raw) {
   return Boolean(raw && !raw.serverReview);
@@ -72,6 +77,7 @@ export async function processMatchResultSubmission({ db, raw, uid, matchId, now 
     await db.ref().update({
       [`playerStats/${safe.winnerUid}`]: winnerNext,
       [`playerStats/${safe.loserUid}`]: loserNext,
+      [`recentMatches/${safe.matchId}`]: buildRecentMatchIndexEntry(safe, 'applied', reviewedAt),
       [`${submissionPath}/serverVerified`]: true,
       [`${submissionPath}/trustedStatsApplied`]: true,
       [`${submissionPath}/serverReview`]: {
@@ -85,6 +91,7 @@ export async function processMatchResultSubmission({ db, raw, uid, matchId, now 
         winnerUid: safe.winnerUid,
         loserUid: safe.loserUid,
         playerMatchStats: safe.playerMatchStats,
+        statsSchemaVersion: safe.statsSchemaVersion || 1,
       },
     });
     return { status: 'applied' };

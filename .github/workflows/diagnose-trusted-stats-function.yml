@@ -4,13 +4,14 @@ on:
   workflow_dispatch:
     inputs:
       action:
-        description: write-test creates a diagnostic submission; inspect-existing checks an existing submission.
+        description: write-test creates a diagnostic submission; inspect-existing checks an existing submission; inspect-latest-real prints the newest non-diagnostic match index.
         required: true
         default: write-test
         type: choice
         options:
           - write-test
           - inspect-existing
+          - inspect-latest-real
       uid:
         description: Submission owner UID. Required for inspect-existing; optional for write-test.
         required: false
@@ -158,6 +159,9 @@ jobs:
               echo "::error::inspect-existing requires uid and match_id inputs."
               exit 1
             fi
+          elif [ "$ACTION" = "inspect-latest-real" ]; then
+            uid="unused"
+            match_id="unused"
           else
             if [ -z "$uid" ]; then
               uid="diagnostic-${GITHUB_RUN_ID}"

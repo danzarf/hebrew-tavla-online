@@ -85,6 +85,12 @@ test('processMatchResultSubmission applies valid online submission to trusted st
   assert.equal(db.data.playerStats.u2.losses, 1);
   assert.equal(db.data.playerStats.u2.capturesMade, 1);
   assert.equal(db.data.playerStats.u2.capturesSuffered, 4);
+  assert.equal(db.data.recentMatches['m-apply'].serverReviewStatus, 'applied');
+  assert.equal(db.data.recentMatches['m-apply'].serverVerified, true);
+  assert.equal(db.data.recentMatches['m-apply'].trustedStatsApplied, true);
+  assert.equal(db.data.recentMatches['m-apply'].isDiagnostic, false);
+  assert.equal(db.data.recentMatches['m-apply'].statsSchemaVersion, 1);
+  assert.deepEqual(db.data.recentMatches['m-apply'].playerMatchStats.u1, { capturesMade: 4, capturesSuffered: 1 });
 });
 
 test('processMatchResultSubmission treats missing capture stats as zero', async () => {
@@ -108,6 +114,10 @@ test('processMatchResultSubmission treats missing capture stats as zero', async 
   assert.equal(db.data.playerStats.u1.capturesSuffered, 0);
   assert.equal(db.data.playerStats.u2.capturesMade, 0);
   assert.equal(db.data.playerStats.u2.capturesSuffered, 0);
+  assert.deepEqual(db.data.recentMatches['m-zero-captures'].playerMatchStats, {
+    u1: { capturesMade: 0, capturesSuffered: 0 },
+    u2: { capturesMade: 0, capturesSuffered: 0 },
+  });
 });
 
 test('processMatchResultSubmission rejects invalid submissions with serverReview', async () => {
@@ -176,4 +186,43 @@ test('processMatchResultSubmission duplicate does not double-count capture stats
   assert.equal(db.data.playerStats.u1.gamesPlayed, 1);
   assert.equal(db.data.playerStats.u1.capturesMade, 2);
   assert.equal(db.data.playerStats.u2.capturesSuffered, 2);
+  assert.equal(Object.keys(db.data.recentMatches).length, 1);
+  assert.equal(db.data.recentMatches['m-duplicate'].serverReviewStatus, 'applied');
+});
+
+test('processMatchResultSubmission marks diagnostic matches in recent match index', async () => {
+  const db = createMemoryDb();
+  const raw = buildValidOnlineSubmission({
+    matchId: 'diagnostic-123-1',
+    clientSubmittedBy: 'diagnostic-123',
+    winnerUid: 'diagnostic-123_winner',
+    loserUid: 'diagnostic-123',
+    players: [
+      { uid: 'diagnostic-123_winner', color: 'black', displayName: 'Diagnostic Winner' },
+      { uid: 'diagnostic-123', color: 'white', displayName: 'Diagnostic Loser' },
+    ],
+    winnerColor: 'black',
+    loserColor: 'white',
+    resultSource: 'diagnostic-workflow',
+    statsSchemaVersion: 2,
+    playerMatchStats: {
+      'diagnostic-123_winner': { capturesMade: 3, capturesSuffered: 1 },
+      'diagnostic-123': { capturesMade: 1, capturesSuffered: 3 },
+    },
+    serverVerified: false,
+    trustedStatsApplied: false,
+  });
+
+  const result = await processMatchResultSubmission({
+    db,
+    raw,
+    uid: 'diagnostic-123',
+    matchId: 'diagnostic-123-1',
+    now: () => 1000,
+  });
+
+  assert.equal(result.status, 'applied');
+  assert.equal(db.data.recentMatches['diagnostic-123-1'].isDiagnostic, true);
+  assert.equal(db.data.recentMatches['diagnostic-123-1'].statsSchemaVersion, 2);
+  assert.match(db.data.recentMatches['diagnostic-123-1'].debugLabel, /DIAGNOSTIC/);
 });

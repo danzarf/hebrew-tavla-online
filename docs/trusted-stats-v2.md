@@ -62,3 +62,66 @@ playerStats/{winnerUid}/capturesSuffered
 playerStats/{winnerUid}/averageCapturesMadePerGame
 playerStats/{winnerUid}/averageCapturesSufferedPerGame
 ```
+
+## זיהוי משחקים חדשים ב-Firebase
+
+ה-Cloud Function כותבת אינדקס קריא, server-only:
+
+```text
+recentMatches/{matchId}
+```
+
+שם קל יותר למצוא את המשחקים החדשים בלי לפתוח UID-ים ידנית תחת `matchResultSubmissions`.
+רשומת V2 תקינה אמורה לכלול:
+
+```text
+statsSchemaVersion = 2
+hasPlayerMatchStats = true
+playerMatchStats/{uid}/capturesMade
+playerMatchStats/{uid}/capturesSuffered
+```
+
+גם אם לא היו אכילות במשחק, `playerMatchStats` צריך להופיע עם אפסים לשני השחקנים.
+
+רשומות בדיקה מסומנות כך:
+
+```text
+isDiagnostic = true
+```
+
+משחק אמיתי צריך להופיע עם:
+
+```text
+isDiagnostic = false
+roomCode
+winnerDisplayName
+loserDisplayName
+serverReviewStatus = applied
+```
+
+## אבחון מהיר
+
+אחרי deploy של הפונקציה אפשר להריץ:
+
+```text
+GitHub -> Actions -> Diagnose Trusted Stats Function -> Run workflow
+action: write-test
+branch: main
+```
+
+האבחון ידפיס גם את:
+
+```text
+recentMatches/{matchId}
+```
+
+כדי לראות את המשחק האמיתי האחרון בלי לשחק שוב:
+
+```text
+GitHub -> Actions -> Diagnose Trusted Stats Function -> Run workflow
+action: inspect-latest-real
+branch: main
+```
+
+אם ב-`matchResultSubmissions` אין `statsSchemaVersion = 2`, כנראה ש-Vercel עדיין מריץ build ישן של ה-client.
+אם יש `statsSchemaVersion = 2` אבל הכתיבה נדחית, צריך לוודא ש-RTDB rules החדשים שמאשרים את שדות V2 נפרסו.
