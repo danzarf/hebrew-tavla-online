@@ -125,3 +125,19 @@ branch: main
 
 אם ב-`matchResultSubmissions` אין `statsSchemaVersion = 2`, כנראה ש-Vercel עדיין מריץ build ישן של ה-client.
 אם יש `statsSchemaVersion = 2` אבל הכתיבה נדחית, צריך לוודא ש-RTDB rules החדשים שמאשרים את שדות V2 נפרסו.
+
+## פריסת חוקי Realtime Database
+
+כדי לפרוס רק את חוקי Realtime Database מתוך `database.rules.json`:
+
+```text
+GitHub -> Actions -> Deploy Database Rules -> Run workflow -> branch: main
+```
+
+ה-workflow מריץ פריסה ממוקדת בלבד:
+
+```text
+firebase deploy --only database --project hebrew-tavla-online
+```
+
+הוא לא פורס Hosting ולא פורס Functions.
