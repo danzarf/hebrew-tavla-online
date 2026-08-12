@@ -58,6 +58,9 @@ test('buildGameEndMatchResult maps an online finished game to a non-persistent m
   assert.equal(result.loserUid, 'uid-host');
   assert.equal(result.loserColor, 'white');
   assert.equal(result.clientSubmittedBy, 'uid-host');
+  assert.equal(result.statsSchemaVersion, 2);
+  assert.equal(result.hasPlayerMatchStats, true);
+  assert.match(result.playerMatchStatsDebugLabel, /room:1234/);
   assert.deepEqual(result.playerMatchStats, {
     'uid-host': { capturesMade: 1, capturesSuffered: 3 },
     'uid-joiner': { capturesMade: 3, capturesSuffered: 1 },
@@ -66,6 +69,38 @@ test('buildGameEndMatchResult maps an online finished game to a non-persistent m
   assert.equal(result.endedAt, 123456);
   assert.deepEqual(validateMatchResult(result), { valid: true, errors: [] });
   assertNoForbiddenFields(result);
+});
+
+test('buildGameEndMatchResult includes zero V2 capture stats for online games with no hits', () => {
+  const result = buildGameEndMatchResult({
+    state: {
+      gameMode: 'online',
+      roomCode: '7788',
+      victoryId: 'victory-zero',
+      humanColor: 'white',
+      computerColor: 'black',
+      playerIds: { human: 'host', computer: 'guest' },
+      playerUids: { human: 'uid-host', computer: 'uid-guest' },
+      playerNames: { human: 'Host', computer: 'Guest' },
+      playerMatchStats: {
+        human: { capturesMade: 0, capturesSuffered: 0 },
+        computer: { capturesMade: 0, capturesSuffered: 0 },
+      },
+    },
+    winnerColor: 'white',
+    localActor: 'human',
+    currentPlayerId: 'host',
+    currentUid: 'uid-host',
+    endedAt: 333333,
+  });
+
+  assert.equal(result.statsSchemaVersion, 2);
+  assert.equal(result.hasPlayerMatchStats, true);
+  assert.deepEqual(result.playerMatchStats, {
+    'uid-host': { capturesMade: 0, capturesSuffered: 0 },
+    'uid-guest': { capturesMade: 0, capturesSuffered: 0 },
+  });
+  assert.deepEqual(validateMatchResult(result), { valid: true, errors: [] });
 });
 
 test('recordGameEndMatchResult stores only the latest result in memory', () => {
