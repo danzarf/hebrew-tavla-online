@@ -1,6 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { buildStatsUpdate, sanitizeSubmission, validateSubmissionForTrustedStats } from '../src/verification.js';
+import {
+  buildRecentMatchIndexEntry,
+  buildStatsUpdate,
+  sanitizeSubmission,
+  validateSubmissionForTrustedStats,
+} from '../src/verification.js';
 import {
   buildInvalidLocalSubmission,
   buildMaliciousRewardSubmission,
@@ -41,6 +46,50 @@ test('capture stats are sanitized per known player uid', () => {
     u1: { capturesMade: 2, capturesSuffered: 1 },
     u2: { capturesMade: 3, capturesSuffered: 0 },
   });
+});
+
+test('recent match index entry is readable and marks V2 real matches', () => {
+  const safe = sanitizeSubmission(buildValidOnlineSubmission({
+    matchId: 'real-1',
+    roomCode: '9748',
+    resultSource: 'online-game-end',
+    statsSchemaVersion: 2,
+    hasPlayerMatchStats: true,
+    players: [
+      { uid: 'u1', color: 'white', displayName: 'Winner' },
+      { uid: 'u2', color: 'black', displayName: 'Loser' },
+    ],
+    winnerUid: 'u1',
+    loserUid: 'u2',
+    playerMatchStats: {
+      u1: { capturesMade: 2, capturesSuffered: 0 },
+      u2: { capturesMade: 0, capturesSuffered: 2 },
+    },
+  }));
+
+  const entry = buildRecentMatchIndexEntry(safe, 'applied', 999);
+  assert.equal(entry.matchId, 'real-1');
+  assert.equal(entry.roomCode, '9748');
+  assert.equal(entry.serverReviewStatus, 'applied');
+  assert.equal(entry.statsSchemaVersion, 2);
+  assert.equal(entry.hasPlayerMatchStats, true);
+  assert.equal(entry.isDiagnostic, false);
+  assert.equal(entry.winnerDisplayName, 'Winner');
+  assert.match(entry.debugLabel, /Room 9748/);
+});
+
+test('recent match index entry marks diagnostics separately from real matches', () => {
+  const safe = sanitizeSubmission(buildValidOnlineSubmission({
+    matchId: 'diagnostic-1',
+    clientSubmittedBy: 'diagnostic-uid',
+    resultSource: 'diagnostic-workflow',
+    statsSchemaVersion: 2,
+    hasPlayerMatchStats: true,
+  }));
+
+  const entry = buildRecentMatchIndexEntry(safe, 'applied', 1000);
+  assert.equal(entry.isDiagnostic, true);
+  assert.match(entry.debugLabel, /DIAGNOSTIC/);
 });
 
 test('validation rejects client server flags', () => {
