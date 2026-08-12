@@ -91,6 +91,12 @@ test('processMatchResultSubmission applies valid online submission to trusted st
   assert.equal(db.data.recentMatches['m-apply'].isDiagnostic, false);
   assert.equal(db.data.recentMatches['m-apply'].statsSchemaVersion, 1);
   assert.deepEqual(db.data.recentMatches['m-apply'].playerMatchStats.u1, { capturesMade: 4, capturesSuffered: 1 });
+  assert.equal(db.data.debugMatchCounter, 1);
+  assert.equal(db.data.debugLatestMatch.matchId, 'm-apply');
+  assert.equal(db.data.debugLatestRealMatch.matchId, 'm-apply');
+  assert.equal(db.data.debugLatestDiagnosticMatch, undefined);
+  assert.equal(db.data.readableMatches['000001'].matchId, 'm-apply');
+  assert.match(db.data.debugLatestRealMatch.readableName, /000001 \| REAL \| No room/);
 });
 
 test('processMatchResultSubmission treats missing capture stats as zero', async () => {
@@ -188,6 +194,8 @@ test('processMatchResultSubmission duplicate does not double-count capture stats
   assert.equal(db.data.playerStats.u2.capturesSuffered, 2);
   assert.equal(Object.keys(db.data.recentMatches).length, 1);
   assert.equal(db.data.recentMatches['m-duplicate'].serverReviewStatus, 'applied');
+  assert.equal(db.data.debugMatchCounter, 1);
+  assert.equal(Object.keys(db.data.readableMatches).length, 1);
 });
 
 test('processMatchResultSubmission marks diagnostic matches in recent match index', async () => {
@@ -225,4 +233,54 @@ test('processMatchResultSubmission marks diagnostic matches in recent match inde
   assert.equal(db.data.recentMatches['diagnostic-123-1'].isDiagnostic, true);
   assert.equal(db.data.recentMatches['diagnostic-123-1'].statsSchemaVersion, 2);
   assert.match(db.data.recentMatches['diagnostic-123-1'].debugLabel, /DIAGNOSTIC/);
+  assert.equal(db.data.debugLatestDiagnosticMatch.matchId, 'diagnostic-123-1');
+  assert.equal(db.data.debugLatestRealMatch, undefined);
+  assert.match(db.data.readableMatches['000001'].readableName, /DIAGNOSTIC/);
+});
+
+test('diagnostic match does not overwrite latest real match shortcut', async () => {
+  const db = createMemoryDb();
+
+  await processMatchResultSubmission({
+    db,
+    raw: buildValidOnlineSubmission({
+      matchId: 'm-real',
+      winnerUid: 'u1',
+      loserUid: 'u2',
+      serverVerified: false,
+      trustedStatsApplied: false,
+    }),
+    uid: 'u1',
+    matchId: 'm-real',
+    now: () => 1100,
+  });
+
+  await processMatchResultSubmission({
+    db,
+    raw: buildValidOnlineSubmission({
+      matchId: 'diagnostic-999-1',
+      clientSubmittedBy: 'diagnostic-999',
+      winnerUid: 'diagnostic-999_winner',
+      loserUid: 'diagnostic-999',
+      players: [
+        { uid: 'diagnostic-999_winner', color: 'black', displayName: 'Diagnostic Winner' },
+        { uid: 'diagnostic-999', color: 'white', displayName: 'Diagnostic Loser' },
+      ],
+      winnerColor: 'black',
+      loserColor: 'white',
+      resultSource: 'diagnostic-workflow',
+      statsSchemaVersion: 2,
+      serverVerified: false,
+      trustedStatsApplied: false,
+    }),
+    uid: 'diagnostic-999',
+    matchId: 'diagnostic-999-1',
+    now: () => 1200,
+  });
+
+  assert.equal(db.data.debugLatestRealMatch.matchId, 'm-real');
+  assert.equal(db.data.debugLatestDiagnosticMatch.matchId, 'diagnostic-999-1');
+  assert.equal(db.data.debugLatestMatch.matchId, 'diagnostic-999-1');
+  assert.equal(db.data.readableMatches['000001'].matchId, 'm-real');
+  assert.equal(db.data.readableMatches['000002'].matchId, 'diagnostic-999-1');
 });

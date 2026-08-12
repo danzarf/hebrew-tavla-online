@@ -128,6 +128,47 @@ export function buildRecentMatchIndexEntry(safe = {}, serverReviewStatus, proces
   });
 }
 
+function padMatchNumber(matchNumber) {
+  return String(Math.max(0, Number(matchNumber) || 0)).padStart(6, '0');
+}
+
+export function buildReadableMatchDebugEntry(recentEntry = {}, matchNumber) {
+  const padded = padMatchNumber(matchNumber);
+  const type = recentEntry.isDiagnostic ? 'DIAGNOSTIC' : 'REAL';
+  const winnerName = recentEntry.winnerDisplayName || recentEntry.winnerUid || 'unknown winner';
+  const loserName = recentEntry.loserDisplayName || recentEntry.loserUid || 'unknown loser';
+  const roomPart = recentEntry.roomCode ? `Room ${recentEntry.roomCode}` : 'No room';
+  const status = recentEntry.serverReviewStatus || 'unknown';
+  const version = `V${recentEntry.statsSchemaVersion || 1}`;
+
+  return withoutNullish({
+    matchNumber,
+    matchNumberPadded: padded,
+    readableName: `${padded} | ${type} | ${roomPart} | ${winnerName} beat ${loserName} | ${status} | ${version}`,
+    matchId: recentEntry.matchId,
+    roomCode: recentEntry.roomCode || null,
+    winnerName,
+    loserName,
+    winnerUid: recentEntry.winnerUid,
+    loserUid: recentEntry.loserUid,
+    winnerColor: recentEntry.winnerColor,
+    loserColor: recentEntry.loserColor,
+    statsSchemaVersion: recentEntry.statsSchemaVersion || 1,
+    hasPlayerMatchStats: recentEntry.hasPlayerMatchStats === true,
+    serverReviewStatus: status,
+    serverVerified: recentEntry.serverVerified === true,
+    trustedStatsApplied: recentEntry.trustedStatsApplied === true,
+    isDiagnostic: recentEntry.isDiagnostic === true,
+    playerMatchStats: recentEntry.playerMatchStats || {},
+    debugLabel: recentEntry.debugLabel || null,
+    clientBuildVersion: recentEntry.clientBuildVersion || null,
+    resultSource: recentEntry.resultSource || null,
+    submittedAt: recentEntry.submittedAt || null,
+    endedAt: recentEntry.endedAt || null,
+    processedAt: recentEntry.processedAt || null,
+  });
+}
+
 export function validateSubmissionForTrustedStats(safe, { pathUid } = {}) {
   const errors = [];
   if (!safe.matchId) errors.push('missing-matchId');

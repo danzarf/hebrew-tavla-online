@@ -1,4 +1,5 @@
 import {
+  buildReadableMatchDebugEntry,
   buildRecentMatchIndexEntry,
   buildStatsUpdate,
   sanitizeSubmission,
@@ -7,6 +8,14 @@ import {
 
 export function shouldProcessSubmission(raw) {
   return Boolean(raw && !raw.serverReview);
+}
+
+async function reserveReadableMatchNumber(db) {
+  const result = await db.ref('debugMatchCounter').transaction((current) => {
+    const currentNumber = Number(current) || 0;
+    return currentNumber + 1;
+  });
+  return Number(result.snapshot?.val?.()) || 0;
 }
 
 export async function processMatchResultSubmission({ db, raw, uid, matchId, now = Date.now, logger = console } = {}) {
@@ -73,11 +82,19 @@ export async function processMatchResultSubmission({ db, raw, uid, matchId, now 
       reviewedAt,
       safe.playerMatchStats?.[safe.loserUid],
     );
+    const matchNumber = await reserveReadableMatchNumber(db);
+    const recentMatchEntry = buildRecentMatchIndexEntry(safe, 'applied', reviewedAt);
+    const readableMatchEntry = buildReadableMatchDebugEntry(recentMatchEntry, matchNumber);
+    const readableMatchKey = readableMatchEntry.matchNumberPadded;
+    const latestDebugPath = recentMatchEntry.isDiagnostic ? 'debugLatestDiagnosticMatch' : 'debugLatestRealMatch';
 
     await db.ref().update({
       [`playerStats/${safe.winnerUid}`]: winnerNext,
       [`playerStats/${safe.loserUid}`]: loserNext,
-      [`recentMatches/${safe.matchId}`]: buildRecentMatchIndexEntry(safe, 'applied', reviewedAt),
+      [`recentMatches/${safe.matchId}`]: recentMatchEntry,
+      [`readableMatches/${readableMatchKey}`]: readableMatchEntry,
+      debugLatestMatch: readableMatchEntry,
+      [latestDebugPath]: readableMatchEntry,
       [`${submissionPath}/serverVerified`]: true,
       [`${submissionPath}/trustedStatsApplied`]: true,
       [`${submissionPath}/serverReview`]: {

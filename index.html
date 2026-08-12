@@ -885,6 +885,7 @@ import { buildProfilePanelViewModel, buildSafeProfileEditView } from "./src/ui/p
 import { getTrustedStatsRefreshFeedback } from "./src/ui/profileRefresh.js";
 import { buildStartHomeViewModel } from "./src/ui/startScreen.js";
 import { getMatchResultSummaryRows } from "./src/ui/matchResultSummary.js";
+import { buildLastChanceStatus } from "./src/ui/lastChanceStatus.js";
 import { startAnonymousAuth } from "./src/firebase/auth.js";
 import { linkGuestToGoogle, signInExistingGoogleAccount } from "./src/firebase/accountLinking.js";
 import { DEFAULT_AVATAR_PREFERENCE, getPlayerProfile, syncPlayerProfile } from "./src/firebase/profile.js";
@@ -1443,6 +1444,8 @@ const {
   showLastChanceResult,
   showReaction,
 }=createAnimationHelpers({els,state,die,setDice,showMessage,actorName,actorForColor,actorColor,localActor,otherActor,defaultColor:WHITE,getVictorySummaryRows:()=>{const result=getLastMatchResult();return result?.matchId===state.victoryId?getMatchResultSummaryRows(result):[];}});
+function getLastChanceStatusView(){return buildLastChanceStatus({lastChance:state.lastChance,gameOver:state.gameOver,localActor:localActor(),actorForColor,actorName});}
+function renderLastChancePersistentStatus(){const view=getLastChanceStatusView();if(!view.statusText)return;if(els.turnPill)els.turnPill.textContent=view.statusText;if(els.specialPill)els.specialPill.textContent=view.waitingText||view.statusText;}
 function refreshSoundToggle(){if(!els.soundToggleBtn)return;const muted=isSoundMuted();els.soundToggleBtn.textContent=muted?'🔇 מושתק':'🔊 צליל';els.soundToggleBtn.setAttribute('aria-pressed',muted?'true':'false');}
 function toggleSound(){const muted=toggleSoundMuted();if(!muted)preloadRollSounds();refreshSoundToggle();}
 function refreshRollModeToggle(){if(!els.rollModeToggleBtn)return;const isAuto=state.diceMode==='auto';els.rollModeToggleBtn.textContent=isAuto?'גלגול אוטומטי':'גלגול ידני';els.rollModeToggleBtn.setAttribute('aria-pressed',isAuto?'true':'false');}
@@ -1460,7 +1463,7 @@ function resetForNewGame(){
   renderAll();renderLog();els.startModal.classList.add('show');if(els.roomLobby)els.roomLobby.style.display='none';showMessage('משחק חדש');
 }
 
-function renderAll(){renderBoard();renderUI();renderProfileStatus();refreshRollModeToggle();}
+function renderAll(){renderBoard();renderUI();renderLastChancePersistentStatus();renderProfileStatus();refreshRollModeToggle();}
 function canEndCurrentTurn(){
   const local=localActor();
   if(!(state.currentActor===local&&state.status==='humanMoving'&&!state.gameOver&&!state.animating))return false;
@@ -1979,7 +1982,7 @@ function renderLastChanceUI(){
     els.lastChanceModal.classList.remove('show');
     return;
   }
-  const lc=state.lastChance,winnerActor=actorForColor(lc.winner),loserActor=actorForColor(lc.loser);
+  const lc=state.lastChance,winnerActor=actorForColor(lc.winner),loserActor=actorForColor(lc.loser),statusView=getLastChanceStatusView();
   if(lc.phase==='choose'){
     if(loserActor===localActor()){
       els.lastChanceText.textContent='ירושלמי: בחר שני מספרים. אם המנצח יגלגל בדיוק אותם — אתה גונב ניצחון.';
@@ -1988,7 +1991,7 @@ function renderLastChanceUI(){
       els.lastChanceModal.classList.add('show');
     }else{
       els.lastChanceModal.classList.remove('show');
-      showMessage(`${actorName(loserActor)} בוחר מספרים לירושלמי...`,2200);
+      showMessage(statusView.waitingText||statusView.statusText,2200);
     }
   }else if(lc.phase==='roll'){
     const ch=lc.choice||['?','?'];
