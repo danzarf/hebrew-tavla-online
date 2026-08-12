@@ -65,7 +65,7 @@
             ".validate": "newData.isString() && (newData.val() == 'online')"
           },
           "players": {
-            ".validate": "newData.isList() && newData.children().hasChildren(['0','1'])"
+            ".validate": "newData.hasChildren(['0','1'])"
           },
           "winnerId": {
             ".validate": "!newData.exists() || newData.isString()"
