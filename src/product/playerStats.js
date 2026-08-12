@@ -6,7 +6,9 @@ export const PLAYER_STATS_FIELDS = Object.freeze([
   'currentStreak',
   'bestStreak',
   'capturesMade',
-  'capturesTaken',
+  'capturesSuffered',
+  'averageCapturesMadePerGame',
+  'averageCapturesSufferedPerGame',
   'lastPlayedAt',
   'updatedAt',
 ]);
@@ -17,11 +19,22 @@ function sanitizeCounter(value) {
 }
 
 function sanitizeTimestamp(value) {
+  if (Number.isFinite(value) && value > 0) return new Date(value).toISOString();
   if (typeof value !== 'string') return null;
   const trimmed = value.trim();
   if (!trimmed) return null;
   const parsed = Date.parse(trimmed);
   return Number.isNaN(parsed) ? null : new Date(parsed).toISOString();
+}
+
+function calculateAverage(total = 0, gamesPlayed = 0) {
+  const safeGamesPlayed = sanitizeCounter(gamesPlayed);
+  if (safeGamesPlayed <= 0) return 0;
+  return Math.round((sanitizeCounter(total) / safeGamesPlayed) * 10) / 10;
+}
+
+export function isVisiblePlayerStatsUid(uid) {
+  return typeof uid === 'string' && uid.trim() !== '' && !uid.startsWith('diagnostic-');
 }
 
 export function calculateWinRate(wins = 0, gamesPlayed = 0) {
@@ -42,7 +55,9 @@ export function createEmptyPlayerStats() {
     currentStreak: 0,
     bestStreak: 0,
     capturesMade: 0,
-    capturesTaken: 0,
+    capturesSuffered: 0,
+    averageCapturesMadePerGame: 0,
+    averageCapturesSufferedPerGame: 0,
     lastPlayedAt: null,
     updatedAt: null,
   };
@@ -72,7 +87,9 @@ export function sanitizePlayerStats(rawStats = {}) {
     currentStreak,
     bestStreak,
     capturesMade: sanitizeCounter(rawStats.capturesMade),
-    capturesTaken: sanitizeCounter(rawStats.capturesTaken),
+    capturesSuffered: sanitizeCounter(rawStats.capturesSuffered ?? rawStats.capturesTaken),
+    averageCapturesMadePerGame: calculateAverage(rawStats.capturesMade, gamesPlayed),
+    averageCapturesSufferedPerGame: calculateAverage(rawStats.capturesSuffered ?? rawStats.capturesTaken, gamesPlayed),
     lastPlayedAt: sanitizeTimestamp(rawStats.lastPlayedAt),
     updatedAt: sanitizeTimestamp(rawStats.updatedAt),
   };
@@ -91,8 +108,10 @@ export function formatPlayerStatsForProfile(rawStats, { showComingSoon = true, c
       { label: 'אחוז ניצחון', value: showComingSoon ? 'בקרוב' : `${stats.winRate}%` },
       { label: 'רצף נוכחי', value: showComingSoon ? 'בקרוב' : String(stats.currentStreak) },
       { label: 'שיא רצף', value: showComingSoon ? 'בקרוב' : String(stats.bestStreak) },
-      { label: 'אכלתי', value: showComingSoon || !captureStatsTracked ? 'בקרוב' : String(stats.capturesMade) },
-      { label: 'אכלו אותי', value: showComingSoon || !captureStatsTracked ? 'בקרוב' : String(stats.capturesTaken) },
+      { label: 'אכלתי כל הזמן', value: showComingSoon || !captureStatsTracked ? 'בקרוב' : String(stats.capturesMade) },
+      { label: 'אכלו אותי כל הזמן', value: showComingSoon || !captureStatsTracked ? 'בקרוב' : String(stats.capturesSuffered) },
+      { label: 'ממוצע אכילות למשחק', value: showComingSoon || !captureStatsTracked ? 'בקרוב' : String(stats.averageCapturesMadePerGame) },
+      { label: 'ממוצע שאכלו אותי', value: showComingSoon || !captureStatsTracked ? 'בקרוב' : String(stats.averageCapturesSufferedPerGame) },
     ],
     note: showComingSoon
       ? 'סטטיסטיקות יופיעו אחרי משחקים מאומתים.'

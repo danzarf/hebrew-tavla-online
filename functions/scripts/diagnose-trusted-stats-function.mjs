@@ -32,6 +32,10 @@ function diagnosticSubmission({ uid, matchId, now = Date.now() }) {
     winnerUid,
     loserId: loserUid,
     loserUid,
+    playerMatchStats: {
+      [winnerUid]: { capturesMade: 3, capturesSuffered: 1 },
+      [loserUid]: { capturesMade: 1, capturesSuffered: 3 },
+    },
     endedAt: now,
     resultSource: 'diagnostic-workflow',
     gameType: 'tavla',

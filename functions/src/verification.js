@@ -13,8 +13,22 @@ function isFiniteTimestamp(value) {
   return Number.isFinite(num) && num > 0;
 }
 
+function toSafeCounter(value) {
+  const num = Number(value);
+  if (!Number.isFinite(num) || num <= 0) return 0;
+  return Math.floor(num);
+}
+
 function playerByColor(players, color) {
   return players.find((p) => p && p.color === color) || null;
+}
+
+function matchStatsForUid(rawStats, uid) {
+  const stats = uid && rawStats && typeof rawStats === 'object' ? rawStats[uid] : null;
+  return {
+    capturesMade: toSafeCounter(stats?.capturesMade),
+    capturesSuffered: toSafeCounter(stats?.capturesSuffered ?? stats?.capturesTaken),
+  };
 }
 
 export function sanitizeSubmission(raw = {}) {
@@ -29,7 +43,7 @@ export function sanitizeSubmission(raw = {}) {
   const winner = playerByColor(safePlayers, winnerColor);
   const loser = playerByColor(safePlayers, loserColor);
 
-  return {
+  const safe = {
     matchId: toSafeString(raw.matchId),
     mode: toSafeString(raw.mode),
     gameType: toSafeString(raw.gameType),
@@ -42,9 +56,16 @@ export function sanitizeSubmission(raw = {}) {
     winnerUid: toSafeString(raw.winnerUid) || winner?.uid || null,
     loserUid: toSafeString(raw.loserUid) || loser?.uid || null,
     clientSubmittedBy: toSafeString(raw.clientSubmittedBy),
+    playerMatchStats: {},
     serverVerified: raw.serverVerified === true,
     trustedStatsApplied: raw.trustedStatsApplied === true,
   };
+
+  safe.playerMatchStats = Object.fromEntries(
+    safe.players.map((player) => [player.uid, matchStatsForUid(raw.playerMatchStats, player.uid)]),
+  );
+
+  return safe;
 }
 
 export function validateSubmissionForTrustedStats(safe, { pathUid } = {}) {
@@ -72,18 +93,23 @@ export function validateSubmissionForTrustedStats(safe, { pathUid } = {}) {
   return { valid: errors.length === 0, errors };
 }
 
-export function buildStatsUpdate(previous = {}, outcome, endedAt, now) {
+export function buildStatsUpdate(previous = {}, outcome, endedAt, now, matchStats = {}) {
   const wins = Number(previous.wins) || 0;
   const losses = Number(previous.losses) || 0;
   const gamesPlayed = Number(previous.gamesPlayed) || 0;
   const currentStreak = Number(previous.currentStreak) || 0;
   const bestStreak = Number(previous.bestStreak) || 0;
+  const capturesMade = toSafeCounter(previous.capturesMade);
+  const previousCapturesSuffered = previous.capturesSuffered ?? previous.capturesTaken;
+  const capturesSuffered = toSafeCounter(previousCapturesSuffered);
 
   const nextWins = outcome === 'win' ? wins + 1 : wins;
   const nextLosses = outcome === 'loss' ? losses + 1 : losses;
   const nextGames = gamesPlayed + 1;
   const nextCurrentStreak = outcome === 'win' ? currentStreak + 1 : 0;
   const nextBestStreak = Math.max(bestStreak, nextCurrentStreak);
+  const nextCapturesMade = capturesMade + toSafeCounter(matchStats.capturesMade);
+  const nextCapturesSuffered = capturesSuffered + toSafeCounter(matchStats.capturesSuffered ?? matchStats.capturesTaken);
 
   return {
     gamesPlayed: nextGames,
@@ -92,6 +118,10 @@ export function buildStatsUpdate(previous = {}, outcome, endedAt, now) {
     winRate: Number((nextWins / nextGames).toFixed(4)),
     currentStreak: nextCurrentStreak,
     bestStreak: nextBestStreak,
+    capturesMade: nextCapturesMade,
+    capturesSuffered: nextCapturesSuffered,
+    averageCapturesMadePerGame: Number((nextCapturesMade / nextGames).toFixed(4)),
+    averageCapturesSufferedPerGame: Number((nextCapturesSuffered / nextGames).toFixed(4)),
     lastPlayedAt: endedAt,
     updatedAt: now,
   };

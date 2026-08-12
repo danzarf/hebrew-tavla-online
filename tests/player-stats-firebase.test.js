@@ -34,7 +34,9 @@ test('getTrustedPlayerStats sanitizes trusted stats from RTDB', async () => {
     currentStreak: 0,
     bestStreak: 0,
     capturesMade: 0,
-    capturesTaken: 0,
+    capturesSuffered: 0,
+    averageCapturesMadePerGame: 0,
+    averageCapturesSufferedPerGame: 0,
     lastPlayedAt: null,
     updatedAt: null,
   });

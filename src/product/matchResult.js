@@ -24,6 +24,7 @@ export const SAFE_MATCH_RESULT_FIELDS = Object.freeze([
   'finalStatus',
   'clientSubmittedBy',
   'serverVerified',
+  'playerMatchStats',
 ]);
 
 export const SAFE_MATCH_PLAYER_FIELDS = Object.freeze([
@@ -80,9 +81,33 @@ function cleanTimestamp(value, fallback) {
   return timestamp;
 }
 
+function cleanCounter(value) {
+  const counter = Number(value);
+  if (!Number.isFinite(counter) || counter <= 0) return 0;
+  return Math.floor(counter);
+}
+
 function withoutEmptyFields(value) {
   return Object.fromEntries(
     Object.entries(value).filter(([, fieldValue]) => fieldValue !== null && fieldValue !== undefined),
+  );
+}
+
+export function sanitizePlayerMatchStats(playerMatchStats = {}, allowedUids = null) {
+  if (!playerMatchStats || typeof playerMatchStats !== 'object' || Array.isArray(playerMatchStats)) return {};
+  const allowedUidSet = allowedUids ? new Set([...allowedUids].filter(Boolean)) : null;
+
+  return Object.fromEntries(
+    Object.entries(playerMatchStats)
+      .map(([uid, stats]) => [
+        cleanString(uid),
+        {
+          capturesMade: cleanCounter(stats?.capturesMade),
+          capturesSuffered: cleanCounter(stats?.capturesSuffered ?? stats?.capturesTaken),
+        },
+      ])
+      .filter(([uid]) => Boolean(uid) && (!allowedUidSet || allowedUidSet.has(uid)))
+      .slice(0, 2),
   );
 }
 
@@ -138,6 +163,7 @@ export function createMatchResult({
   ruleset = DEFAULT_RULESET,
   finalStatus = 'completed',
   clientSubmittedBy,
+  playerMatchStats = {},
   now = Date.now,
   idFactory = () => `match-${now()}`,
 } = {}) {
@@ -151,6 +177,7 @@ export function createMatchResult({
   );
   const winnerPlayer = safePlayers.find(player => player.color === safeWinnerColor);
   const loserPlayer = safePlayers.find(player => player.color === safeLoserColor);
+  const safePlayerMatchStats = sanitizePlayerMatchStats(playerMatchStats, safePlayers.map(player => player.uid));
 
   return withoutEmptyFields({
     matchId: cleanString(matchId) || cleanString(idFactory()),
@@ -171,6 +198,7 @@ export function createMatchResult({
     finalStatus: cleanString(finalStatus) || 'completed',
     clientSubmittedBy: cleanString(clientSubmittedBy),
     serverVerified: false,
+    playerMatchStats: Object.keys(safePlayerMatchStats).length ? safePlayerMatchStats : null,
   });
 }
 
@@ -201,6 +229,16 @@ export function validateMatchResult(matchResult = {}) {
     }
     if (!player.id) errors.push('missing-player-id');
     if (!MATCH_RESULT_COLORS.includes(player.color)) errors.push('invalid-player-color');
+  }
+
+  if (matchResult?.playerMatchStats && typeof matchResult.playerMatchStats === 'object') {
+    for (const [uid, stats] of Object.entries(matchResult.playerMatchStats)) {
+      if (!uid) errors.push('invalid-player-match-stats-uid');
+      const allowedStatsFields = ['capturesMade', 'capturesSuffered'];
+      for (const key of Object.keys(stats || {})) {
+        if (!allowedStatsFields.includes(key)) errors.push(`unexpected-player-match-stat-field:${key}`);
+      }
+    }
   }
 
   return {

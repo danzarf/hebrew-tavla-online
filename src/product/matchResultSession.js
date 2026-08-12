@@ -46,6 +46,22 @@ function buildMatchPlayers({ state, mode, localActor, currentPlayerId, currentUi
   }));
 }
 
+function statsForActor(state, actor) {
+  const stats = state?.playerMatchStats?.[actor] || {};
+  return {
+    capturesMade: Number(stats.capturesMade) || 0,
+    capturesSuffered: Number(stats.capturesSuffered ?? stats.capturesTaken) || 0,
+  };
+}
+
+export function buildPlayerMatchStatsByUid({ state = {}, localActor = 'human', currentUid = null } = {}) {
+  return Object.fromEntries(
+    ['human', 'computer']
+      .map(actor => [playerUidForActor({ state, actor, localActor, currentUid }), statsForActor(state, actor)])
+      .filter(([uid]) => Boolean(uid)),
+  );
+}
+
 export function buildGameEndMatchResult({
   state = {},
   winnerColor = state?.winnerColor,
@@ -80,6 +96,9 @@ export function buildGameEndMatchResult({
     winnerUid: winnerActor ? playerUidForActor({ state, actor: winnerActor, localActor, currentUid }) : null,
     loserId: loserActor ? playerIdForActor({ state, actor: loserActor, mode, localActor, currentPlayerId }) : null,
     loserUid: loserActor ? playerUidForActor({ state, actor: loserActor, localActor, currentUid }) : null,
+    playerMatchStats: mode === 'online'
+      ? buildPlayerMatchStatsByUid({ state, localActor, currentUid })
+      : {},
   });
 }
 

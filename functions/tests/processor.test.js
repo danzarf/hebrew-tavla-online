@@ -63,6 +63,10 @@ test('processMatchResultSubmission applies valid online submission to trusted st
     matchId: 'm-apply',
     winnerUid: 'u1',
     loserUid: 'u2',
+    playerMatchStats: {
+      u1: { capturesMade: 4, capturesSuffered: 1 },
+      u2: { capturesMade: 1, capturesSuffered: 4 },
+    },
     serverVerified: false,
     trustedStatsApplied: false,
   });
@@ -75,7 +79,35 @@ test('processMatchResultSubmission applies valid online submission to trusted st
   assert.equal(db.writes[0].value.status, 'processing');
   assert.equal(db.data.trustedStatsApplications['m-apply'].status, 'applied');
   assert.equal(db.data.playerStats.u1.wins, 1);
+  assert.equal(db.data.playerStats.u1.capturesMade, 4);
+  assert.equal(db.data.playerStats.u1.capturesSuffered, 1);
+  assert.equal(db.data.playerStats.u1.averageCapturesMadePerGame, 4);
   assert.equal(db.data.playerStats.u2.losses, 1);
+  assert.equal(db.data.playerStats.u2.capturesMade, 1);
+  assert.equal(db.data.playerStats.u2.capturesSuffered, 4);
+});
+
+test('processMatchResultSubmission treats missing capture stats as zero', async () => {
+  const db = createMemoryDb();
+  const result = await processMatchResultSubmission({
+    db,
+    raw: buildValidOnlineSubmission({
+      matchId: 'm-zero-captures',
+      winnerUid: 'u1',
+      loserUid: 'u2',
+      serverVerified: false,
+      trustedStatsApplied: false,
+    }),
+    uid: 'u1',
+    matchId: 'm-zero-captures',
+    now: () => 550,
+  });
+
+  assert.equal(result.status, 'applied');
+  assert.equal(db.data.playerStats.u1.capturesMade, 0);
+  assert.equal(db.data.playerStats.u1.capturesSuffered, 0);
+  assert.equal(db.data.playerStats.u2.capturesMade, 0);
+  assert.equal(db.data.playerStats.u2.capturesSuffered, 0);
 });
 
 test('processMatchResultSubmission rejects invalid submissions with serverReview', async () => {
@@ -115,4 +147,33 @@ test('shouldProcessSubmission skips writes that already have a serverReview', ()
   assert.equal(shouldProcessSubmission(null), false);
   assert.equal(shouldProcessSubmission({ matchId: 'm-pending' }), true);
   assert.equal(shouldProcessSubmission({ matchId: 'm-reviewed', serverReview: { status: 'applied' } }), false);
+});
+
+test('processMatchResultSubmission duplicate does not double-count capture stats', async () => {
+  const db = createMemoryDb();
+  const raw = buildValidOnlineSubmission({
+    matchId: 'm-duplicate',
+    winnerUid: 'u1',
+    loserUid: 'u2',
+    playerMatchStats: {
+      u1: { capturesMade: 2, capturesSuffered: 0 },
+      u2: { capturesMade: 0, capturesSuffered: 2 },
+    },
+    serverVerified: false,
+    trustedStatsApplied: false,
+  });
+
+  await processMatchResultSubmission({ db, raw, uid: 'u1', matchId: 'm-duplicate', now: () => 900 });
+  const duplicate = await processMatchResultSubmission({
+    db,
+    raw: buildValidOnlineSubmission({ ...raw, serverReview: undefined }),
+    uid: 'u1',
+    matchId: 'm-duplicate',
+    now: () => 950,
+  });
+
+  assert.equal(duplicate.status, 'duplicate');
+  assert.equal(db.data.playerStats.u1.gamesPlayed, 1);
+  assert.equal(db.data.playerStats.u1.capturesMade, 2);
+  assert.equal(db.data.playerStats.u2.capturesSuffered, 2);
 });
