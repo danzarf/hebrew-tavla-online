@@ -27,6 +27,10 @@ export const SAFE_MATCH_RESULT_SUBMISSION_FIELDS = Object.freeze([
   'trustedStatsApplied',
   'submittedAt',
   'playerMatchStats',
+  'statsSchemaVersion',
+  'clientBuildVersion',
+  'hasPlayerMatchStats',
+  'playerMatchStatsDebugLabel',
 ]);
 
 export function matchResultSubmissionPath(uid, matchId) {
