@@ -4,8 +4,14 @@
     "test": "node --test",
     "functions:test": "npm test --prefix functions",
     "functions:check": "npm run check --prefix functions",
+    "rules:emulator:test": "firebase emulators:exec --project demo-hebrew-tavla-rules --only database \"node --test tests/database-rules-emulator.test.js\"",
     "functions:emulator": "firebase emulators:start --only database,functions",
     "functions:integration:test": "firebase emulators:exec --only database,functions \"npm run integration:test --prefix functions\"",
     "functions:emulator:test": "npm run functions:test && npm run functions:integration:test"
+  },
+  "devDependencies": {
+    "@firebase/rules-unit-testing": "^5.0.1",
+    "firebase": "^12.12.1",
+    "firebase-tools": "^15.24.0"
   }
 }

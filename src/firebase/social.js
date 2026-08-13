@@ -8,8 +8,8 @@ export const GAME_INVITES_PATH = 'gameInvites';
 export const OUTGOING_GAME_INVITES_PATH = 'outgoingGameInvites';
 export const SOCIAL_ACTIONS_PATH = 'socialActions';
 
-function actionId(now = Date.now) {
-  return `${now()}_${Math.random().toString(36).slice(2, 10)}`;
+export function createSocialActionId({ now = Date.now, random = Math.random } = {}) {
+  return `${now()}_${random().toString(36).slice(2, 10)}`;
 }
 
 async function readPath({ database, ref, get, path }) {
@@ -90,10 +90,11 @@ export async function submitSocialAction({
   inviteId = '',
   inviteKind = '',
   previousMatchId = '',
+  actionId = '',
   now = Date.now,
 } = {}) {
   if (!uid || !targetUid || !type) return { skipped: true, reason: 'missing-fields' };
-  const id = actionId(now);
+  const id = actionId || createSocialActionId({ now });
   const path = `${SOCIAL_ACTIONS_PATH}/${uid}/${id}`;
   const payload = {
     actorUid: uid,

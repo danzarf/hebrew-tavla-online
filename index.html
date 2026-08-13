@@ -975,8 +975,10 @@ import { DEFAULT_AVATAR_PREFERENCE, getAvatarPreferenceLabel, getPlayerProfile, 
 import { submitUnverifiedMatchResult } from "./src/firebase/matchResults.js";
 import { getTrustedPlayerStats } from "./src/firebase/playerStats.js";
 import { getPlayerMatchHistory } from "./src/firebase/matchHistory.js";
-import { getPublicProfile, getSocialState, submitSocialAction, subscribeSocialPaths } from "./src/firebase/social.js";
+import { createSocialActionId, getPublicProfile, getSocialState, submitSocialAction, subscribeSocialPaths } from "./src/firebase/social.js";
 import { buildSocialViewModel, summarizeFriendshipState } from "./src/product/social.js";
+import { convergePendingAcceptedInvite, convergePendingHostedInvite } from "./src/product/inviteConvergence.js";
+import { updateSocialNotificationState } from "./src/product/socialNotifications.js";
 import { buildRematchRoomSeed, canOfferRematch, getRematchButtonText } from "./src/product/rematch.js";
 import { buildRoomFirebaseErrorLog, getRoomCreateErrorMessage } from "./src/firebase/roomErrors.js";
 import { getLastMatchResult, recordGameEndMatchResult } from "./src/product/matchResultSession.js";
@@ -1023,7 +1025,7 @@ const profilePreferences={displayName:'',displayNameDraft:null,avatarPreference:
 const welcomeState={completed:false,message:'',tone:''};
 const trustedStatsState={trustedStats:null,hasTrustedStats:false,refreshMessage:'',refreshTone:'',lastCheckedLabel:'',isRefreshing:false,verificationStatusMessage:'',lastAutoRefreshAt:0};
 const matchHistoryState={history:[],isLoading:false,errorMessage:'',lastAutoRefreshAt:0};
-const socialState={friends:{},incomingRequests:{},outgoingRequests:{},incomingGameInvites:{},outgoingGameInvites:{},publicProfiles:{},recentOpponents:[],isLoading:false,isBusy:false,message:'',lastAutoRefreshAt:0,selectedPublicProfile:null,unsubscribe:null,subscribedUid:null,lastIncomingCount:0,activeLobbyTab:'play',pendingJoinInviteId:'',pendingHostInviteId:''};
+const socialState={friends:{},incomingRequests:{},outgoingRequests:{},incomingGameInvites:{},outgoingGameInvites:{},publicProfiles:{},recentOpponents:[],isLoading:false,refreshQueued:false,isBusy:false,message:'',lastAutoRefreshAt:0,selectedPublicProfile:null,unsubscribe:null,subscribedUid:null,lastIncomingCount:0,notificationHydrated:false,hasReceivedSocialSnapshot:false,activeLobbyTab:'play',pendingJoinInviteId:'',pendingHostInviteId:''};
 const rematchState={busy:false,lastRoomCode:''};
 
 const lobbySelection={lastMode:''};
@@ -1150,6 +1152,7 @@ async function loadSavedProfileIfAvailable(){
     });
     applyProfileEditView(editView);
     if(els.guestNameInput&&!els.guestNameInput.value)els.guestNameInput.value=editView.displayName;
+    syncCurrentPlayerProfile(editView.displayName,editView.avatarPreference);
   }
   if(authSession.getIsAnonymous?.()===false){
     welcomeState.completed=true;
@@ -1228,14 +1231,16 @@ function refreshMatchHistoryAutomatically({minIntervalMs=5000}={}){
   void refreshMatchHistory();
 }
 async function refreshSocialState(){
-  if(socialState.isLoading)return;
+  if(socialState.isLoading){socialState.refreshQueued=true;return;}
   socialState.isLoading=true;
+  socialState.refreshQueued=false;
   renderProfileStatus();
   try{
     const uid=authSession.getUid();
     const result=await getSocialState({database:db,ref,get,uid,history:matchHistoryState.history,logger:console});
     if(result.state)Object.assign(socialState,result.state,{message:''});
     else socialState.message='לא הצלחנו לטעון חברים כרגע.';
+    socialState.hasReceivedSocialSnapshot=true;
     await joinHostedInviteIfReady();
     await joinAcceptedInviteIfReady();
   }catch(error){
@@ -1245,6 +1250,7 @@ async function refreshSocialState(){
     socialState.isLoading=false;
     socialState.lastAutoRefreshAt=Date.now();
     renderProfileStatus();
+    if(socialState.refreshQueued)void refreshSocialState();
   }
 }
 function stopSocialRealtime(){
@@ -1301,10 +1307,13 @@ async function sendGameInvite(targetUid,{inviteKind='game',previousMatchId=''}={
   socialState.message=inviteKind==='rematch'?'שולח הזמנה למשחק נוסף...':'שולח הזמנה...';
   renderSocialPanel();
   try{
-    const result=await submitSocialAction({database:db,ref,set,uid:authSession.getUid(),type:'sendGameInvite',targetUid,inviteKind,previousMatchId});
-    const actionId=String(result.path||'').split('/').pop();
-    if(actionId)socialState.pendingHostInviteId=actionId;
+    const actionId=createSocialActionId();
+    socialState.pendingHostInviteId=actionId;
+    const result=await submitSocialAction({database:db,ref,set,uid:authSession.getUid(),type:'sendGameInvite',targetUid,inviteKind,previousMatchId,actionId});
+    if(result.skipped)socialState.pendingHostInviteId='';
     socialState.message=result.skipped?'לא הצלחנו לשלוח הזמנה.':'הזמנה נשלחה';
+    await refreshSocialState();
+    await joinHostedInviteIfReady();
     showMessage(socialState.message);
   }catch(error){
     console.warn('Game invite failed.',error);
@@ -1320,9 +1329,11 @@ async function respondToGameInvite(invite,type){
   socialState.message=type==='acceptGameInvite'?'מצטרף לחדר...':'מעדכן הזמנה...';
   renderSocialPanel();
   try{
-    await submitSocialAction({database:db,ref,set,uid:authSession.getUid(),type,targetUid:invite.uid,inviteId:invite.inviteId});
     if(type==='acceptGameInvite')socialState.pendingJoinInviteId=invite.inviteId;
+    await submitSocialAction({database:db,ref,set,uid:authSession.getUid(),type,targetUid:invite.uid,inviteId:invite.inviteId});
     socialState.message=type==='acceptGameInvite'?'מחכה לאישור הזמנה...':'עודכן';
+    await refreshSocialState();
+    await joinAcceptedInviteIfReady();
   }catch(error){
     console.warn('Game invite response failed.',error);
     socialState.message='לא הצלחנו לעדכן הזמנה.';
@@ -1332,23 +1343,11 @@ async function respondToGameInvite(invite,type){
   }
 }
 async function joinAcceptedInviteIfReady(){
-  const inviteId=socialState.pendingJoinInviteId;
-  if(!inviteId)return;
-  const invite=socialState.incomingGameInvites?.[inviteId];
-  if(invite?.status==='accepted'&&invite.roomCode){
-    socialState.pendingJoinInviteId='';
-    els.joinCodeInput.value=invite.roomCode;
-    await joinRoomByCode(invite.roomCode);
-  }
+  const result=await convergePendingAcceptedInvite({socialState,joinRoomByCode});
+  if(result.joined&&els.joinCodeInput)els.joinCodeInput.value=result.roomCode;
 }
 async function joinHostedInviteIfReady(){
-  const inviteId=socialState.pendingHostInviteId;
-  if(!inviteId||isOnline())return;
-  const invite=socialState.outgoingGameInvites?.[inviteId];
-  if(invite?.roomCode&&(invite.status==='pending'||invite.status==='accepted')){
-    socialState.pendingHostInviteId='';
-    await joinRoomByCode(invite.roomCode);
-  }
+  await convergePendingHostedInvite({socialState,isOnline,joinRoomByCode});
 }
 async function openPublicProfile(uid){
   if(!uid)return;
@@ -1438,8 +1437,8 @@ function renderSocialPanel(){
     els.lobbyFriendsBadge.hidden=!view.activeNotificationCount;
     els.lobbyFriendsBadge.textContent=String(view.activeNotificationCount||0);
   }
-  if(view.activeNotificationCount>socialState.lastIncomingCount&&socialState.lastIncomingCount>0)showMessage('יש עדכון חדש בחברים');
-  socialState.lastIncomingCount=view.activeNotificationCount;
+  const notificationUpdate=updateSocialNotificationState(socialState,view.activeNotificationCount,{hasReceivedSnapshot:socialState.hasReceivedSocialSnapshot});
+  if(notificationUpdate.shouldToast)showMessage('יש עדכון חדש בחברים');
   if(els.profilePanelSocialSummary)els.profilePanelSocialSummary.textContent=`${view.friendsCount} חברים · ${view.incomingRows.length} בקשות נכנסות · ${view.outgoingCount} בקשות שנשלחו`;
   if(els.profilePanelSocialStatus)els.profilePanelSocialStatus.textContent=socialState.isLoading?'טוען חברים...':view.message;
   renderSocialList(els.profilePanelIncomingRequests,view.incomingRows.map(request=>createSocialRow({

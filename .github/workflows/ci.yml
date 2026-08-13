@@ -17,6 +17,12 @@ jobs:
         with:
           node-version: 20
 
+      - name: Setup Java for Firebase Emulator
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
       - name: Install root dependencies
         run: npm install
 
@@ -34,3 +40,6 @@ jobs:
 
       - name: Validate database.rules.json syntax
         run: node -e "JSON.parse(require('node:fs').readFileSync('database.rules.json','utf8')); console.log('database.rules.json is valid JSON');"
+
+      - name: Run Firebase RTDB Security Rules emulator tests
+        run: npm run rules:emulator:test
