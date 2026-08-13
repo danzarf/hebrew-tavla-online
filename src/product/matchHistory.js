@@ -64,6 +64,7 @@ export function buildMatchHistoryViewModel({
 
   const rows = sanitizePlayerMatchHistory(history).map(entry => ({
     matchId: entry.matchId,
+    opponentUid: entry.opponentUid,
     title: `${entry.result === 'win' ? 'ניצחון' : 'הפסד'} מול ${entry.opponentDisplayName}`,
     subtitle: `${entry.capturesMade} אכילות | אכלו אותי ${entry.capturesSuffered}`,
     dateText: formatHistoryDate(entry.endedAt || entry.processedAt),

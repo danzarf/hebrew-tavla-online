@@ -25,6 +25,17 @@ test('start home shows a clear guest account state and enabled Google linking wh
   assert.match(view.accountSummary, /להתחבר עם Google/);
 });
 
+test('index includes social profile and rematch UI wiring', async () => {
+  const { readFile } = await import('node:fs/promises');
+  const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
+
+  assert.match(html, /profilePanelRecentOpponents/);
+  assert.match(html, /publicProfileSheet/);
+  assert.match(html, /rematchBtn/);
+  assert.match(html, /submitSocialAction/);
+  assert.match(html, /createInviteRoomFor/);
+});
+
 test('start home shows connected Google state without a confusing connect action', () => {
   const view = buildStartHomeViewModel({
     displayName: 'דנה',

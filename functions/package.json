@@ -8,7 +8,7 @@
   },
   "scripts": {
     "test": "node --test",
-    "check": "node --check src/index.js src/processor.js src/verification.js",
+    "check": "node --check src/index.js src/processor.js src/verification.js src/history.js src/publicProfile.js src/social.js",
     "integration:test": "node --test tests/emulator.integration.test.js"
   },
   "dependencies": {

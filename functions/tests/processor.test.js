@@ -89,6 +89,23 @@ test('processMatchResultSubmission applies valid online submission to trusted st
   assert.equal(db.data.playerStats.u2.losses, 1);
   assert.equal(db.data.playerStats.u2.capturesMade, 1);
   assert.equal(db.data.playerStats.u2.capturesSuffered, 4);
+  assert.deepEqual(db.data.publicProfiles.u1.stats, {
+    gamesPlayed: 1,
+    wins: 1,
+    winRate: 100,
+    currentStreak: 1,
+    bestStreak: 1,
+    lastPlayedAt: 123,
+  });
+  assert.equal(db.data.publicProfiles.u1.stats.capturesMade, undefined);
+  assert.deepEqual(db.data.publicProfiles.u2.stats, {
+    gamesPlayed: 1,
+    wins: 0,
+    winRate: 0,
+    currentStreak: 0,
+    bestStreak: 0,
+    lastPlayedAt: 123,
+  });
   assert.deepEqual(db.data.playerMatchHistory.u1['m-apply'], {
     matchId: 'm-apply',
     opponentUid: 'u2',

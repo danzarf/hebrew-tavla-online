@@ -94,6 +94,19 @@ button,select,input{font-family:inherit}
 .profilePanelHistorySub{grid-column:1/3;font-size:11px;color:rgba(217,238,255,.86);line-height:1.25}
 .profilePanelHistoryRow.win{border-color:rgba(94,227,154,.28)}
 .profilePanelHistoryRow.loss{border-color:rgba(255,135,135,.22)}
+.profilePanelSocialList{display:grid;gap:6px}
+.profilePanelSocialRow{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:7px;align-items:center;padding:7px 8px;border-radius:12px;background:rgba(255,255,255,.055);border:1px solid rgba(255,231,176,.13);min-width:0}
+.profilePanelSocialAvatar{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:rgba(246,199,108,.2);font-size:15px}
+.profilePanelSocialName{font-size:12px;font-weight:900;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.profilePanelSocialMeta{font-size:10.5px;color:rgba(255,231,176,.72);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.profilePanelSocialActions{display:flex;flex-wrap:wrap;gap:5px;justify-content:flex-end}
+.profilePanelSocialActions .btn{min-height:28px;padding:5px 7px;border-radius:9px;font-size:10.5px}
+.rematchBtn{position:absolute;z-index:78;left:50%;bottom:clamp(74px,12vh,118px);transform:translateX(-50%);min-width:148px;box-shadow:0 14px 26px rgba(0,0,0,.36)}
+.publicProfileSheet{position:fixed;z-index:280;inset:auto 10px 10px auto;width:min(340px,calc(100% - 20px));max-height:min(440px,calc(100dvh - 22px));overflow:auto;border-radius:18px;background:linear-gradient(180deg,rgba(50,28,18,.98),rgba(25,12,7,.98));border:1px solid rgba(246,199,108,.34);box-shadow:0 18px 46px rgba(0,0,0,.5);padding:11px;color:#fff}
+.publicProfileSheet[hidden]{display:none!important}
+.publicProfileHeader{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:8px;align-items:center}
+.publicProfileAvatar{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(180deg,#ffe7a8,#b9792c)}
+.publicProfileTitle{font-size:16px;font-weight:1000;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .profilePanelCloseAction{justify-self:start;margin-top:0;padding:7px 10px;border-radius:12px}
 .btn{border:0;border-radius:14px;padding:9px 13px;color:#24130b;background:linear-gradient(180deg,#ffe7a8,#c98534);font-weight:800;cursor:pointer;box-shadow:0 5px 0 #6b3a18,0 10px 18px rgba(0,0,0,.32);transition:.15s transform,.15s filter,.15s opacity;white-space:nowrap}
 .btn:hover:not(:disabled){filter:brightness(1.08);transform:translateY(-1px)}
@@ -633,6 +646,16 @@ body{
         <div id="profilePanelHistory" class="profilePanelHistory" aria-live="polite"></div>
         <p id="profilePanelHistoryStatus" class="profilePanelPlaceholderNote"></p>
       </section>
+      <section class="profilePanelSection" aria-label="חברים וחברתיות">
+        <h3 class="profilePanelSectionTitle">חברתי</h3>
+        <p id="profilePanelSocialSummary" class="profilePanelPlaceholderNote"></p>
+        <div id="profilePanelIncomingRequests" class="profilePanelSocialList"></div>
+        <h3 class="profilePanelSectionTitle">שיחקת לאחרונה נגד</h3>
+        <div id="profilePanelRecentOpponents" class="profilePanelSocialList"></div>
+        <h3 class="profilePanelSectionTitle">חברים</h3>
+        <div id="profilePanelFriends" class="profilePanelSocialList"></div>
+        <p id="profilePanelSocialStatus" class="profilePanelPlaceholderNote" aria-live="polite"></p>
+      </section>
       <section class="profilePanelUpgrade profilePanelSection" aria-labelledby="profilePanelUpgradeTitle">
         <div id="profilePanelUpgradeTitle" class="profilePanelUpgradeTitle">שמור התקדמות</div>
         <p id="profilePanelUpgradeBody" class="profilePanelUpgradeBody">כרגע אתה משחק כאורח. ההתקדמות קשורה לדפדפן או למכשיר הזה.</p>
@@ -667,6 +690,7 @@ body{
           <div id="reactionWhite" class="reactionBubble white"></div>
           <div id="reactionBlack" class="reactionBubble black"></div>
           <div id="victoryBanner" class="victoryBanner"></div>
+          <button id="rematchBtn" class="btn rematchBtn" type="button" hidden>משחק נוסף</button>
           <div id="offBlack" class="offTray black" data-off="black"><div class="label">שחור הוציא</div><div class="num">0</div><div class="stackLine"></div></div>
           <div id="pipBlack" class="pipCounter black">0</div>
           <div id="pipWhite" class="pipCounter white">0</div>
@@ -877,6 +901,19 @@ body{
 
 <div id="reactionToast" class="toastReaction"></div>
 
+<section id="publicProfileSheet" class="publicProfileSheet" aria-label="פרופיל שחקן" hidden>
+  <div class="publicProfileHeader">
+    <div id="publicProfileAvatar" class="publicProfileAvatar" aria-hidden="true">👤</div>
+    <div>
+      <div id="publicProfileName" class="publicProfileTitle">יריב</div>
+      <p id="publicProfileStats" class="profilePanelPlaceholderNote"></p>
+    </div>
+    <button id="publicProfileCloseBtn" class="profilePanelClose" type="button" aria-label="סגור">×</button>
+  </div>
+  <div id="publicProfileActions" class="profilePanelSocialActions"></div>
+  <p id="publicProfileStatus" class="profilePanelPlaceholderNote" aria-live="polite"></p>
+</section>
+
 <script type="module">
 import { BOTTOM_POINTS, TOP_POINTS } from "./src/game/board.js";
 import { die, rollDicePair, isFiveSix, isFourFive, isOneTwo } from "./src/game/dice.js";
@@ -900,10 +937,13 @@ import { getMatchResultSummaryRows } from "./src/ui/matchResultSummary.js";
 import { buildLastChanceStatus } from "./src/ui/lastChanceStatus.js";
 import { startAnonymousAuth } from "./src/firebase/auth.js";
 import { linkGuestToGoogle, signInExistingGoogleAccount } from "./src/firebase/accountLinking.js";
-import { DEFAULT_AVATAR_PREFERENCE, getPlayerProfile, syncPlayerProfile } from "./src/firebase/profile.js";
+import { DEFAULT_AVATAR_PREFERENCE, getAvatarPreferenceLabel, getPlayerProfile, syncPlayerProfile } from "./src/firebase/profile.js";
 import { submitUnverifiedMatchResult } from "./src/firebase/matchResults.js";
 import { getTrustedPlayerStats } from "./src/firebase/playerStats.js";
 import { getPlayerMatchHistory } from "./src/firebase/matchHistory.js";
+import { getPublicProfile, getSocialState, submitSocialAction } from "./src/firebase/social.js";
+import { buildSocialViewModel, summarizeFriendshipState } from "./src/product/social.js";
+import { buildRematchRoomSeed, canOfferRematch, getRematchButtonText } from "./src/product/rematch.js";
 import { buildRoomFirebaseErrorLog, getRoomCreateErrorMessage } from "./src/firebase/roomErrors.js";
 import { getLastMatchResult, recordGameEndMatchResult } from "./src/product/matchResultSession.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
@@ -937,7 +977,7 @@ const els={
   board:$('#board'),inner:$('#boardInner'),bar:$('#barArea'),diceDock:$('#diceDock'),die1:$('#die1'),die2:$('#die2'),msg:$('#boardMessage'),
   rollBtn:$('#rollBtn'),undoBtn:$('#undoBtn'),endBtn:$('#endBtn'),newBtn:$('#newBtn'),newBtn2:$('#newBtn2'),soundToggleBtn:$('#soundToggleBtn'),rollModeToggleBtn:$('#rollModeToggleBtn'),welcomeStep:$('#welcomeStep'),guestNameStep:$('#guestNameStep'),gameSetupStep:$('#gameSetupStep'),welcomeGuestBtn:$('#welcomeGuestBtn'),welcomeGoogleBtn:$('#welcomeGoogleBtn'),welcomeMessage:$('#welcomeMessage'),welcomeSetupNote:$('#welcomeSetupNote'),homeTitle:$('#homeTitle'),homeAccountAvatar:$('#homeAccountAvatar'),homeAccountName:$('#homeAccountName'),homeAccountBadge:$('#homeAccountBadge'),homeAccountStatus:$('#homeAccountStatus'),homeSaveSummary:$('#homeSaveSummary'),homeProfileBtn:$('#homeProfileBtn'),homeProgressNote:$('#homeProgressNote'),guestNameInput:$('#guestNameInput'),guestNameContinueBtn:$('#guestNameContinueBtn'),guestNameBackBtn:$('#guestNameBackBtn'),
   turnPill:$('#turnPill'),colorPill:$('#colorPill'),dicePill:$('#dicePill'),specialPill:$('#specialPill'),profileChip:$('#profileChip'),profileChipAvatar:$('#profileChipAvatar'),profileChipName:$('#profileChipName'),profileChipStatus:$('#profileChipStatus'),
-  profilePanel:$('#profilePanel'),profilePanelUpgrade:$('.profilePanelUpgrade'),profilePanelAvatar:$('#profilePanelAvatar'),profilePanelName:$('#profilePanelName'),profilePanelStatus:$('#profilePanelStatus'),profilePanelNote:$('#profilePanelNote'),profilePanelUpgradeTitle:$('#profilePanelUpgradeTitle'),profilePanelUpgradeBody:$('#profilePanelUpgradeBody'),profilePanelGoogleBtn:$('#profilePanelGoogleBtn'),profilePanelLinkMessage:$('#profilePanelLinkMessage'),profilePanelUpgradeNote:$('#profilePanelUpgradeNote'),profilePanelStats:$('#profilePanelStats'),profilePanelPlaceholderNote:$('#profilePanelPlaceholderNote'),profilePanelStatsGuidance:$('#profilePanelStatsGuidance'),profilePanelRefreshStatsBtn:$('#profilePanelRefreshStatsBtn'),profilePanelStatsStatus:$('#profilePanelStatsStatus'),profilePanelHistory:$('#profilePanelHistory'),profilePanelHistoryStatus:$('#profilePanelHistoryStatus'),profilePanelForm:$('#profilePanelForm'),profileDisplayNameInput:$('#profileDisplayNameInput'),profileAvatarChoices:$('#profileAvatarChoices'),profilePanelSaveBtn:$('#profilePanelSaveBtn'),profilePanelSaveMessage:$('#profilePanelSaveMessage'),profilePanelCloseBtn:$('#profilePanelCloseBtn'),profilePanelCloseAction:$('#profilePanelCloseAction'),
+  profilePanel:$('#profilePanel'),profilePanelUpgrade:$('.profilePanelUpgrade'),profilePanelAvatar:$('#profilePanelAvatar'),profilePanelName:$('#profilePanelName'),profilePanelStatus:$('#profilePanelStatus'),profilePanelNote:$('#profilePanelNote'),profilePanelUpgradeTitle:$('#profilePanelUpgradeTitle'),profilePanelUpgradeBody:$('#profilePanelUpgradeBody'),profilePanelGoogleBtn:$('#profilePanelGoogleBtn'),profilePanelLinkMessage:$('#profilePanelLinkMessage'),profilePanelUpgradeNote:$('#profilePanelUpgradeNote'),profilePanelStats:$('#profilePanelStats'),profilePanelPlaceholderNote:$('#profilePanelPlaceholderNote'),profilePanelStatsGuidance:$('#profilePanelStatsGuidance'),profilePanelRefreshStatsBtn:$('#profilePanelRefreshStatsBtn'),profilePanelStatsStatus:$('#profilePanelStatsStatus'),profilePanelHistory:$('#profilePanelHistory'),profilePanelHistoryStatus:$('#profilePanelHistoryStatus'),profilePanelSocialSummary:$('#profilePanelSocialSummary'),profilePanelIncomingRequests:$('#profilePanelIncomingRequests'),profilePanelRecentOpponents:$('#profilePanelRecentOpponents'),profilePanelFriends:$('#profilePanelFriends'),profilePanelSocialStatus:$('#profilePanelSocialStatus'),profilePanelForm:$('#profilePanelForm'),profileDisplayNameInput:$('#profileDisplayNameInput'),profileAvatarChoices:$('#profileAvatarChoices'),profilePanelSaveBtn:$('#profilePanelSaveBtn'),profilePanelSaveMessage:$('#profilePanelSaveMessage'),profilePanelCloseBtn:$('#profilePanelCloseBtn'),profilePanelCloseAction:$('#profilePanelCloseAction'),publicProfileSheet:$('#publicProfileSheet'),publicProfileAvatar:$('#publicProfileAvatar'),publicProfileName:$('#publicProfileName'),publicProfileStats:$('#publicProfileStats'),publicProfileActions:$('#publicProfileActions'),publicProfileStatus:$('#publicProfileStatus'),publicProfileCloseBtn:$('#publicProfileCloseBtn'),rematchBtn:$('#rematchBtn'),
   difficultyInfo:$('#difficultyInfo'),modeInfo:$('#modeInfo'),barInfo:$('#barInfo'),offInfo:$('#offInfo'),remainingMoves:$('#remainingMoves'),
   countdownInfo:$('#countdownInfo'),countdownText:$('#countdownText'),log:$('#log'),barWhite:$('#barWhite'),barBlack:$('#barBlack'),
   offWhite:$('#offWhite'),offBlack:$('#offBlack'),pipWhite:$('#pipWhite'),pipBlack:$('#pipBlack'),startModal:$('#startModal'),startBtn:$('#startBtn'),difficultySelect:$('#difficultySelect'),
@@ -949,6 +989,8 @@ const profilePreferences={displayName:'',displayNameDraft:null,avatarPreference:
 const welcomeState={completed:false,message:'',tone:''};
 const trustedStatsState={trustedStats:null,hasTrustedStats:false,refreshMessage:'',refreshTone:'',lastCheckedLabel:'',isRefreshing:false,verificationStatusMessage:'',lastAutoRefreshAt:0};
 const matchHistoryState={history:[],isLoading:false,errorMessage:'',lastAutoRefreshAt:0};
+const socialState={friends:{},incomingRequests:{},outgoingRequests:{},publicProfiles:{},recentOpponents:[],isLoading:false,isBusy:false,message:'',lastAutoRefreshAt:0,selectedPublicProfile:null};
+const rematchState={busy:false,lastRoomCode:''};
 
 const lobbySelection={lastMode:''};
 const roomActionState={creating:false,joining:false};
@@ -1141,6 +1183,7 @@ async function refreshMatchHistory(){
   }finally{
     matchHistoryState.isLoading=false;
     matchHistoryState.lastAutoRefreshAt=Date.now();
+    void refreshSocialState();
     renderProfileStatus();
   }
 }
@@ -1150,6 +1193,54 @@ function refreshMatchHistoryAutomatically({minIntervalMs=5000}={}){
   if(now-(matchHistoryState.lastAutoRefreshAt||0)<minIntervalMs)return;
   void refreshMatchHistory();
 }
+async function refreshSocialState(){
+  if(socialState.isLoading)return;
+  socialState.isLoading=true;
+  renderProfileStatus();
+  try{
+    const uid=authSession.getUid();
+    const result=await getSocialState({database:db,ref,get,uid,history:matchHistoryState.history,logger:console});
+    if(result.state)Object.assign(socialState,result.state,{message:''});
+    else socialState.message='לא הצלחנו לטעון חברים כרגע.';
+  }catch(error){
+    console.warn('Social refresh failed unexpectedly.',error);
+    socialState.message='לא הצלחנו לטעון חברים כרגע.';
+  }finally{
+    socialState.isLoading=false;
+    socialState.lastAutoRefreshAt=Date.now();
+    renderProfileStatus();
+  }
+}
+function refreshSocialStateAutomatically({minIntervalMs=5000}={}){
+  const now=Date.now();
+  if(socialState.isLoading)return;
+  if(now-(socialState.lastAutoRefreshAt||0)<minIntervalMs)return;
+  void refreshSocialState();
+}
+async function runSocialAction(type,targetUid){
+  if(socialState.isBusy)return;
+  socialState.isBusy=true;
+  socialState.message='שולח פעולה...';
+  renderProfileStatus();
+  try{
+    const result=await submitSocialAction({database:db,ref,set,uid:authSession.getUid(),type,targetUid});
+    socialState.message=result.skipped?'לא הצלחנו לשלוח פעולה כרגע.':'הפעולה נשלחה.';
+    setTimeout(()=>refreshSocialState(),900);
+  }catch(error){
+    console.warn('Social action failed.',error);
+    socialState.message='לא הצלחנו לבצע את הפעולה. נסה שוב.';
+  }finally{
+    socialState.isBusy=false;
+    renderProfileStatus();
+  }
+}
+async function openPublicProfile(uid){
+  if(!uid)return;
+  const result=await getPublicProfile({database:db,ref,get,uid,logger:console});
+  socialState.selectedPublicProfile=result.profile||socialState.publicProfiles[uid]||{uid,displayName:'יריב',stats:{}};
+  renderPublicProfileSheet();
+}
+function closePublicProfile(){socialState.selectedPublicProfile=null;renderPublicProfileSheet();}
 function scheduleTrustedStatsRefresh(){setTimeout(()=>{void refreshTrustedStats();},3500);}
 function setVerificationStatusMessage(message=''){trustedStatsState.verificationStatusMessage=message;renderProfileStatus();}
 
@@ -1182,6 +1273,110 @@ function renderProfileLinkMessage(fallbackMessage=''){
   els.profilePanelLinkMessage.textContent=profilePreferences.linkMessage||fallbackMessage;
   els.profilePanelLinkMessage.classList.remove('success','warning');
   if(profilePreferences.linkTone)els.profilePanelLinkMessage.classList.add(profilePreferences.linkTone);
+}
+function createSocialButton(text,onClick,{dark=false}={}){
+  const btn=document.createElement('button');
+  btn.type='button';
+  btn.className=dark?'btn dark':'btn';
+  btn.textContent=text;
+  btn.disabled=!!socialState.isBusy;
+  btn.addEventListener('click',onClick);
+  return btn;
+}
+function createSocialRow({uid,displayName,avatarPreference='default',meta='',actions=[]}={}){
+  const row=document.createElement('div');
+  row.className='profilePanelSocialRow';
+  const avatar=document.createElement('div');
+  avatar.className='profilePanelSocialAvatar';
+  avatar.textContent=getAvatarPreferenceLabel(avatarPreference);
+  const body=document.createElement('div');
+  const name=document.createElement('div');
+  name.className='profilePanelSocialName';
+  name.textContent=displayName||'יריב';
+  const sub=document.createElement('div');
+  sub.className='profilePanelSocialMeta';
+  sub.textContent=meta;
+  body.append(name,sub);
+  const actionWrap=document.createElement('div');
+  actionWrap.className='profilePanelSocialActions';
+  actions.forEach(action=>actionWrap.append(action));
+  row.append(avatar,body,actionWrap);
+  row.dataset.uid=uid||'';
+  return row;
+}
+function renderSocialList(container,rows,emptyText){
+  if(!container)return;
+  container.replaceChildren();
+  if(!rows.length){
+    const empty=document.createElement('p');
+    empty.className='profilePanelPlaceholderNote';
+    empty.textContent=emptyText;
+    container.append(empty);
+    return;
+  }
+  rows.forEach(row=>container.append(row));
+}
+function renderSocialPanel(){
+  const view=buildSocialViewModel({...socialState,actionBusy:socialState.isBusy,message:socialState.message});
+  if(els.profilePanelSocialSummary)els.profilePanelSocialSummary.textContent=`${view.friendsCount} חברים · ${view.incomingRows.length} בקשות נכנסות · ${view.outgoingCount} בקשות שנשלחו`;
+  if(els.profilePanelSocialStatus)els.profilePanelSocialStatus.textContent=socialState.isLoading?'טוען חברים...':view.message;
+  renderSocialList(els.profilePanelIncomingRequests,view.incomingRows.map(request=>createSocialRow({
+    uid:request.uid,
+    displayName:request.displayName,
+    meta:'בקשת חברות',
+    actions:[
+      createSocialButton('אשר',()=>runSocialAction('acceptRequest',request.uid)),
+      createSocialButton('דחה',()=>runSocialAction('declineRequest',request.uid),{dark:true}),
+    ],
+  })),'אין בקשות חברות חדשות.');
+  renderSocialList(els.profilePanelFriends,view.friendRows.map(friend=>createSocialRow({
+    uid:friend.uid,
+    displayName:friend.displayName,
+    avatarPreference:friend.avatarPreference,
+    meta:friend.statsText,
+    actions:[
+      createSocialButton('פרופיל',()=>openPublicProfile(friend.uid)),
+      createSocialButton('הזמן',()=>createInviteRoomFor(friend.uid)),
+      createSocialButton('הסר',()=>runSocialAction('removeFriend',friend.uid),{dark:true}),
+    ],
+  })),view.emptyFriendsText);
+  renderSocialList(els.profilePanelRecentOpponents,view.recentOpponents.map(opponent=>{
+    const friendship=summarizeFriendshipState({uid:opponent.uid,friends:socialState.friends,incomingRequests:socialState.incomingRequests,outgoingRequests:socialState.outgoingRequests});
+    const action=friendship==='friends'
+      ? createSocialButton('הזמן',()=>createInviteRoomFor(opponent.uid))
+      : friendship==='outgoing'
+        ? createSocialButton('נשלחה',()=>{}, {dark:true})
+        : friendship==='incoming'
+          ? createSocialButton('אשר',()=>runSocialAction('acceptRequest',opponent.uid))
+          : createSocialButton('הוסף',()=>runSocialAction('sendRequest',opponent.uid));
+    return createSocialRow({
+      uid:opponent.uid,
+      displayName:opponent.displayName,
+      avatarPreference:opponent.avatarPreference,
+      meta:`${opponent.lastResult==='win'?'ניצחון':'הפסד'} אחרון`,
+      actions:[createSocialButton('פרופיל',()=>openPublicProfile(opponent.uid)),action],
+    });
+  }),'אין עדיין יריבים אחרונים.');
+}
+function renderPublicProfileSheet(){
+  const profile=socialState.selectedPublicProfile;
+  if(!els.publicProfileSheet)return;
+  els.publicProfileSheet.hidden=!profile;
+  if(!profile)return;
+  if(els.publicProfileAvatar)els.publicProfileAvatar.textContent=getAvatarPreferenceLabel(profile.avatarPreference);
+  if(els.publicProfileName)els.publicProfileName.textContent=profile.displayName||'יריב';
+  if(els.publicProfileStats)els.publicProfileStats.textContent=`${profile.stats?.gamesPlayed||0} משחקים · ${profile.stats?.wins||0} ניצחונות · ${profile.stats?.winRate||0}%`;
+  if(els.publicProfileStatus)els.publicProfileStatus.textContent=socialState.message||'';
+  if(els.publicProfileActions){
+    els.publicProfileActions.replaceChildren();
+    const uid=profile.uid;
+    const friendship=summarizeFriendshipState({uid,friends:socialState.friends,incomingRequests:socialState.incomingRequests,outgoingRequests:socialState.outgoingRequests});
+    els.publicProfileActions.append(createSocialButton('הזמן למשחק',()=>createInviteRoomFor(uid)));
+    if(friendship==='friends')els.publicProfileActions.append(createSocialButton('הסר חבר',()=>runSocialAction('removeFriend',uid),{dark:true}));
+    else if(friendship==='incoming')els.publicProfileActions.append(createSocialButton('אשר בקשה',()=>runSocialAction('acceptRequest',uid)));
+    else if(friendship==='outgoing')els.publicProfileActions.append(createSocialButton('הבקשה נשלחה',()=>{}, {dark:true}));
+    else els.publicProfileActions.append(createSocialButton('שלח בקשת חברות',()=>runSocialAction('sendRequest',uid)));
+  }
 }
 function renderProfileAvatarChoices(view){
   if(!els.profileAvatarChoices)return;
@@ -1401,11 +1596,23 @@ function renderProfilePanel(){
       const sub=document.createElement('div');
       sub.className='profilePanelHistorySub';
       sub.textContent=row.subtitle;
+      if(row.opponentUid){
+        const openBtn=document.createElement('button');
+        openBtn.type='button';
+        openBtn.className='btn dark';
+        openBtn.textContent='פרופיל';
+        openBtn.style.minHeight='26px';
+        openBtn.style.padding='4px 7px';
+        openBtn.addEventListener('click',()=>openPublicProfile(row.opponentUid));
+        sub.append(' · ',openBtn);
+      }
       item.append(title,meta,sub);
       els.profilePanelHistory.append(item);
     });
   }
   if(els.profilePanelHistoryStatus)els.profilePanelHistoryStatus.textContent=view.matchHistoryView?.message||'';
+  renderSocialPanel();
+  renderPublicProfileSheet();
 }
 function setProfilePanelOpen(isOpen){
   if(!els.profilePanel)return;
@@ -1416,6 +1623,7 @@ function setProfilePanelOpen(isOpen){
   els.profileChip?.setAttribute('aria-expanded',isOpen?'true':'false');
   if(isOpen)refreshTrustedStatsAutomatically();
   if(isOpen)refreshMatchHistoryAutomatically();
+  if(isOpen)refreshSocialStateAutomatically();
   if(isOpen)els.profilePanelCloseBtn?.focus();
 }
 function toggleProfilePanel(){
@@ -1523,7 +1731,7 @@ function resetForNewGame(){
   renderAll();renderLog();els.startModal.classList.add('show');if(els.roomLobby)els.roomLobby.style.display='none';showMessage('משחק חדש');
 }
 
-function renderAll(){renderBoard();renderUI();renderLastChancePersistentStatus();renderProfileStatus();refreshRollModeToggle();}
+function renderAll(){renderBoard();renderUI();renderLastChancePersistentStatus();renderProfileStatus();renderRematchButton();refreshRollModeToggle();}
 function canEndCurrentTurn(){
   const local=localActor();
   if(!(state.currentActor===local&&state.status==='humanMoving'&&!state.gameOver&&!state.animating))return false;
@@ -2031,6 +2239,63 @@ function applyRoomPlayerIdentity(room){const p=room?.players||{};state.playerIds
 function subscribeRoom(code){if(state.roomUnsub){state.roomUnsub();state.roomUnsub=null;}state.roomCode=code;const rr=roomRef(code);state.roomUnsub=onValue(rr,snap=>{const room=snap.val();if(!room){showMessage('החדר לא קיים');return}applyRoomPlayerIdentity(room);renderLobby(room);renderProfileStatus();if(room.reaction&&room.reaction.id!==subscribeRoom.lastReaction){subscribeRoom.lastReaction=room.reaction.id;if(room.reaction.from!==state.localActor)showReaction(room.reaction.text,room.reaction.from)}if(room.game)applyShared(room.game);if(!room.game&&room.players?.human&&room.players?.computer&&room.ready?.human&&room.ready?.computer&&state.localActor==='human'&&state.status!=='opening')startOnlineOpening();});}
 async function createRoom(){renderRoomCreating();try{await waitForRoomAuth();const code=await generateRoomCode();state.gameMode='online';state.localActor='human';state.playerId=localPlayerId();state.playerNames={human:localPlayerName(),computer:'מחכה לחבר'};state.playerIds={human:state.playerId,computer:null};state.playerUids={human:authSession.getUid?.()||null,computer:null};renderProfileStatus();syncCurrentPlayerProfile(state.playerNames.human);state.diceMode=state.diceMode||'manual';state.status='lobby';const room={roomCode:code,createdAt:Date.now(),updatedAt:Date.now(),diceMode:state.diceMode,players:{human:{id:state.playerId,uid:state.playerUids.human,name:state.playerNames.human,connected:true},computer:null},ready:{human:false,computer:false},game:null,reaction:null};await set(roomRef(code),room);state.roomCode=code;els.startModal.classList.add('show');renderLobby(room);subscribeRoom(code);showMessage('חדר נפתח');}catch(e){logRoomCreateFailure(e);state.roomCode=null;const message=getRoomCreateErrorMessage(e);renderRoomCreateError(message);showMessage(message)}}
 async function joinRoom(){try{await waitForRoomAuth();const code=(els.joinCodeInput.value||'').trim();if(!/^\d{4}$/.test(code))return showMessage('קוד חדר חייב להיות 4 ספרות');const snap=await get(roomRef(code));if(!snap.exists())return showMessage('החדר לא נמצא');const room=snap.val();if(room.players?.computer&&room.players.computer.id!==localPlayerId())return showMessage('החדר מלא');state.gameMode='online';state.localActor=room.players?.human?.id===localPlayerId()?'human':'computer';state.playerId=localPlayerId();applyRoomPlayerIdentity(room);if(state.localActor==='computer'){const joiningPlayerName=localPlayerName();const joiningUid=authSession.getUid?.()||null;syncCurrentPlayerProfile(joiningPlayerName);state.playerIds.computer=state.playerId;state.playerUids.computer=joiningUid;await update(roomRef(code),{['players/computer']:{id:state.playerId,uid:joiningUid,name:joiningPlayerName,connected:true},['ready/computer']:false,updatedAt:Date.now()});}else{syncCurrentPlayerProfile(room.players?.human?.name||localPlayerName());}state.diceMode=room.diceMode||state.diceMode||'manual';state.status='lobby';renderProfileStatus();els.startModal.classList.add('show');subscribeRoom(code);showMessage('הצטרפת לחדר');}catch(e){console.error(e);showMessage('בעיה בהצטרפות')}}
+async function createInviteRoomFor(targetUid,{rematchSeed=null}={}){
+  if(!targetUid||roomActionState.creating)return;
+  roomActionState.creating=true;
+  socialState.message='פותח חדר הזמנה...';
+  renderProfileStatus();
+  try{
+    await waitForRoomAuth();
+    const code=await generateRoomCode();
+    const targetProfile=socialState.publicProfiles[targetUid]||socialState.selectedPublicProfile||{};
+    state.gameMode='online';
+    state.localActor='human';
+    state.playerId=localPlayerId();
+    state.playerNames={human:localPlayerName(),computer:targetProfile.displayName||'מחכה לחבר'};
+    state.playerIds={human:state.playerId,computer:null};
+    state.playerUids={human:authSession.getUid?.()||null,computer:null};
+    syncCurrentPlayerProfile(state.playerNames.human);
+    state.diceMode=state.diceMode||'manual';
+    state.status='lobby';
+    const room={roomCode:code,createdAt:Date.now(),updatedAt:Date.now(),diceMode:state.diceMode,inviteFor:targetUid,rematch:rematchSeed,players:{human:{id:state.playerId,uid:state.playerUids.human,name:state.playerNames.human,connected:true},computer:null},ready:{human:false,computer:false},game:null,reaction:null};
+    await set(roomRef(code),room);
+    state.roomCode=code;
+    els.startModal.classList.add('show');
+    renderLobby(room);
+    subscribeRoom(code);
+    socialState.message=`נפתח חדר ${code}. שלח את הקוד לחבר.`;
+    showMessage(`חדר ${code} נפתח`);
+  }catch(error){
+    console.error(error);
+    socialState.message='לא הצלחנו לפתוח חדר הזמנה.';
+    showMessage('לא הצלחנו לפתוח חדר הזמנה');
+  }finally{
+    roomActionState.creating=false;
+    renderProfileStatus();
+  }
+}
+function renderRematchButton(){
+  if(!els.rematchBtn)return;
+  const matchResult=getLastMatchResult();
+  const canRematch=canOfferRematch({matchResult,gameMode:state.gameMode,roomCode:state.roomCode,playerUids:state.playerUids});
+  els.rematchBtn.hidden=!canRematch;
+  els.rematchBtn.disabled=rematchState.busy;
+  els.rematchBtn.textContent=getRematchButtonText({busy:rematchState.busy});
+}
+async function createRematchRoom(){
+  if(rematchState.busy)return;
+  const matchResult=getLastMatchResult();
+  const other=state.localActor==='human'?'computer':'human';
+  const targetUid=state.playerUids?.[other];
+  const requesterUid=authSession.getUid?.();
+  const seed=buildRematchRoomSeed({previousMatchId:matchResult?.matchId,roomCode:state.roomCode,requesterUid,targetUid,requesterName:state.playerNames?.[state.localActor],targetName:state.playerNames?.[other]});
+  if(!seed)return showMessage('אי אפשר לפתוח משחק נוסף כרגע');
+  rematchState.busy=true;
+  renderRematchButton();
+  await createInviteRoomFor(targetUid,{rematchSeed:seed});
+  rematchState.busy=false;
+  renderRematchButton();
+}
 async function toggleReady(){if(!isOnline()||!state.roomCode)return;const snap=await get(roomRef(state.roomCode+'/ready/'+state.localActor));const cur=!!snap.val();await update(roomRef(state.roomCode),{['ready/'+state.localActor]:!cur,updatedAt:Date.now()});}
 async function startOnlineOpening(){state.status='opening';state.diceMode=state.diceMode||'manual';state.difficulty='medium';state.log=[];setInitialBoard();state.gameOver=false;state.lastChance=null;state.pendingVictory=null;state.lastMove=null;state.lastMoveSeen=null;state.lastVictorySeen=null;state.winnerColor=null;state.stolen=false;state.victoryId=null;state.lastChanceRollingSeen=null;state.lastChanceResultSeen=null;state.doubleStreak={human:0,computer:0};state.dice=[0,0];state.remaining=[];addLog('גלגולת פתיחה אונליין מתחילה','special');renderAll();await syncShared('openingStart');let h,c;do{[h,c]=rollDicePair();state.dice=[h,c];addLog(`${actorName('human')} גלגל: ${h}`);addLog(`${actorName('computer')} גלגל: ${c}`);if(h===c){addLog('תיקו בפתיחה — מגלגלים שוב','special')}}while(h===c);if(h>c){state.humanColor=WHITE;state.computerColor=BLACK;state.currentActor='human';addLog(`${actorName('human')} מתחיל ומשחק בלבן`,'special')}else{state.humanColor=BLACK;state.computerColor=WHITE;state.currentActor='computer';addLog(`${actorName('computer')} מתחיל ומשחק בלבן`,'special')}await syncShared('openingDone');setTimeout(()=>startTurn(state.currentActor),900);}
 async function sendReaction(text){
@@ -2140,6 +2405,8 @@ function setupEvents(){
   els.profileChip?.addEventListener('click',toggleProfilePanel);
   els.profilePanelCloseBtn?.addEventListener('click',()=>setProfilePanelOpen(false));
   els.profilePanelCloseAction?.addEventListener('click',()=>setProfilePanelOpen(false));
+  els.publicProfileCloseBtn?.addEventListener('click',closePublicProfile);
+  els.rematchBtn?.addEventListener('click',createRematchRoom);
   document.addEventListener('keydown',event=>{if(event.key==='Escape')setProfilePanelOpen(false);});
   document.addEventListener('pointerdown',event=>{if(els.profilePanel?.hidden)return;if(els.profilePanel.contains(event.target)||els.profileChip?.contains(event.target))return;setProfilePanelOpen(false);});
   els.modeComputerBtn.addEventListener('click',()=>{lobbySelection.lastMode='computer';els.modeComputerBtn.classList.add('active');els.modeFriendBtn.classList.remove('active');els.modeRulesBtn.classList.remove('active');els.computerPanel.classList.add('show');els.onlinePanel.classList.remove('show');els.rulesPanel.classList.remove('show');els.gameSetupStep?.classList.remove('friendModeActive')});

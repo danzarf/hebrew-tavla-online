@@ -24,3 +24,25 @@ test('trusted stats and debug output paths remain client-write blocked', () => {
 
   assert.equal(rules.playerStats.$uid['.write'], false);
 });
+
+test('social derived paths are server-owned and scoped for reads', () => {
+  assert.equal(rules.publicProfiles.$uid['.read'], 'auth != null');
+  assert.equal(rules.publicProfiles.$uid['.write'], false);
+  assert.equal(rules.friends.$uid['.read'], 'auth != null && auth.uid == $uid');
+  assert.equal(rules.friends.$uid['.write'], false);
+  assert.equal(rules.friendRequests.$targetUid.$requesterUid['.write'], false);
+  assert.equal(
+    rules.friendRequests.$targetUid.$requesterUid['.read'],
+    'auth != null && (auth.uid == $targetUid || auth.uid == $requesterUid)',
+  );
+});
+
+test('social actions can only be created by the owning authenticated user', () => {
+  const actionRule = rules.socialActions.$uid.$actionId;
+  assert.match(actionRule['.write'], /auth\.uid == \$uid/);
+  assert.match(actionRule['.write'], /newData\.child\('actorUid'\)\.val\(\) == auth\.uid/);
+  assert.match(actionRule['.write'], /newData\.child\('targetUid'\)\.val\(\) != auth\.uid/);
+  assert.equal(actionRule.actorUid['.validate'], 'newData.isString() && newData.val() == auth.uid');
+  assert.match(actionRule.type['.validate'], /sendRequest/);
+  assert.match(actionRule.type['.validate'], /removeFriend/);
+});

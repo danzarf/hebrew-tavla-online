@@ -2,6 +2,8 @@ import { initializeApp } from 'firebase-admin/app';
 import { getDatabase } from 'firebase-admin/database';
 import { onValueWritten } from 'firebase-functions/v2/database';
 import { processMatchResultSubmission, shouldProcessSubmission } from './processor.js';
+import { updatePublicProfileProjection } from './publicProfile.js';
+import { processSocialAction } from './social.js';
 
 const TRUSTED_STATS_DATABASE_REGION = 'europe-west1';
 const TRUSTED_STATS_DATABASE_INSTANCE = process.env.FIREBASE_DATABASE_INSTANCE || 'hebrew-tavla-online-default-rtdb';
@@ -32,6 +34,45 @@ export const onMatchResultSubmissionCreated = onValueWritten(
       raw,
       uid,
       matchId,
+    });
+  },
+);
+
+export const onPlayerProfileWritten = onValueWritten(
+  {
+    ref: '/profiles/{uid}',
+    region: TRUSTED_STATS_DATABASE_REGION,
+    instance: TRUSTED_STATS_DATABASE_INSTANCE,
+    serviceAccount: TRUSTED_STATS_RUNTIME_SERVICE_ACCOUNT,
+  },
+  async (event) => {
+    const { uid } = event.params;
+    const profile = event.data?.after?.val();
+    if (!profile) return;
+    await updatePublicProfileProjection({
+      db: getDatabase(app),
+      uid,
+      profile,
+    });
+  },
+);
+
+export const onSocialActionCreated = onValueWritten(
+  {
+    ref: '/socialActions/{uid}/{actionId}',
+    region: TRUSTED_STATS_DATABASE_REGION,
+    instance: TRUSTED_STATS_DATABASE_INSTANCE,
+    serviceAccount: TRUSTED_STATS_RUNTIME_SERVICE_ACCOUNT,
+  },
+  async (event) => {
+    const { uid, actionId } = event.params;
+    const raw = event.data?.after?.val();
+    if (!raw || raw.serverReview) return;
+    await processSocialAction({
+      db: getDatabase(app),
+      raw,
+      uid,
+      actionId,
     });
   },
 );
