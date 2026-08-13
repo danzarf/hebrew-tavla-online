@@ -1,4 +1,4 @@
-name: Deploy Trusted Stats Function
+name: Deploy Backend Functions
 
 on:
   workflow_dispatch:
@@ -12,6 +12,7 @@ jobs:
       FIREBASE_PROJECT_ID: hebrew-tavla-online
       FIREBASE_PROJECT_NUMBER: "917406478506"
       TRUSTED_STATS_RUNTIME_SERVICE_ACCOUNT: firebase-adminsdk-fbsvc@hebrew-tavla-online.iam.gserviceaccount.com
+      BACKEND_FUNCTIONS: functions:onMatchResultSubmissionCreated,functions:onPlayerProfileWritten,functions:onSocialActionCreated
 
     steps:
       - name: Checkout
@@ -39,6 +40,28 @@ jobs:
 
       - name: Check whitespace errors
         run: git diff --check
+
+      - name: Verify deploy list covers exported backend functions
+        run: |
+          set -euo pipefail
+          node - <<'NODE'
+          const fs = require('node:fs');
+          const source = fs.readFileSync('functions/src/index.js', 'utf8');
+          const exportedFunctions = [...source.matchAll(/export const (\w+)\s*=/g)].map((match) => match[1]).sort();
+          const deployFunctions = (process.env.BACKEND_FUNCTIONS || '')
+            .split(',')
+            .map((item) => item.trim().replace(/^functions:/, ''))
+            .filter(Boolean)
+            .sort();
+          const missing = exportedFunctions.filter((name) => !deployFunctions.includes(name));
+          const extra = deployFunctions.filter((name) => !exportedFunctions.includes(name));
+          if (missing.length || extra.length) {
+            if (missing.length) console.error(`Missing from BACKEND_FUNCTIONS: ${missing.join(', ')}`);
+            if (extra.length) console.error(`Unknown in BACKEND_FUNCTIONS: ${extra.join(', ')}`);
+            process.exit(1);
+          }
+          console.log(`Backend deploy list covers: ${deployFunctions.join(', ')}`);
+          NODE
 
       - name: Prepare Firebase credentials
         env:
@@ -132,7 +155,7 @@ jobs:
           REQUIRED_MEMBER: serviceAccount:917406478506-compute@developer.gserviceaccount.com
           REQUIRED_ROLE: roles/cloudbuild.builds.builder
 
-      - name: Check trusted stats runtime database role
+      - name: Check backend functions runtime database role
         run: |
           set -euo pipefail
           required_member="serviceAccount:${TRUSTED_STATS_RUNTIME_SERVICE_ACCOUNT}"
@@ -156,12 +179,12 @@ jobs:
             exit 1
           fi
 
-          echo "Trusted stats runtime service account has Firebase Admin or Firebase Realtime Database Admin: ${TRUSTED_STATS_RUNTIME_SERVICE_ACCOUNT}"
+          echo "Backend functions runtime service account has Firebase Admin or Firebase Realtime Database Admin: ${TRUSTED_STATS_RUNTIME_SERVICE_ACCOUNT}"
         env:
           REQUIRED_MEMBER: serviceAccount:firebase-adminsdk-fbsvc@hebrew-tavla-online.iam.gserviceaccount.com
 
-      - name: Deploy onMatchResultSubmissionCreated only
-        run: GOOGLE_APPLICATION_CREDENTIALS="$FIREBASE_SERVICE_ACCOUNT_FILE" npx firebase-tools@latest deploy --project "$FIREBASE_PROJECT_ID" --only functions:onMatchResultSubmissionCreated --force
+      - name: Deploy backend functions
+        run: GOOGLE_APPLICATION_CREDENTIALS="$FIREBASE_SERVICE_ACCOUNT_FILE" npx firebase-tools@latest deploy --project "$FIREBASE_PROJECT_ID" --only "$BACKEND_FUNCTIONS" --force
 
       - name: Remove Firebase credentials
         if: always()
