@@ -5,6 +5,7 @@ import {
   sanitizeSubmission,
   validateSubmissionForTrustedStats,
 } from './verification.js';
+import { buildPlayerMatchHistoryUpdates } from './history.js';
 
 export function shouldProcessSubmission(raw) {
   return Boolean(raw && !raw.serverReview);
@@ -87,10 +88,12 @@ export async function processMatchResultSubmission({ db, raw, uid, matchId, now 
     const readableMatchEntry = buildReadableMatchDebugEntry(recentMatchEntry, matchNumber);
     const readableMatchKey = readableMatchEntry.matchNumberPadded;
     const latestDebugPath = recentMatchEntry.isDiagnostic ? 'debugLatestDiagnosticMatch' : 'debugLatestRealMatch';
+    const playerMatchHistoryUpdates = buildPlayerMatchHistoryUpdates(safe, reviewedAt);
 
     await db.ref().update({
       [`playerStats/${safe.winnerUid}`]: winnerNext,
       [`playerStats/${safe.loserUid}`]: loserNext,
+      ...playerMatchHistoryUpdates,
       [`recentMatches/${safe.matchId}`]: recentMatchEntry,
       [`readableMatches/${readableMatchKey}`]: readableMatchEntry,
       debugLatestMatch: readableMatchEntry,

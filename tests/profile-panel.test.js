@@ -184,3 +184,20 @@ test('profile panel shows google save section only for guest accounts', () => {
   assert.equal(guestView.showAccountUpgradeSection, true);
   assert.equal(linkedView.showAccountUpgradeSection, false);
 });
+
+test('profile panel exposes match history rows and states', () => {
+  const populated = buildProfilePanelViewModel({
+    matchHistory: [
+      { matchId: 'm1', opponentUid: 'u2', opponentDisplayName: 'דניאל 2', result: 'win', capturesMade: 9, capturesSuffered: 2, endedAt: 10 },
+    ],
+  });
+  assert.equal(populated.matchHistoryView.state, 'populated');
+  assert.equal(populated.matchHistoryView.rows[0].title, 'ניצחון מול דניאל 2');
+  assert.equal(populated.matchHistoryView.rows[0].subtitle, '9 אכילות | אכלו אותי 2');
+
+  const loading = buildProfilePanelViewModel({ matchHistoryLoading: true });
+  assert.equal(loading.matchHistoryView.state, 'loading');
+
+  const error = buildProfilePanelViewModel({ matchHistoryErrorMessage: 'לא נטען' });
+  assert.equal(error.matchHistoryView.state, 'error');
+});
