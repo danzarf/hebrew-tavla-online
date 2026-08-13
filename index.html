@@ -87,6 +87,13 @@ button,select,input{font-family:inherit}
 .profilePanelStat{min-width:0;padding:6px 5px;border-radius:12px;background:linear-gradient(180deg,rgba(255,255,255,.075),rgba(255,255,255,.045));border:1px solid rgba(255,231,176,.14)}
 .profilePanelStatLabel{display:block;font-size:12px;color:rgba(255,231,176,.88);font-weight:800;margin-bottom:4px;line-height:1.2}
 .profilePanelStatValue{display:inline-flex;align-items:center;gap:4px;padding:3px 7px;border-radius:999px;background:rgba(125,198,255,.14);border:1px solid rgba(125,198,255,.28);color:#d9eeff;font-size:11.5px;font-weight:900}
+.profilePanelHistory{display:grid;gap:6px}
+.profilePanelHistoryRow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 8px;align-items:center;padding:7px 8px;border-radius:12px;background:rgba(255,255,255,.055);border:1px solid rgba(255,231,176,.13);min-width:0}
+.profilePanelHistoryTitle{font-size:12px;font-weight:900;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.profilePanelHistoryMeta{font-size:10.5px;color:rgba(255,231,176,.72);white-space:nowrap}
+.profilePanelHistorySub{grid-column:1/3;font-size:11px;color:rgba(217,238,255,.86);line-height:1.25}
+.profilePanelHistoryRow.win{border-color:rgba(94,227,154,.28)}
+.profilePanelHistoryRow.loss{border-color:rgba(255,135,135,.22)}
 .profilePanelCloseAction{justify-self:start;margin-top:0;padding:7px 10px;border-radius:12px}
 .btn{border:0;border-radius:14px;padding:9px 13px;color:#24130b;background:linear-gradient(180deg,#ffe7a8,#c98534);font-weight:800;cursor:pointer;box-shadow:0 5px 0 #6b3a18,0 10px 18px rgba(0,0,0,.32);transition:.15s transform,.15s filter,.15s opacity;white-space:nowrap}
 .btn:hover:not(:disabled){filter:brightness(1.08);transform:translateY(-1px)}
@@ -621,6 +628,11 @@ body{
         <ul id="profilePanelStatsGuidance" class="profilePanelGuidanceList"></ul>
         <p id="profilePanelStatsStatus" class="profilePanelPlaceholderNote"></p>
       </section>
+      <section class="profilePanelSection" aria-label="היסטוריית משחקים">
+        <h3 class="profilePanelSectionTitle">היסטוריית משחקים</h3>
+        <div id="profilePanelHistory" class="profilePanelHistory" aria-live="polite"></div>
+        <p id="profilePanelHistoryStatus" class="profilePanelPlaceholderNote"></p>
+      </section>
       <section class="profilePanelUpgrade profilePanelSection" aria-labelledby="profilePanelUpgradeTitle">
         <div id="profilePanelUpgradeTitle" class="profilePanelUpgradeTitle">שמור התקדמות</div>
         <p id="profilePanelUpgradeBody" class="profilePanelUpgradeBody">כרגע אתה משחק כאורח. ההתקדמות קשורה לדפדפן או למכשיר הזה.</p>
@@ -891,6 +903,7 @@ import { linkGuestToGoogle, signInExistingGoogleAccount } from "./src/firebase/a
 import { DEFAULT_AVATAR_PREFERENCE, getPlayerProfile, syncPlayerProfile } from "./src/firebase/profile.js";
 import { submitUnverifiedMatchResult } from "./src/firebase/matchResults.js";
 import { getTrustedPlayerStats } from "./src/firebase/playerStats.js";
+import { getPlayerMatchHistory } from "./src/firebase/matchHistory.js";
 import { buildRoomFirebaseErrorLog, getRoomCreateErrorMessage } from "./src/firebase/roomErrors.js";
 import { getLastMatchResult, recordGameEndMatchResult } from "./src/product/matchResultSession.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
@@ -924,7 +937,7 @@ const els={
   board:$('#board'),inner:$('#boardInner'),bar:$('#barArea'),diceDock:$('#diceDock'),die1:$('#die1'),die2:$('#die2'),msg:$('#boardMessage'),
   rollBtn:$('#rollBtn'),undoBtn:$('#undoBtn'),endBtn:$('#endBtn'),newBtn:$('#newBtn'),newBtn2:$('#newBtn2'),soundToggleBtn:$('#soundToggleBtn'),rollModeToggleBtn:$('#rollModeToggleBtn'),welcomeStep:$('#welcomeStep'),guestNameStep:$('#guestNameStep'),gameSetupStep:$('#gameSetupStep'),welcomeGuestBtn:$('#welcomeGuestBtn'),welcomeGoogleBtn:$('#welcomeGoogleBtn'),welcomeMessage:$('#welcomeMessage'),welcomeSetupNote:$('#welcomeSetupNote'),homeTitle:$('#homeTitle'),homeAccountAvatar:$('#homeAccountAvatar'),homeAccountName:$('#homeAccountName'),homeAccountBadge:$('#homeAccountBadge'),homeAccountStatus:$('#homeAccountStatus'),homeSaveSummary:$('#homeSaveSummary'),homeProfileBtn:$('#homeProfileBtn'),homeProgressNote:$('#homeProgressNote'),guestNameInput:$('#guestNameInput'),guestNameContinueBtn:$('#guestNameContinueBtn'),guestNameBackBtn:$('#guestNameBackBtn'),
   turnPill:$('#turnPill'),colorPill:$('#colorPill'),dicePill:$('#dicePill'),specialPill:$('#specialPill'),profileChip:$('#profileChip'),profileChipAvatar:$('#profileChipAvatar'),profileChipName:$('#profileChipName'),profileChipStatus:$('#profileChipStatus'),
-  profilePanel:$('#profilePanel'),profilePanelUpgrade:$('.profilePanelUpgrade'),profilePanelAvatar:$('#profilePanelAvatar'),profilePanelName:$('#profilePanelName'),profilePanelStatus:$('#profilePanelStatus'),profilePanelNote:$('#profilePanelNote'),profilePanelUpgradeTitle:$('#profilePanelUpgradeTitle'),profilePanelUpgradeBody:$('#profilePanelUpgradeBody'),profilePanelGoogleBtn:$('#profilePanelGoogleBtn'),profilePanelLinkMessage:$('#profilePanelLinkMessage'),profilePanelUpgradeNote:$('#profilePanelUpgradeNote'),profilePanelStats:$('#profilePanelStats'),profilePanelPlaceholderNote:$('#profilePanelPlaceholderNote'),profilePanelStatsGuidance:$('#profilePanelStatsGuidance'),profilePanelRefreshStatsBtn:$('#profilePanelRefreshStatsBtn'),profilePanelStatsStatus:$('#profilePanelStatsStatus'),profilePanelForm:$('#profilePanelForm'),profileDisplayNameInput:$('#profileDisplayNameInput'),profileAvatarChoices:$('#profileAvatarChoices'),profilePanelSaveBtn:$('#profilePanelSaveBtn'),profilePanelSaveMessage:$('#profilePanelSaveMessage'),profilePanelCloseBtn:$('#profilePanelCloseBtn'),profilePanelCloseAction:$('#profilePanelCloseAction'),
+  profilePanel:$('#profilePanel'),profilePanelUpgrade:$('.profilePanelUpgrade'),profilePanelAvatar:$('#profilePanelAvatar'),profilePanelName:$('#profilePanelName'),profilePanelStatus:$('#profilePanelStatus'),profilePanelNote:$('#profilePanelNote'),profilePanelUpgradeTitle:$('#profilePanelUpgradeTitle'),profilePanelUpgradeBody:$('#profilePanelUpgradeBody'),profilePanelGoogleBtn:$('#profilePanelGoogleBtn'),profilePanelLinkMessage:$('#profilePanelLinkMessage'),profilePanelUpgradeNote:$('#profilePanelUpgradeNote'),profilePanelStats:$('#profilePanelStats'),profilePanelPlaceholderNote:$('#profilePanelPlaceholderNote'),profilePanelStatsGuidance:$('#profilePanelStatsGuidance'),profilePanelRefreshStatsBtn:$('#profilePanelRefreshStatsBtn'),profilePanelStatsStatus:$('#profilePanelStatsStatus'),profilePanelHistory:$('#profilePanelHistory'),profilePanelHistoryStatus:$('#profilePanelHistoryStatus'),profilePanelForm:$('#profilePanelForm'),profileDisplayNameInput:$('#profileDisplayNameInput'),profileAvatarChoices:$('#profileAvatarChoices'),profilePanelSaveBtn:$('#profilePanelSaveBtn'),profilePanelSaveMessage:$('#profilePanelSaveMessage'),profilePanelCloseBtn:$('#profilePanelCloseBtn'),profilePanelCloseAction:$('#profilePanelCloseAction'),
   difficultyInfo:$('#difficultyInfo'),modeInfo:$('#modeInfo'),barInfo:$('#barInfo'),offInfo:$('#offInfo'),remainingMoves:$('#remainingMoves'),
   countdownInfo:$('#countdownInfo'),countdownText:$('#countdownText'),log:$('#log'),barWhite:$('#barWhite'),barBlack:$('#barBlack'),
   offWhite:$('#offWhite'),offBlack:$('#offBlack'),pipWhite:$('#pipWhite'),pipBlack:$('#pipBlack'),startModal:$('#startModal'),startBtn:$('#startBtn'),difficultySelect:$('#difficultySelect'),
@@ -935,8 +948,10 @@ const state=createInitialState();
 const profilePreferences={displayName:'',displayNameDraft:null,avatarPreference:DEFAULT_AVATAR_PREFERENCE,avatarPickerExpanded:false,saveMessage:'',saveTone:'',linkMessage:'',linkTone:''};
 const welcomeState={completed:false,message:'',tone:''};
 const trustedStatsState={trustedStats:null,hasTrustedStats:false,refreshMessage:'',refreshTone:'',lastCheckedLabel:'',isRefreshing:false,verificationStatusMessage:'',lastAutoRefreshAt:0};
+const matchHistoryState={history:[],isLoading:false,errorMessage:'',lastAutoRefreshAt:0};
 
 const lobbySelection={lastMode:''};
+const roomActionState={creating:false,joining:false};
 const guestSessionStats={gamesPlayed:0,wins:0,losses:0,winRate:0,currentStreak:0,bestStreak:0,capturesMade:0,capturesSuffered:0};
 function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
 function rnd(min,max){return Math.floor(Math.random()*(max-min+1))+min;}
@@ -1110,6 +1125,31 @@ function refreshTrustedStatsAutomatically({minIntervalMs=5000}={}){
   if(now-(trustedStatsState.lastAutoRefreshAt||0)<minIntervalMs)return;
   void refreshTrustedStats();
 }
+async function refreshMatchHistory(){
+  if(matchHistoryState.isLoading)return;
+  matchHistoryState.isLoading=true;
+  matchHistoryState.errorMessage='';
+  renderProfileStatus();
+  try{
+    const uid=authSession.getUid();
+    const result=await getPlayerMatchHistory({database:db,ref,get,uid,limit:20,logger:console});
+    matchHistoryState.history=result.history||[];
+    matchHistoryState.errorMessage=result.reason==='read-failed'?'לא הצלחנו לטעון היסטוריית משחקים כרגע.':'';
+  }catch(error){
+    console.warn('Player match history refresh failed unexpectedly.',error);
+    matchHistoryState.errorMessage='לא הצלחנו לטעון היסטוריית משחקים כרגע.';
+  }finally{
+    matchHistoryState.isLoading=false;
+    matchHistoryState.lastAutoRefreshAt=Date.now();
+    renderProfileStatus();
+  }
+}
+function refreshMatchHistoryAutomatically({minIntervalMs=5000}={}){
+  const now=Date.now();
+  if(matchHistoryState.isLoading)return;
+  if(now-(matchHistoryState.lastAutoRefreshAt||0)<minIntervalMs)return;
+  void refreshMatchHistory();
+}
 function scheduleTrustedStatsRefresh(){setTimeout(()=>{void refreshTrustedStats();},3500);}
 function setVerificationStatusMessage(message=''){trustedStatsState.verificationStatusMessage=message;renderProfileStatus();}
 
@@ -1120,7 +1160,7 @@ function getCurrentProfilePanelViewModel(){
   const authStatus=authSession.getStatus?.()||'fallback';
   const hasAuthenticatedUid=!!authSession.getUid?.();
   const isAnonymous=authSession.getIsAnonymous?.()!==false;
-  return buildProfilePanelViewModel({typedName,stateName,authStatus,hasAuthenticatedUid,isAnonymous,googleLinkingEnabled:GOOGLE_ACCOUNT_LINKING_ENABLED,avatarPreference:profilePreferences.avatarPreference,trustedStats:trustedStatsState.trustedStats,hasTrustedStats:trustedStatsState.hasTrustedStats,statsRefreshMessage:trustedStatsState.refreshMessage,statsRefreshTone:trustedStatsState.refreshTone,statsLastCheckedAt:trustedStatsState.lastCheckedLabel,statsRefreshBusy:trustedStatsState.isRefreshing});
+  return buildProfilePanelViewModel({typedName,stateName,authStatus,hasAuthenticatedUid,isAnonymous,googleLinkingEnabled:GOOGLE_ACCOUNT_LINKING_ENABLED,avatarPreference:profilePreferences.avatarPreference,trustedStats:trustedStatsState.trustedStats,hasTrustedStats:trustedStatsState.hasTrustedStats,statsLoading:trustedStatsState.isRefreshing&&!trustedStatsState.hasTrustedStats,statsErrorMessage:trustedStatsState.refreshTone==='warning'?trustedStatsState.refreshMessage:'',statsRefreshMessage:trustedStatsState.refreshMessage,statsRefreshTone:trustedStatsState.refreshTone,statsLastCheckedAt:trustedStatsState.lastCheckedLabel,statsRefreshBusy:trustedStatsState.isRefreshing,matchHistory:matchHistoryState.history,matchHistoryLoading:matchHistoryState.isLoading,matchHistoryErrorMessage:matchHistoryState.errorMessage});
 }
 function applyProfileEditView(editView){
   profilePreferences.displayName=editView.displayName;
@@ -1347,6 +1387,25 @@ function renderProfilePanel(){
       els.profilePanelStats.append(stat);
     });
   }
+  if(els.profilePanelHistory){
+    els.profilePanelHistory.innerHTML='';
+    (view.matchHistoryView?.rows||[]).forEach(row=>{
+      const item=document.createElement('div');
+      item.className=`profilePanelHistoryRow ${row.result}`;
+      const title=document.createElement('div');
+      title.className='profilePanelHistoryTitle';
+      title.textContent=row.title;
+      const meta=document.createElement('div');
+      meta.className='profilePanelHistoryMeta';
+      meta.textContent=row.dateText;
+      const sub=document.createElement('div');
+      sub.className='profilePanelHistorySub';
+      sub.textContent=row.subtitle;
+      item.append(title,meta,sub);
+      els.profilePanelHistory.append(item);
+    });
+  }
+  if(els.profilePanelHistoryStatus)els.profilePanelHistoryStatus.textContent=view.matchHistoryView?.message||'';
 }
 function setProfilePanelOpen(isOpen){
   if(!els.profilePanel)return;
@@ -1356,6 +1415,7 @@ function setProfilePanelOpen(isOpen){
   els.profilePanel.hidden=!isOpen;
   els.profileChip?.setAttribute('aria-expanded',isOpen?'true':'false');
   if(isOpen)refreshTrustedStatsAutomatically();
+  if(isOpen)refreshMatchHistoryAutomatically();
   if(isOpen)els.profilePanelCloseBtn?.focus();
 }
 function toggleProfilePanel(){
@@ -2048,6 +2108,18 @@ function setFriendActionState(activeAction=''){
   if(els.roomLobby)els.roomLobby.style.display=(isCreate&&state.roomCode)?'block':'none';
   if(els.joinRoomPanel)els.joinRoomPanel.style.display=isJoin?'block':'none';
 }
+async function runRoomAction(actionName, action){
+  if(roomActionState[actionName])return;
+  roomActionState[actionName]=true;
+  const button=actionName==='creating'?els.createRoomBtn:els.joinRoomBtn;
+  if(button)button.disabled=true;
+  if(actionName==='creating'&&els.openRoomModeBtn)els.openRoomModeBtn.disabled=true;
+  try{await action();}finally{
+    roomActionState[actionName]=false;
+    if(button)button.disabled=false;
+    if(actionName==='creating'&&els.openRoomModeBtn)els.openRoomModeBtn.disabled=false;
+  }
+}
 function setupEvents(){
   const warmRollSounds=()=>preloadRollSounds();
   document.addEventListener('pointerdown',warmRollSounds,{once:true,capture:true,passive:true});
@@ -2073,8 +2145,8 @@ function setupEvents(){
   els.modeComputerBtn.addEventListener('click',()=>{lobbySelection.lastMode='computer';els.modeComputerBtn.classList.add('active');els.modeFriendBtn.classList.remove('active');els.modeRulesBtn.classList.remove('active');els.computerPanel.classList.add('show');els.onlinePanel.classList.remove('show');els.rulesPanel.classList.remove('show');els.gameSetupStep?.classList.remove('friendModeActive')});
   els.modeFriendBtn.addEventListener('click',()=>{lobbySelection.lastMode='friend';els.modeFriendBtn.classList.add('active');els.modeComputerBtn.classList.remove('active');els.modeRulesBtn.classList.remove('active');els.onlinePanel.classList.add('show');els.computerPanel.classList.remove('show');els.rulesPanel.classList.remove('show');setFriendActionState('');els.gameSetupStep?.classList.add('friendModeActive')});
   els.modeRulesBtn.addEventListener('click',()=>{const isOpen=els.rulesPanel.classList.contains('show');els.modeRulesBtn.classList.toggle('active',!isOpen);els.modeComputerBtn.classList.toggle('active',isOpen&&lobbySelection.lastMode==='computer');els.modeFriendBtn.classList.toggle('active',isOpen&&lobbySelection.lastMode==='friend');els.rulesPanel.classList.toggle('show',!isOpen);els.computerPanel.classList.toggle('show',isOpen&&lobbySelection.lastMode==='computer');els.onlinePanel.classList.toggle('show',isOpen&&lobbySelection.lastMode==='friend')});
-  els.createRoomBtn?.addEventListener('click',createRoom);els.joinRoomBtn?.addEventListener('click',joinRoom);
-  els.openRoomModeBtn?.addEventListener('click',()=>{const isActive=els.openRoomModeBtn.classList.contains('active');if(isActive)return setFriendActionState('');setFriendActionState('create');createRoom();});
+  els.createRoomBtn?.addEventListener('click',()=>runRoomAction('creating',createRoom));els.joinRoomBtn?.addEventListener('click',()=>runRoomAction('joining',joinRoom));
+  els.openRoomModeBtn?.addEventListener('click',()=>{const isActive=els.openRoomModeBtn.classList.contains('active');if(isActive)return setFriendActionState('');setFriendActionState('create');runRoomAction('creating',createRoom);});
   els.joinRoomModeBtn?.addEventListener('click',()=>{const isActive=els.joinRoomModeBtn.classList.contains('active');if(isActive)return setFriendActionState('');setFriendActionState('join');els.joinCodeInput?.focus();});els.readyBtn.addEventListener('click',toggleReady);
   els.playerNameInput?.addEventListener('input',()=>{profilePreferences.displayName='';renderProfileStatus();});
   els.profileDisplayNameInput?.addEventListener('input',()=>{profilePreferences.displayNameDraft=els.profileDisplayNameInput.value;profilePreferences.saveMessage='';profilePreferences.saveTone='';renderProfileStatus();});

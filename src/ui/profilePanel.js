@@ -7,6 +7,7 @@ import {
 } from '../firebase/profile.js';
 import { getProfileStatusText, resolveProfileDisplayName } from './profileStatus.js';
 import { formatPlayerStatsForProfile } from '../product/playerStats.js';
+import { buildMatchHistoryViewModel } from '../product/matchHistory.js';
 
 export const PROFILE_PANEL_PROGRESS_PLACEHOLDERS = Object.freeze(
   formatPlayerStatsForProfile(undefined, { showComingSoon: true }).items.map(item => Object.freeze({ ...item })),
@@ -48,11 +49,16 @@ export function buildProfilePanelViewModel({
   avatarPreference = DEFAULT_AVATAR_PREFERENCE,
   trustedStats = null,
   hasTrustedStats = false,
+  statsLoading = false,
+  statsErrorMessage = '',
   statsRefreshMessage = '',
   statsRefreshTone = '',
   statsLastCheckedAt = null,
   statsRefreshBusy = false,
   guestStats = null,
+  matchHistory = [],
+  matchHistoryLoading = false,
+  matchHistoryErrorMessage = '',
 } = {}) {
   const displayName = resolveProfileDisplayName({ typedName, stateName });
   const statusText = getProfileStatusText({ authStatus, hasAuthenticatedUid, isAnonymous });
@@ -67,6 +73,11 @@ export function buildProfilePanelViewModel({
   const formattedGuestStats = hasGuestStats
     ? formatPlayerStatsForProfile(guestStats, { showComingSoon: false, captureStatsTracked: false })
     : null;
+  const matchHistoryView = buildMatchHistoryViewModel({
+    history: matchHistory,
+    isLoading: matchHistoryLoading,
+    errorMessage: matchHistoryErrorMessage,
+  });
 
   return {
     displayName,
@@ -93,9 +104,10 @@ export function buildProfilePanelViewModel({
     googleSetupNote: googleLinkingEnabled
         ? 'אם החיבור נכשל, אפשר להמשיך כאורח והמשחק לא ייחסם.'
         : 'התחברות Google תופעל אחרי הגדרת Firebase והדומיין המורשה.',
-    placeholderNote: hasGuestStats
+    statsState: statsLoading ? 'loading' : (statsErrorMessage ? 'error' : (hasTrustedStats ? 'populated' : 'empty')),
+    placeholderNote: statsLoading ? 'טוען סטטיסטיקות מאומתות...' : (statsErrorMessage || (hasGuestStats
       ? 'סטטיסטיקות אורח זמניות בלבד (נשמר זמנית במכשיר הזה ולא נספר כסטטיסטיקה מאומתת).'
-      : formattedTrustedStats.note,
+      : formattedTrustedStats.note)),
     statsEmptyGuidance: [
       hasGuestStats
         ? 'סטטיסטיקות אורח זמניות. כדי לשמור אותן בהמשך — התחבר עם Google.'
@@ -110,5 +122,6 @@ export function buildProfilePanelViewModel({
       ? 'נשמרים רק שם ואווטאר בטוחים.'
       : 'בלי חיבור, השינוי נשמר מקומית.',
     progressPlaceholders: (formattedGuestStats?.items || formattedTrustedStats.items).map(item => ({ ...item })),
+    matchHistoryView,
   };
 }

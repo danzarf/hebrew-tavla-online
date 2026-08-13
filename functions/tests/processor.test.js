@@ -63,6 +63,10 @@ test('processMatchResultSubmission applies valid online submission to trusted st
     matchId: 'm-apply',
     winnerUid: 'u1',
     loserUid: 'u2',
+    players: [
+      { uid: 'u1', color: 'white', displayName: 'Player 1' },
+      { uid: 'u2', color: 'black', displayName: 'Player 2' },
+    ],
     playerMatchStats: {
       u1: { capturesMade: 4, capturesSuffered: 1 },
       u2: { capturesMade: 1, capturesSuffered: 4 },
@@ -85,6 +89,34 @@ test('processMatchResultSubmission applies valid online submission to trusted st
   assert.equal(db.data.playerStats.u2.losses, 1);
   assert.equal(db.data.playerStats.u2.capturesMade, 1);
   assert.equal(db.data.playerStats.u2.capturesSuffered, 4);
+  assert.deepEqual(db.data.playerMatchHistory.u1['m-apply'], {
+    matchId: 'm-apply',
+    opponentUid: 'u2',
+    opponentDisplayName: 'Player 2',
+    playerColor: 'white',
+    opponentColor: 'black',
+    result: 'win',
+    roomCode: null,
+    capturesMade: 4,
+    capturesSuffered: 1,
+    endedAt: raw.endedAt,
+    processedAt: 500,
+    statsSchemaVersion: 1,
+  });
+  assert.deepEqual(db.data.playerMatchHistory.u2['m-apply'], {
+    matchId: 'm-apply',
+    opponentUid: 'u1',
+    opponentDisplayName: 'Player 1',
+    playerColor: 'black',
+    opponentColor: 'white',
+    result: 'loss',
+    roomCode: null,
+    capturesMade: 1,
+    capturesSuffered: 4,
+    endedAt: raw.endedAt,
+    processedAt: 500,
+    statsSchemaVersion: 1,
+  });
   assert.equal(db.data.recentMatches['m-apply'].serverReviewStatus, 'applied');
   assert.equal(db.data.recentMatches['m-apply'].serverVerified, true);
   assert.equal(db.data.recentMatches['m-apply'].trustedStatsApplied, true);
@@ -196,6 +228,8 @@ test('processMatchResultSubmission duplicate does not double-count capture stats
   assert.equal(db.data.recentMatches['m-duplicate'].serverReviewStatus, 'applied');
   assert.equal(db.data.debugMatchCounter, 1);
   assert.equal(Object.keys(db.data.readableMatches).length, 1);
+  assert.equal(Object.keys(db.data.playerMatchHistory.u1).length, 1);
+  assert.equal(Object.keys(db.data.playerMatchHistory.u2).length, 1);
 });
 
 test('processMatchResultSubmission marks diagnostic matches in recent match index', async () => {
@@ -236,6 +270,7 @@ test('processMatchResultSubmission marks diagnostic matches in recent match inde
   assert.equal(db.data.debugLatestDiagnosticMatch.matchId, 'diagnostic-123-1');
   assert.equal(db.data.debugLatestRealMatch, undefined);
   assert.match(db.data.readableMatches['000001'].readableName, /DIAGNOSTIC/);
+  assert.equal(db.data.playerMatchHistory, undefined);
 });
 
 test('diagnostic match does not overwrite latest real match shortcut', async () => {
