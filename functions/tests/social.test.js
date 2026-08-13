@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { buildPublicProfileProjection, buildPublicStatsProjection } from '../src/publicProfile.js';
+import { buildPublicProfileProjection, buildPublicStatsProjection, updatePublicProfileProjection } from '../src/publicProfile.js';
 import { processSocialAction } from '../src/social.js';
 
 function getAt(root, path) {
@@ -169,4 +169,133 @@ test('public stats projection does not expose captures or private internals', ()
     bestStreak: 5,
     lastPlayedAt: null,
   });
+});
+
+test('profile projection refresh reads existing trusted stats server-side', async () => {
+  const db = createMemoryDb({
+    playerStats: {
+      u1: { gamesPlayed: 7, wins: 4, winRate: 4 / 7, currentStreak: 2, bestStreak: 3, capturesMade: 99 },
+    },
+    publicProfiles: {
+      u1: { uid: 'u1', displayName: 'Old', avatarPreference: 'default', stats: { gamesPlayed: 0, wins: 0, winRate: 0 } },
+    },
+  });
+
+  const result = await updatePublicProfileProjection({
+    db,
+    uid: 'u1',
+    profile: { displayName: 'New', avatarPreference: 'dice' },
+    now: () => 300,
+  });
+
+  assert.equal(result.projection.displayName, 'New');
+  assert.equal(result.projection.stats.gamesPlayed, 7);
+  assert.equal(result.projection.stats.wins, 4);
+  assert.equal(result.projection.stats.winRate, 57.1);
+  assert.equal(db.data.publicProfiles.u1.stats.capturesMade, undefined);
+});
+
+test('game invite creates server room and target inbox; accept and decline update invite state', async () => {
+  const db = createMemoryDb({
+    friends: { u1: { u2: { friendUid: 'u2' } } },
+    publicProfiles: {
+      u1: { displayName: 'A', avatarPreference: 'dice' },
+      u2: { displayName: 'B', avatarPreference: 'star' },
+    },
+  });
+
+  const sent = await processSocialAction({
+    db,
+    uid: 'u1',
+    actionId: 'invite1',
+    raw: { actorUid: 'u1', type: 'sendGameInvite', targetUid: 'u2', inviteKind: 'game' },
+    now: () => 1000,
+  });
+
+  assert.equal(sent.status, 'applied');
+  assert.equal(db.data.gameInvites.u2.invite1.status, 'pending');
+  assert.equal(db.data.outgoingGameInvites.u1.invite1.status, 'pending');
+  assert.equal(db.data.rooms[sent.roomCode].players.human.uid, 'u1');
+  assert.equal(db.data.rooms[sent.roomCode].players.computer, null);
+
+  const accepted = await processSocialAction({
+    db,
+    uid: 'u2',
+    actionId: 'acceptInvite',
+    raw: { actorUid: 'u2', type: 'acceptGameInvite', targetUid: 'u1', inviteId: 'invite1' },
+    now: () => 1100,
+  });
+
+  assert.equal(accepted.status, 'applied');
+  assert.equal(db.data.gameInvites.u2.invite1.status, 'accepted');
+  assert.equal(db.data.outgoingGameInvites.u1.invite1.status, 'accepted');
+  assert.equal(db.data.rooms[sent.roomCode].players.computer.uid, 'u2');
+
+  db.data.friends.u1.u3 = { friendUid: 'u3' };
+  db.data.publicProfiles.u3 = { displayName: 'C' };
+  await processSocialAction({
+    db,
+    uid: 'u1',
+    actionId: 'invite2',
+    raw: { actorUid: 'u1', type: 'sendGameInvite', targetUid: 'u3', inviteKind: 'game' },
+    now: () => 1200,
+  });
+  const declined = await processSocialAction({
+    db,
+    uid: 'u3',
+    actionId: 'declineInvite',
+    raw: { actorUid: 'u3', type: 'declineGameInvite', targetUid: 'u1', inviteId: 'invite2' },
+    now: () => 1300,
+  });
+  assert.equal(declined.status, 'applied');
+  assert.equal(db.data.gameInvites.u3.invite2.status, 'declined');
+});
+
+test('game invite rejects self, spoof, non-friend, expired, and full-room accepts', async () => {
+  const db = createMemoryDb({
+    friends: { u1: { u2: { friendUid: 'u2' } } },
+    gameInvites: {
+      u2: {
+        old: { inviteId: 'old', senderUid: 'u1', targetUid: 'u2', status: 'pending', roomCode: '1111', expiresAt: 1000 },
+        full: { inviteId: 'full', senderUid: 'u1', targetUid: 'u2', status: 'pending', roomCode: '2222', expiresAt: 5000 },
+      },
+    },
+    outgoingGameInvites: {
+      u1: {
+        old: { inviteId: 'old', senderUid: 'u1', targetUid: 'u2', status: 'pending', roomCode: '1111', expiresAt: 1000 },
+        full: { inviteId: 'full', senderUid: 'u1', targetUid: 'u2', status: 'pending', roomCode: '2222', expiresAt: 5000 },
+      },
+    },
+    rooms: { 2222: { players: { computer: { uid: 'u9' } } } },
+  });
+
+  const nonFriend = await processSocialAction({
+    db,
+    uid: 'u3',
+    actionId: 'badInvite',
+    raw: { actorUid: 'u3', type: 'sendGameInvite', targetUid: 'u4' },
+    now: () => 100,
+  });
+  assert.equal(nonFriend.status, 'rejected');
+  assert.ok(nonFriend.reason.includes('invite-not-allowed'));
+
+  const expired = await processSocialAction({
+    db,
+    uid: 'u2',
+    actionId: 'expired',
+    raw: { actorUid: 'u2', type: 'acceptGameInvite', targetUid: 'u1', inviteId: 'old' },
+    now: () => 2000,
+  });
+  assert.equal(expired.status, 'rejected');
+  assert.equal(db.data.gameInvites.u2.old.status, 'expired');
+
+  const full = await processSocialAction({
+    db,
+    uid: 'u2',
+    actionId: 'full',
+    raw: { actorUid: 'u2', type: 'acceptGameInvite', targetUid: 'u1', inviteId: 'full' },
+    now: () => 2100,
+  });
+  assert.equal(full.status, 'rejected');
+  assert.equal(db.data.gameInvites.u2.full.status, 'stale');
 });

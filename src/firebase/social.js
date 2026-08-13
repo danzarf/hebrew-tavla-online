@@ -4,10 +4,12 @@ export const PUBLIC_PROFILES_PATH = 'publicProfiles';
 export const FRIENDS_PATH = 'friends';
 export const FRIEND_REQUESTS_PATH = 'friendRequests';
 export const OUTGOING_FRIEND_REQUESTS_PATH = 'outgoingFriendRequests';
+export const GAME_INVITES_PATH = 'gameInvites';
+export const OUTGOING_GAME_INVITES_PATH = 'outgoingGameInvites';
 export const SOCIAL_ACTIONS_PATH = 'socialActions';
 
-function actionId(now = Date.now) {
-  return `${now()}_${Math.random().toString(36).slice(2, 10)}`;
+export function createSocialActionId({ now = Date.now, random = Math.random } = {}) {
+  return `${now()}_${random().toString(36).slice(2, 10)}`;
 }
 
 async function readPath({ database, ref, get, path }) {
@@ -34,9 +36,21 @@ export async function getSocialState({ database, ref, get, uid, history = [], lo
       readPath({ database, ref, get, path: `${FRIEND_REQUESTS_PATH}/${uid}` }),
       readPath({ database, ref, get, path: `${OUTGOING_FRIEND_REQUESTS_PATH}/${uid}` }),
     ]);
+    const [incomingGameInvites, outgoingGameInvites] = await Promise.all([
+      readPath({ database, ref, get, path: `${GAME_INVITES_PATH}/${uid}` }).catch(error => {
+        logger?.warn?.('Incoming game invites read failed.', error);
+        return {};
+      }),
+      readPath({ database, ref, get, path: `${OUTGOING_GAME_INVITES_PATH}/${uid}` }).catch(error => {
+        logger?.warn?.('Outgoing game invites read failed.', error);
+        return {};
+      }),
+    ]);
     const profileUids = new Set([
       ...Object.keys(friends || {}),
       ...Object.values(incomingRequests || {}).map(request => request?.requesterUid).filter(Boolean),
+      ...Object.values(incomingGameInvites || {}).map(invite => invite?.senderUid).filter(Boolean),
+      ...Object.values(outgoingGameInvites || {}).map(invite => invite?.targetUid).filter(Boolean),
       ...history.map(entry => entry.opponentUid).filter(Boolean),
     ]);
     const profilePairs = await Promise.all([...profileUids].map(async (profileUid) => [
@@ -54,6 +68,8 @@ export async function getSocialState({ database, ref, get, uid, history = [], lo
         friends: friends || {},
         incomingRequests: incomingRequests || {},
         outgoingRequests: outgoingRequests || {},
+        incomingGameInvites: incomingGameInvites || {},
+        outgoingGameInvites: outgoingGameInvites || {},
         publicProfiles,
         recentOpponents: buildRecentOpponents(history, publicProfiles),
       },
@@ -71,17 +87,51 @@ export async function submitSocialAction({
   uid,
   type,
   targetUid,
+  inviteId = '',
+  inviteKind = '',
+  previousMatchId = '',
+  actionId = '',
   now = Date.now,
 } = {}) {
   if (!uid || !targetUid || !type) return { skipped: true, reason: 'missing-fields' };
-  const id = actionId(now);
+  const id = actionId || createSocialActionId({ now });
   const path = `${SOCIAL_ACTIONS_PATH}/${uid}/${id}`;
-  await set(ref(database, path), {
+  const payload = {
     actorUid: uid,
     type,
     targetUid,
     createdAt: now(),
     clientStatus: 'pending',
-  });
+  };
+  if (inviteId) payload.inviteId = inviteId;
+  if (inviteKind) payload.inviteKind = inviteKind;
+  if (previousMatchId) payload.previousMatchId = previousMatchId;
+  await set(ref(database, path), payload);
   return { skipped: false, path };
+}
+
+export function subscribeSocialPaths({
+  database,
+  ref,
+  onValue,
+  uid,
+  onChange,
+  onError,
+} = {}) {
+  if (!database || !ref || !onValue || !uid) return () => {};
+  const paths = [
+    `${FRIENDS_PATH}/${uid}`,
+    `${FRIEND_REQUESTS_PATH}/${uid}`,
+    `${OUTGOING_FRIEND_REQUESTS_PATH}/${uid}`,
+    `${GAME_INVITES_PATH}/${uid}`,
+    `${OUTGOING_GAME_INVITES_PATH}/${uid}`,
+  ];
+  const unsubs = paths.map(path => onValue(
+    ref(database, path),
+    snapshot => onChange?.({ path, value: snapshot.val() || {} }),
+    error => onError?.(error, path),
+  ));
+  return () => unsubs.forEach(unsub => {
+    try { unsub?.(); } catch {}
+  });
 }

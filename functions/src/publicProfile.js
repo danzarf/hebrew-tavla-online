@@ -65,12 +65,16 @@ export function buildPublicProfileProjection({
 export async function updatePublicProfileProjection({ db, uid, profile = null, stats = null, now = Date.now } = {}) {
   if (!db || !uid) return { skipped: true, reason: 'missing-dependency' };
   const publicRef = db.ref(`publicProfiles/${uid}`);
-  const currentSnap = await publicRef.get();
+  const [currentSnap, statsSnap] = await Promise.all([
+    publicRef.get(),
+    stats ? Promise.resolve({ val: () => stats }) : db.ref(`playerStats/${uid}`).get(),
+  ]);
   const existing = currentSnap.val() || {};
+  const trustedStats = statsSnap.val() || null;
   const projection = buildPublicProfileProjection({
     uid,
     profile: profile || existing,
-    stats: stats || existing.stats || {},
+    stats: trustedStats || existing.stats || {},
     existingPublicProfile: existing,
     updatedAt: now(),
   });

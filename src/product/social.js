@@ -72,6 +72,8 @@ export function buildSocialViewModel({
   friends = {},
   incomingRequests = {},
   outgoingRequests = {},
+  incomingGameInvites = {},
+  outgoingGameInvites = {},
   publicProfiles = {},
   recentOpponents = [],
   actionBusy = false,
@@ -92,12 +94,40 @@ export function buildSocialViewModel({
       uid: request.requesterUid,
       displayName: sanitizePublicProfile(publicProfiles[request.requesterUid] || {}, request.requesterUid).displayName,
     }));
+  const incomingInviteRows = Object.values(incomingGameInvites || {})
+    .filter(invite => invite?.status === 'pending' && Number(invite?.expiresAt || 0) > Date.now())
+    .sort((a, b) => Number(b.createdAt || 0) - Number(a.createdAt || 0))
+    .map(invite => ({
+      inviteId: invite.inviteId,
+      uid: invite.senderUid,
+      roomCode: invite.roomCode,
+      inviteKind: invite.inviteKind === 'rematch' ? 'rematch' : 'game',
+      displayName: sanitizeDisplayName(invite.senderDisplayName, { fallbackName: 'יריב' }),
+      avatarPreference: sanitizeAvatarPreference(invite.senderAvatarPreference),
+      text: invite.inviteKind === 'rematch' ? 'רוצה משחק נוסף' : 'הזמין אותך למשחק',
+    }));
+  const outgoingInviteRows = Object.values(outgoingGameInvites || {})
+    .filter(invite => invite?.status === 'pending' && Number(invite?.expiresAt || 0) > Date.now())
+    .sort((a, b) => Number(b.createdAt || 0) - Number(a.createdAt || 0))
+    .map(invite => ({
+      inviteId: invite.inviteId,
+      uid: invite.targetUid,
+      roomCode: invite.roomCode,
+      inviteKind: invite.inviteKind === 'rematch' ? 'rematch' : 'game',
+      displayName: sanitizeDisplayName(invite.targetDisplayName, { fallbackName: 'יריב' }),
+      avatarPreference: sanitizeAvatarPreference(invite.targetAvatarPreference),
+      text: 'הזמנה נשלחה',
+    }));
+  const activeNotificationCount = incomingRows.length + incomingInviteRows.length;
 
   return {
     friendsCount: friendRows.length,
     friendRows,
     incomingRows,
     outgoingCount: Object.values(outgoingRequests || {}).filter(request => request?.status === 'pending').length,
+    incomingInviteRows,
+    outgoingInviteRows,
+    activeNotificationCount,
     recentOpponents,
     actionBusy,
     message,
