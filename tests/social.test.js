@@ -7,6 +7,7 @@ import {
   sanitizePublicProfile,
   summarizeFriendshipState,
 } from '../src/product/social.js';
+import { subscribeSocialPaths } from '../src/firebase/social.js';
 import { buildRematchRoomSeed, canOfferRematch, getRematchButtonText } from '../src/product/rematch.js';
 
 test('public profile sanitizer keeps only safe public fields', () => {
@@ -60,6 +61,44 @@ test('friendship state and social view model expose compact Hebrew-ready rows', 
   assert.equal(view.incomingRows[0].displayName, 'רון');
   assert.equal(view.outgoingCount, 1);
   assert.equal(view.emptyFriendsText, 'עדיין אין לך חברים.');
+});
+
+test('social view model counts live invite and request notifications', () => {
+  const view = buildSocialViewModel({
+    incomingRequests: { u2: { requesterUid: 'u2', status: 'pending' } },
+    incomingGameInvites: { i1: { inviteId: 'i1', senderUid: 'u3', senderDisplayName: 'Ron', status: 'pending', expiresAt: Date.now() + 1000 } },
+    outgoingGameInvites: { i2: { inviteId: 'i2', targetUid: 'u4', targetDisplayName: 'Dana', status: 'pending', expiresAt: Date.now() + 1000 } },
+  });
+
+  assert.equal(view.activeNotificationCount, 2);
+  assert.equal(view.incomingInviteRows[0].uid, 'u3');
+  assert.equal(view.outgoingInviteRows[0].uid, 'u4');
+});
+
+test('subscribeSocialPaths attaches own-path listeners and cleanup unsubscribes all', () => {
+  const paths = [];
+  const unsubscribed = [];
+  const unsubscribe = subscribeSocialPaths({
+    database: {},
+    ref: (_database, path) => path,
+    onValue: (path, callback) => {
+      paths.push(path);
+      callback({ val: () => ({ ok: true }) });
+      return () => unsubscribed.push(path);
+    },
+    uid: 'u1',
+    onChange: () => {},
+  });
+
+  assert.deepEqual(paths.sort(), [
+    'friendRequests/u1',
+    'friends/u1',
+    'gameInvites/u1',
+    'outgoingFriendRequests/u1',
+    'outgoingGameInvites/u1',
+  ].sort());
+  unsubscribe();
+  assert.equal(unsubscribed.length, 5);
 });
 
 test('rematch helpers require real online context and create a new-room seed', () => {

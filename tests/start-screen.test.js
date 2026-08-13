@@ -34,6 +34,9 @@ test('index includes social profile and rematch UI wiring', async () => {
   assert.match(html, /rematchBtn/);
   assert.match(html, /submitSocialAction/);
   assert.match(html, /createInviteRoomFor/);
+  assert.match(html, /subscribeSocialPaths/);
+  assert.match(html, /lobbyFriendsView/);
+  assert.match(html, /socialIncomingInvites/);
 });
 
 test('start home shows connected Google state without a confusing connect action', () => {
@@ -76,11 +79,14 @@ test('index start rules panel keeps the complete Hebrew rules structure', async 
   assert.match(html, /סטטיסטיקות, רמות ומטבעות יתווספו בהמשך/);
   assert.match(html, /id="joinRoomPanel" class="friendLobbyPanel" style="display:none"/);
   assert.match(html, /friendLobbyPrimaryActions/);
+  assert.match(html, /lobbyFriendsBadge/);
+  assert.match(html, /function setLobbyTab\(tab='play'\)/);
   assert.match(html, /friendLobbySecondaryActions/);
   assert.match(html, /function setFriendActionState\(activeAction=''\)/);
   assert.match(html, /async function waitForRoomAuth\(\)/);
   assert.match(html, /async function createRoom\(\)\{renderRoomCreating\(\);try\{await waitForRoomAuth\(\);const code=await generateRoomCode\(\);/);
-  assert.match(html, /async function joinRoom\(\)\{try\{await waitForRoomAuth\(\);const code=/);
+  assert.match(html, /async function joinRoomByCode\(forcedCode=''\)/);
+  assert.match(html, /async function joinRoom\(\)\{return joinRoomByCode\(\);\}/);
   assert.match(html, /openRoomModeBtn\?\.classList\.toggle\('active',isCreate\)/);
   assert.match(html, /joinRoomModeBtn\?\.classList\.toggle\('active',isJoin\)/);
   assert.match(html, /הכנס קוד חדר/);
