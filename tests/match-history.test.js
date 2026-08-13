@@ -17,6 +17,7 @@ test('match history view model sorts newest first and formats compact rows', () 
 
   assert.equal(view.state, 'populated');
   assert.equal(view.rows[0].matchId, 'new');
+  assert.equal(view.rows[0].opponentUid, 'u3');
   assert.equal(view.rows[0].title, 'ניצחון מול <b>נועם</b>');
   assert.equal(view.rows[0].subtitle, '9 אכילות | אכלו אותי 2');
   assert.equal(view.rows[1].title, 'הפסד מול דנה');

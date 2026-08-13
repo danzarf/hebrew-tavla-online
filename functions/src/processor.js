@@ -6,6 +6,7 @@ import {
   validateSubmissionForTrustedStats,
 } from './verification.js';
 import { buildPlayerMatchHistoryUpdates } from './history.js';
+import { buildPublicStatsProjection } from './publicProfile.js';
 
 export function shouldProcessSubmission(raw) {
   return Boolean(raw && !raw.serverReview);
@@ -93,6 +94,10 @@ export async function processMatchResultSubmission({ db, raw, uid, matchId, now 
     await db.ref().update({
       [`playerStats/${safe.winnerUid}`]: winnerNext,
       [`playerStats/${safe.loserUid}`]: loserNext,
+      [`publicProfiles/${safe.winnerUid}/stats`]: buildPublicStatsProjection(winnerNext),
+      [`publicProfiles/${safe.winnerUid}/updatedAt`]: reviewedAt,
+      [`publicProfiles/${safe.loserUid}/stats`]: buildPublicStatsProjection(loserNext),
+      [`publicProfiles/${safe.loserUid}/updatedAt`]: reviewedAt,
       ...playerMatchHistoryUpdates,
       [`recentMatches/${safe.matchId}`]: recentMatchEntry,
       [`readableMatches/${readableMatchKey}`]: readableMatchEntry,
